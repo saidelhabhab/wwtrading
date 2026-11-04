@@ -79,26 +79,43 @@ docker compose --profile prod up -d --build --remove-orphans
 
 # 5. Health checks
 echo "=== [WWTRADING-DEPLOY] Performing health verification on port 80 ==="
-for i in {1..12}; do
+FRONTEND_OK=0
+for i in {1..15}; do
   if curl -sf http://127.0.0.1:80/healthz >/dev/null 2>&1; then
     echo "Frontend Node.js health check PASSED on port 80."
+    FRONTEND_OK=1
     break
   fi
-  echo "Waiting for frontend to become healthy (attempt $i/12)..."
+  echo "Waiting for frontend to become healthy (attempt $i/15)..."
   sleep 5
 done
 
+if [ "${FRONTEND_OK}" -ne 1 ]; then
+  echo "ERROR: Frontend failed to become healthy on port 80."
+  docker compose logs frontend --tail 50
+  exit 1
+fi
+
 # 6. Verify Product API via port 80 proxy
 echo "=== [WWTRADING-DEPLOY] Verifying API Gateway & Product Service route on port 80 ==="
-for i in {1..20}; do
+API_OK=0
+for i in {1..30}; do
   HTTP_STATUS=$(curl -s -o /dev/null -w "%{http_code}" http://127.0.0.1:80/api/products || true)
   if [ "${HTTP_STATUS}" = "200" ]; then
     echo "Product API check PASSED (HTTP 200) via port 80 proxy."
+    API_OK=1
     break
   fi
-  echo "Waiting for microservices to discover and initialize (status: ${HTTP_STATUS}, attempt $i/20)..."
+  echo "Waiting for microservices to discover and initialize (status: ${HTTP_STATUS}, attempt $i/30)..."
   sleep 5
 done
+
+if [ "${API_OK}" -ne 1 ]; then
+  echo "ERROR: Product API route verification failed after 30 attempts."
+  docker compose logs api-gateway --tail 50
+  docker compose logs product-service --tail 50
+  exit 1
+fi
 
 echo "=== [WWTRADING-DEPLOY] Deployment completed successfully! ==="
 docker compose ps
