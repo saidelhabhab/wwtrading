@@ -35,3 +35,5 @@ Thumbs.db
 
 # Local tooling
 tmp/
+__pycache__/
+*.pyc

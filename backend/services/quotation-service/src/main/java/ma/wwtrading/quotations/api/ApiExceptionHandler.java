@@ -24,6 +24,11 @@ class ApiExceptionHandler {
         return problem(HttpStatus.NOT_FOUND, "Quotation not found", exception.getMessage());
     }
 
+    @ExceptionHandler(org.springframework.web.servlet.resource.NoResourceFoundException.class)
+    ProblemDetail handleNoResource(org.springframework.web.servlet.resource.NoResourceFoundException exception) {
+        return problem(HttpStatus.NOT_FOUND, "Resource not found", exception.getMessage());
+    }
+
     @ExceptionHandler(MethodArgumentNotValidException.class)
     ProblemDetail handleValidation(MethodArgumentNotValidException exception) {
         ProblemDetail detail = problem(HttpStatus.BAD_REQUEST, "Validation failed", "The request contains invalid fields");
