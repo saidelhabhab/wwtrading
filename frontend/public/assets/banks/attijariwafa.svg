@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 180 50" width="180" height="50">
+  <rect width="180" height="50" rx="8" fill="#ffffff"/>
+  <!-- Attijariwafa Bank Motif -->
+  <g transform="translate(8, 9)">
+    <polygon points="16,2 30,16 16,30 2,16" fill="#d49200"/>
+    <polygon points="16,7 25,16 16,25 7,16" fill="#000000"/>
+    <circle cx="16" cy="16" r="3.5" fill="#f4b400"/>
+  </g>
+  <text x="46" y="25" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif" font-weight="900" font-size="14.5" fill="#111111" letter-spacing="0.2">Attijariwafa</text>
+  <text x="134" y="25" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif" font-weight="700" font-size="12" fill="#d49200" letter-spacing="0.5">bank</text>
+  <text x="47" y="37" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif" font-weight="600" font-size="7" fill="#666666" letter-spacing="0.5">GROUPE ATTIJARIWAFA BANK</text>
+</svg>
+

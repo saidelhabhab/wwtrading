@@ -1,0 +1,84 @@
+<main class="quotation-create" aria-labelledby="quotation-create-title">
+  <header>
+    <p class="eyebrow">Demande personnalisée</p>
+    <h1 id="quotation-create-title">Nouveau devis</h1>
+    <p>Décrivez précisément votre besoin. Les informations seront vérifiées par WWTRADING.</p>
+  </header>
+
+  @if (error()) {
+    <p class="message error" role="alert">{{ error() }}</p>
+  }
+  @if (success()) {
+    <p class="message success" role="status">Devis créé. Retour à la liste…</p>
+  }
+
+  <form [formGroup]="form" (ngSubmit)="submit()" novalidate>
+    <div class="field">
+      <label for="customer-reference">Référence client</label>
+      <input
+        id="customer-reference"
+        type="text"
+        formControlName="customerReference"
+        maxlength="64"
+        autocomplete="off"
+        [attr.aria-invalid]="showError('customerReference')"
+        aria-describedby="customer-reference-error"
+      >
+      @if (showError('customerReference')) {
+        <p id="customer-reference-error" class="validation">Référence requise, 64 caractères maximum.</p>
+      }
+    </div>
+
+    <div class="field">
+      <label for="quotation-subject">Objet</label>
+      <input
+        id="quotation-subject"
+        type="text"
+        formControlName="subject"
+        maxlength="200"
+        [attr.aria-invalid]="showError('subject')"
+        aria-describedby="quotation-subject-error"
+      >
+      @if (showError('subject')) {
+        <p id="quotation-subject-error" class="validation">Objet requis, 200 caractères maximum.</p>
+      }
+    </div>
+
+    <div class="field">
+      <label for="request-description">Description de la demande</label>
+      <textarea
+        id="request-description"
+        formControlName="requestDescription"
+        maxlength="4000"
+        rows="7"
+        [attr.aria-invalid]="showError('requestDescription')"
+        aria-describedby="request-description-error"
+      ></textarea>
+      @if (showError('requestDescription')) {
+        <p id="request-description-error" class="validation">Description requise, 4 000 caractères maximum.</p>
+      }
+    </div>
+
+    <div class="field">
+      <label for="quotation-notes">Notes <span>(facultatif)</span></label>
+      <textarea
+        id="quotation-notes"
+        formControlName="notes"
+        maxlength="10000"
+        rows="4"
+        [attr.aria-invalid]="showError('notes')"
+        aria-describedby="quotation-notes-error"
+      ></textarea>
+      @if (showError('notes')) {
+        <p id="quotation-notes-error" class="validation">10 000 caractères maximum.</p>
+      }
+    </div>
+
+    <div class="actions">
+      <a routerLink="/devis">Annuler</a>
+      <button type="submit" [disabled]="submitting()">
+        {{ submitting() ? 'Envoi en cours…' : 'Créer le devis' }}
+      </button>
+    </div>
+  </form>
+</main>

@@ -1,0 +1,37 @@
+# Environment and secrets
+.env
+.env.*
+!.env.example
+*.local
+*.pem
+*.key
+*.id_rsa
+*.pub
+
+# Backups and Database Dumps
+backups/
+*.dump
+*.sql
+*.tar
+*.tar.gz
+*.tgz
+
+# Java
+**/target/
+backend/.m2/
+*.log
+
+# Angular / Node
+**/node_modules/
+frontend/.angular/
+frontend/dist/
+
+# IDE / OS
+.idea/
+.vscode/
+*.iml
+.DS_Store
+Thumbs.db
+
+# Local tooling
+tmp/

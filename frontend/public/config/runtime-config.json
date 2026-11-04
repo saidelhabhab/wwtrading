@@ -1,0 +1,12 @@
+{
+  "apiBaseUrl": "",
+  "siteUrl": "https://wwtrading.ma",
+  "trackingBaseUrl": "https://wwtrading.ma",
+  "googleSiteVerification": "",
+  "googleAnalyticsMeasurementId": "",
+  "keycloak": {
+    "url": "http://localhost:8180",
+    "realm": "wwtrading",
+    "clientId": "wwtrading-web"
+  }
+}

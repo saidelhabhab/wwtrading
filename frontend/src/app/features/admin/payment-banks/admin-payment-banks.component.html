@@ -1,0 +1,539 @@
+<wwt-dashboard-layout>
+  <div class="payment-banks-page">
+    <wwt-page-header
+      title="Banques de virement & Frais de livraison"
+      subtitle="Gérez les comptes bancaires (BANK_TRANSFER / SPLIT_50_50) et la tarification des livraisons"
+      breadcrumb="Administration / Banques & Livraison">
+    </wwt-page-header>
+
+    <!-- 1. Delivery Fee Configuration Section -->
+    <section class="admin-section" aria-labelledby="delivery-settings-title">
+      <div class="section-header">
+        <div class="section-header__info">
+          <div class="section-header__eyebrow">Tarification Logistique</div>
+          <h2 id="delivery-settings-title">Configuration des frais de livraison</h2>
+          <p>
+            Configurez les tarifs d’expédition par zone (Kénitra &amp; région, Casablanca, autres villes du Maroc) ainsi que le seuil de franchise offert aux clients.
+          </p>
+        </div>
+
+        <div class="section-header__actions">
+          <button
+            type="button"
+            class="btn"
+            [class.btn--primary]="deliverySettings()?.feesEnabled === false"
+            [class.btn--secondary]="deliverySettings()?.feesEnabled !== false"
+            [disabled]="deliverySettingsSaving() || deliverySettingsLoading()"
+            (click)="toggleDeliveryFeesEnabled()">
+            <mat-icon>{{ deliverySettings()?.feesEnabled !== false ? 'toggle_on' : 'toggle_off' }}</mat-icon>
+            <span>{{ deliverySettings()?.feesEnabled !== false ? 'Désactiver les frais (0 DH partout)' : 'Activer les frais de livraison' }}</span>
+          </button>
+        </div>
+      </div>
+
+      @if (deliverySettingsError()) {
+        <div class="alert alert--error" role="alert">
+          <mat-icon class="alert-icon">error_outline</mat-icon>
+          <div class="alert-content">
+            <strong>Erreur de synchronisation</strong>
+            <span>{{ deliverySettingsError() }}</span>
+          </div>
+          <button type="button" class="btn-alert-action" (click)="loadDeliverySettings()">
+            Réessayer
+          </button>
+        </div>
+      }
+
+      @if (deliverySettingsMessage()) {
+        <div class="alert alert--success" role="status">
+          <mat-icon class="alert-icon">check_circle</mat-icon>
+          <div class="alert-content">
+            <span>{{ deliverySettingsMessage() }}</span>
+          </div>
+        </div>
+      }
+
+      <div class="settings-card">
+        <form [formGroup]="deliverySettingsForm" (ngSubmit)="saveDeliverySettings()">
+          <!-- Status Banner Toggle -->
+          <div class="status-banner" [class.status-banner--disabled]="!deliverySettingsForm.get('feesEnabled')?.value">
+            <label class="switch-control">
+              <input type="checkbox" formControlName="feesEnabled">
+              <span class="switch-slider"></span>
+            </label>
+            <div class="status-banner__info">
+              <strong>
+                {{ deliverySettingsForm.get('feesEnabled')?.value ? 'Frais de livraison actifs sur la boutique' : 'Frais de livraison désactivés (0 DH)' }}
+              </strong>
+              <p>
+                {{ deliverySettingsForm.get('feesEnabled')?.value
+                  ? 'Les frais par zone ci-dessous s’appliquent à toutes les commandes livrées dont le panier est inférieur au seuil de gratuité.'
+                  : 'Toutes les livraisons sont actuellement offertes (0,00 DH) pour l’ensemble des clients et devis au Maroc.' }}
+              </p>
+            </div>
+          </div>
+
+          <!-- Rates Grid -->
+          <div class="rates-grid">
+            <div class="rate-card">
+              <div class="rate-card__header">
+                <span class="zone-badge">Zone 1</span>
+                <label for="fee-kenitra">Kénitra &amp; Environs</label>
+              </div>
+              <div class="input-with-addon">
+                <input
+                  id="fee-kenitra"
+                  type="number"
+                  step="0.01"
+                  min="0"
+                  formControlName="kenitraAreaFee"
+                  class="form-control"
+                  placeholder="0.00">
+                <span class="currency-addon">DH</span>
+              </div>
+              <small class="rate-card__hint">Zone locale &amp; proximité immédiate</small>
+            </div>
+
+            <div class="rate-card">
+              <div class="rate-card__header">
+                <span class="zone-badge">Zone 2</span>
+                <label for="fee-casa">Grand Casablanca</label>
+              </div>
+              <div class="input-with-addon">
+                <input
+                  id="fee-casa"
+                  type="number"
+                  step="0.01"
+                  min="0"
+                  formControlName="casablancaFee"
+                  class="form-control"
+                  placeholder="0.00">
+                <span class="currency-addon">DH</span>
+              </div>
+              <small class="rate-card__hint">Casablanca, Mohammedia &amp; Nouaceur</small>
+            </div>
+
+            <div class="rate-card">
+              <div class="rate-card__header">
+                <span class="zone-badge">Zone 3</span>
+                <label for="fee-other">Autres Villes / Maroc</label>
+              </div>
+              <div class="input-with-addon">
+                <input
+                  id="fee-other"
+                  type="number"
+                  step="0.01"
+                  min="0"
+                  formControlName="otherAreasFee"
+                  class="form-control"
+                  placeholder="0.00">
+                <span class="currency-addon">DH</span>
+              </div>
+              <small class="rate-card__hint">Rabat, Tanger, Fès, Marrakech, Agadir…</small>
+            </div>
+
+            <div class="rate-card rate-card--highlight">
+              <div class="rate-card__header">
+                <span class="zone-badge zone-badge--highlight">Franchise</span>
+                <label for="fee-threshold">Livraison Gratuite Dès</label>
+              </div>
+              <div class="input-with-addon">
+                <input
+                  id="fee-threshold"
+                  type="number"
+                  step="0.01"
+                  min="0"
+                  formControlName="freeDeliveryThreshold"
+                  class="form-control"
+                  placeholder="0.00">
+                <span class="currency-addon">DH</span>
+              </div>
+              <small class="rate-card__hint">Frais offerts si sous-total &gt; montant</small>
+            </div>
+          </div>
+
+          <!-- Actions -->
+          <div class="settings-actions">
+            <button
+              type="submit"
+              class="btn btn--primary"
+              [disabled]="deliverySettingsSaving() || deliverySettingsLoading()">
+              <mat-icon>{{ deliverySettingsSaving() ? 'hourglass_top' : 'save' }}</mat-icon>
+              <span>{{ deliverySettingsSaving() ? 'Enregistrement en cours…' : 'Enregistrer les tarifs' }}</span>
+            </button>
+          </div>
+        </form>
+      </div>
+    </section>
+
+    <!-- 2. Bank Accounts (RIB) Section -->
+    <section class="admin-section" aria-labelledby="banks-section-title">
+      <div class="section-header">
+        <div class="section-header__info">
+          <div class="section-header__eyebrow">Règlements &amp; Encaissements</div>
+          <h2 id="banks-section-title">Liste des banques &amp; RIB de virement</h2>
+          <p>
+            Configurez les comptes bancaires proposés aux clients lors du checkout (virement intégral 100% ou acompte 50%).
+          </p>
+        </div>
+
+        <div class="section-header__actions">
+          <button type="button" class="btn btn--primary" (click)="openAddModal()">
+            <mat-icon>add</mat-icon>
+            <span>Ajouter une banque</span>
+          </button>
+        </div>
+      </div>
+
+      @if (error()) {
+        <div class="alert alert--error" role="alert">
+          <mat-icon class="alert-icon">error_outline</mat-icon>
+          <div class="alert-content">
+            <strong>Erreur de chargement</strong>
+            <span>{{ error() }}</span>
+          </div>
+          <button type="button" class="btn-alert-action" (click)="loadBanks()">
+            Réessayer
+          </button>
+        </div>
+      }
+
+      @if (loading()) {
+        <div class="state-loading">
+          <div class="spinner" aria-hidden="true"></div>
+          <p>Chargement des banques partenaires…</p>
+        </div>
+      } @else {
+        @if (banks().length === 0) {
+          <div class="empty-state">
+            <div class="empty-state__icon-wrap">
+              <mat-icon class="empty-icon">account_balance</mat-icon>
+            </div>
+            <h3>Aucune banque configurée</h3>
+            <p>
+              Ajoutez les coordonnées bancaires (RIB, titulaire, logo) de votre entreprise pour permettre aux clients de régler leurs commandes par virement.
+            </p>
+            <button type="button" class="btn btn--primary" (click)="openAddModal()">
+              <mat-icon>add</mat-icon>
+              <span>Ajouter votre première banque</span>
+            </button>
+          </div>
+        } @else {
+          <!-- Desktop & Tablet Table View (>= 860px) -->
+          <div class="table-card banks-table-view">
+            <div class="table-scroll-container">
+              <table class="banks-table">
+                <thead>
+                  <tr>
+                    <th>Logo</th>
+                    <th>Banque</th>
+                    <th>Référence</th>
+                    <th>RIB / Compte</th>
+                    <th>Bénéficiaire</th>
+                    <th>Statut</th>
+                    <th class="text-right">Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  @for (bank of banks(); track bank.id || bank.reference) {
+                    <tr [class.row--disabled]="bank.active === false">
+                      <td class="col-logo">
+                        <div class="bank-logo-card">
+                          <img
+                            [src]="resolveBankLogo(bank.logoUrl, bankNameDisplay(bank))"
+                            [alt]="bankNameDisplay(bank)"
+                            class="bank-logo-img"
+                            (error)="onLogoError($event, bankNameDisplay(bank))">
+                        </div>
+                      </td>
+
+                      <td class="col-name">
+                        <strong class="bank-name">{{ bankNameDisplay(bank) }}</strong>
+                      </td>
+
+                      <td class="col-ref">
+                        <span class="ref-badge">{{ bank.reference }}</span>
+                      </td>
+
+                      <td class="col-rib">
+                        <div class="rib-cell">
+                          <code class="rib-code">{{ formatRib(bank.rib) }}</code>
+                          <button
+                            type="button"
+                            class="btn-copy-rib"
+                            (click)="copyRib(bank.rib)"
+                            [title]="copiedRib() === bank.rib ? 'Copié !' : 'Copier le RIB'">
+                            <mat-icon>{{ copiedRib() === bank.rib ? 'check' : 'content_copy' }}</mat-icon>
+                            <span>{{ copiedRib() === bank.rib ? 'Copié' : 'Copier' }}</span>
+                          </button>
+                        </div>
+                      </td>
+
+                      <td class="col-beneficiary">
+                        <span class="beneficiary-text">{{ bank.beneficiary || '-' }}</span>
+                      </td>
+
+                      <td class="col-status">
+                        @if (bank.active !== false) {
+                          <span class="badge badge--success">
+                            <span class="badge-dot"></span> Active
+                          </span>
+                        } @else {
+                          <span class="badge badge--inactive">
+                            <span class="badge-dot"></span> Inactive
+                          </span>
+                        }
+                      </td>
+
+                      <td class="text-right col-actions">
+                        <button
+                          type="button"
+                          class="btn-icon"
+                          title="Modifier les coordonnées"
+                          (click)="openEditModal(bank)">
+                          <mat-icon>edit</mat-icon>
+                        </button>
+
+                        @if (bank.active !== false) {
+                          <button
+                            type="button"
+                            class="btn-action btn-action--disable"
+                            (click)="toggleActive(bank)">
+                            Désactiver
+                          </button>
+                        } @else {
+                          <button
+                            type="button"
+                            class="btn-action btn-action--enable"
+                            (click)="toggleActive(bank)">
+                            Activer
+                          </button>
+                        }
+                      </td>
+                    </tr>
+                  }
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- Mobile Cards View (< 860px) -->
+          <div class="banks-cards-view">
+            @for (bank of banks(); track bank.id || bank.reference) {
+              <div class="mobile-bank-card" [class.mobile-bank-card--disabled]="bank.active === false">
+                <div class="mobile-bank-card__top">
+                  <div class="mobile-bank-card__identity">
+                    <div class="bank-logo-card">
+                      <img
+                        [src]="resolveBankLogo(bank.logoUrl, bankNameDisplay(bank))"
+                        [alt]="bankNameDisplay(bank)"
+                        class="bank-logo-img"
+                        (error)="onLogoError($event, bankNameDisplay(bank))">
+                    </div>
+                    <div>
+                      <h3 class="mobile-bank-card__title">{{ bankNameDisplay(bank) }}</h3>
+                      <span class="ref-badge">{{ bank.reference }}</span>
+                    </div>
+                  </div>
+
+                  <div class="mobile-bank-card__badge">
+                    @if (bank.active !== false) {
+                      <span class="badge badge--success">
+                        <span class="badge-dot"></span> Active
+                      </span>
+                    } @else {
+                      <span class="badge badge--inactive">
+                        <span class="badge-dot"></span> Inactive
+                      </span>
+                    }
+                  </div>
+                </div>
+
+                <div class="mobile-bank-card__body">
+                  <div class="mobile-bank-row">
+                    <span class="mobile-bank-label">RIB :</span>
+                    <div class="rib-cell">
+                      <code class="rib-code">{{ formatRib(bank.rib) }}</code>
+                      <button
+                        type="button"
+                        class="btn-copy-rib"
+                        (click)="copyRib(bank.rib)">
+                        <mat-icon>{{ copiedRib() === bank.rib ? 'check' : 'content_copy' }}</mat-icon>
+                        <span>{{ copiedRib() === bank.rib ? 'Copié' : 'Copier' }}</span>
+                      </button>
+                    </div>
+                  </div>
+
+                  <div class="mobile-bank-row">
+                    <span class="mobile-bank-label">Bénéficiaire :</span>
+                    <span class="mobile-bank-val">{{ bank.beneficiary || '-' }}</span>
+                  </div>
+                </div>
+
+                <div class="mobile-bank-card__actions">
+                  <button
+                    type="button"
+                    class="btn btn--secondary btn--sm"
+                    (click)="openEditModal(bank)">
+                    <mat-icon>edit</mat-icon>
+                    <span>Modifier</span>
+                  </button>
+
+                  @if (bank.active !== false) {
+                    <button
+                      type="button"
+                      class="btn btn--outline-danger btn--sm"
+                      (click)="toggleActive(bank)">
+                      <span>Désactiver</span>
+                    </button>
+                  } @else {
+                    <button
+                      type="button"
+                      class="btn btn--outline-success btn--sm"
+                      (click)="toggleActive(bank)">
+                      <span>Activer</span>
+                    </button>
+                  }
+                </div>
+              </div>
+            }
+          </div>
+        }
+      }
+    </section>
+  </div>
+
+  <!-- Modal Dialog: Ajouter / Modifier une banque -->
+  @if (isModalOpen()) {
+    <div class="modal-backdrop" (click)="closeModal()">
+      <div class="modal-card" (click)="$event.stopPropagation()" role="dialog" aria-modal="true" aria-labelledby="modal-bank-title">
+        <div class="modal-header">
+          <div>
+            <h3 id="modal-bank-title">{{ editingBank() ? 'Modifier la banque' : 'Ajouter une banque' }}</h3>
+            <p class="modal-subtitle">Renseignez les coordonnées bancaires pour les virements clients.</p>
+          </div>
+          <button type="button" class="btn-close" (click)="closeModal()" aria-label="Fermer la boîte de dialogue">
+            <mat-icon>close</mat-icon>
+          </button>
+        </div>
+
+        <form [formGroup]="bankForm" (ngSubmit)="saveBank()" class="modal-body">
+          @if (formError()) {
+            <div class="alert alert--error" role="alert">
+              <mat-icon class="alert-icon">error_outline</mat-icon>
+              <span>{{ formError() }}</span>
+            </div>
+          }
+
+          <!-- Logo Dropzone / Upload -->
+          <div class="form-group">
+            <label>Logo de la banque</label>
+            @if (logoPreviewUrl(); as preview) {
+              <div class="logo-preview-box">
+                <img [src]="preview" alt="Aperçu du logo de la banque" class="logo-preview-img">
+                <button type="button" class="btn-remove-logo" (click)="removeSelectedLogo()">
+                  <mat-icon>delete</mat-icon>
+                  <span>Supprimer le logo</span>
+                </button>
+              </div>
+            }
+            <div class="file-upload-zone">
+              <input
+                id="bank-logo-file"
+                type="file"
+                accept="image/jpeg,image/png,image/webp"
+                (change)="onLogoSelected($event)"
+                class="form-control-file">
+              <label for="bank-logo-file" class="file-upload-label">
+                <mat-icon>cloud_upload</mat-icon>
+                <span>Choisir une image (JPG, PNG, WebP)</span>
+                <small>Taille maximale recommandée : 2 Mo</small>
+              </label>
+            </div>
+          </div>
+
+          <!-- Reference -->
+          <div class="form-group">
+            <label for="bank-reference">
+              <span>Référence unique</span>
+              <span class="req">*</span>
+            </label>
+            <input
+              id="bank-reference"
+              type="text"
+              formControlName="reference"
+              placeholder="ex: CIHBANK01, ATTIJARI01"
+              class="form-control">
+            <small class="form-hint">Code unique identifiant ce compte (ex. CIH-01, BMCE-PRO).</small>
+          </div>
+
+          <!-- Bank Name -->
+          <div class="form-group">
+            <label for="bank-name">
+              <span>Nom de la banque</span>
+              <span class="req">*</span>
+            </label>
+            <input
+              id="bank-name"
+              type="text"
+              formControlName="bankName"
+              placeholder="ex: CIH Bank, Attijariwafa Bank, BMCE"
+              class="form-control">
+          </div>
+
+          <!-- RIB -->
+          <div class="form-group">
+            <label for="bank-rib">
+              <span>RIB (24 chiffres)</span>
+              <span class="req">*</span>
+            </label>
+            <input
+              id="bank-rib"
+              type="text"
+              formControlName="rib"
+              placeholder="ex: 230 780 0000000000000000 45"
+              class="form-control rib-input">
+            <small class="form-hint">Relevé d’Identité Bancaire à 24 chiffres.</small>
+          </div>
+
+          <!-- Beneficiary -->
+          <div class="form-group">
+            <label for="bank-beneficiary">
+              <span>Titulaire / Bénéficiaire du compte</span>
+              <span class="req">*</span>
+            </label>
+            <input
+              id="bank-beneficiary"
+              type="text"
+              formControlName="beneficiary"
+              placeholder="ex: WWTRADING SARL"
+              class="form-control">
+          </div>
+
+          <!-- Active Switch -->
+          <div class="form-group form-group--checkbox">
+            <label class="switch-control">
+              <input type="checkbox" formControlName="active">
+              <span class="switch-slider"></span>
+            </label>
+            <div>
+              <strong>Banque active pour le checkout client</strong>
+              <small class="form-hint">Si activée, cette banque sera proposée lors du choix du virement bancaire.</small>
+            </div>
+          </div>
+
+          <!-- Modal Footer -->
+          <div class="modal-footer">
+            <button type="button" class="btn btn--secondary" (click)="closeModal()">
+              Annuler
+            </button>
+            <button type="submit" class="btn btn--primary" [disabled]="submitting()">
+              <mat-icon>{{ submitting() ? 'hourglass_top' : 'check' }}</mat-icon>
+              <span>{{ submitting() ? 'Enregistrement…' : 'Enregistrer la banque' }}</span>
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  }
+</wwt-dashboard-layout>

@@ -1,0 +1,470 @@
+@use '../../styles/variables' as *;
+@use '../../styles/mixins' as *;
+
+/**
+ * Dashboard topbar.
+ *
+ * Mobile  : menu button + title + a couple of icon actions. The search field
+ *           collapses to an icon button and the action labels are hidden, so
+ *           nothing overflows at 360px.
+ * Tablet  : compact search field, icon-only actions.
+ * Desktop : full search field and labelled actions.
+ */
+
+:host {
+  display: block;
+  position: sticky;
+  top: 0;
+  z-index: $z-topbar;
+}
+
+.dashboard-topbar {
+  display: flex;
+  align-items: center;
+  gap: $space-2;
+  justify-content: space-between;
+  min-height: $topbar-height-mobile;
+  padding: 0 var(--dashboard-page-padding-inline, #{$space-4});
+  border-bottom: 1px solid $color-border;
+  background: rgb(255 255 255 / 96%);
+  backdrop-filter: blur(10px);
+}
+
+.topbar-context,
+.topbar-actions,
+.user-button {
+  display: flex;
+  align-items: center;
+}
+
+.topbar-context {
+  gap: $space-3;
+  min-width: 0;
+}
+
+.topbar-context > div { min-width: 0; }
+
+.topbar-kicker {
+  display: block;
+  color: $color-muted;
+  font-size: 0.68rem;
+  letter-spacing: 0.1em;
+}
+
+/* The page title truncates rather than pushing the actions off-screen. */
+h1 {
+  margin: 2px 0 0;
+  overflow: hidden;
+  color: $color-text;
+  font-size: clamp(1rem, 0.9rem + 0.5vw, 1.25rem);
+  font-weight: 750;
+  line-height: 1.2;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.topbar-search {
+  display: flex;
+  width: 38px;
+  flex: 0 1 auto;
+  align-items: center;
+  gap: $space-2;
+  margin-left: auto;
+  padding: 0;
+  color: $color-muted;
+  border: 1px solid transparent;
+  border-radius: $radius-md;
+  background: transparent;
+}
+
+.topbar-search input { display: none; }
+
+.menu-button,
+.notification-link,
+.user-button {
+  border: 0;
+  background: transparent;
+  color: $color-text;
+  cursor: pointer;
+  @include focus-ring;
+}
+
+/* Touch target ≥ 44px on phones. */
+.menu-button {
+  display: grid;
+  width: $touch-target;
+  height: $touch-target;
+  place-items: center;
+  border-radius: $radius-md;
+  font-size: 1.4rem;
+  line-height: 1;
+}
+
+.topbar-actions {
+  position: relative;
+  flex: 0 0 auto;
+  gap: $space-1;
+}
+
+.notification-wrap { position: relative; }
+
+.notification-link {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: $touch-target;
+  height: $touch-target;
+  border-radius: $radius-md;
+  color: $color-secondary;
+}
+
+.notification-link .material-icons { font-size: 22px; }
+
+.notification-badge {
+  position: absolute;
+  top: 4px;
+  right: 2px;
+  display: grid;
+  min-width: 17px;
+  height: 17px;
+  place-items: center;
+  padding: 0 4px;
+  border: 2px solid $color-surface;
+  border-radius: $radius-pill;
+  background: $color-primary;
+  color: #fff;
+  font-size: 0.6rem;
+  font-weight: 700;
+}
+
+/* Never wider than the viewport: a 350px popover cannot fit a 360px phone
+   alongside its 32px of side padding. */
+.notification-menu {
+  position: absolute;
+  top: calc(100% + #{$space-3});
+  right: 0;
+  z-index: $z-menu;
+  display: flex;
+  flex-direction: column;
+  width: min(360px, calc(100vw - 1.25rem));
+  max-height: min(70vh, 32rem);
+  padding: 0;
+  margin: 0;
+  border: 1px solid $color-border;
+  border-radius: $radius-md;
+  background: $color-surface;
+  box-shadow: $shadow-md;
+}
+
+.notification-menu__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: $space-3;
+  padding: $space-2 $space-3;
+  border-bottom: 1px solid $color-border;
+  strong {
+    color: $color-text;
+    font-size: $font-size-xs;
+  }
+}
+
+.mark-all-btn {
+  display: inline-flex;
+  align-items: center;
+  min-height: 36px;
+  padding: 0.25rem 0.5rem;
+  border: 1px solid transparent;
+  border-radius: $radius-sm;
+  background: transparent;
+  color: $color-primary;
+  font-size: 0.72rem;
+  font-weight: 700;
+  cursor: pointer;
+  @include focus-ring;
+
+  &:hover:not(:disabled) {
+    background: rgba($color-primary, 0.08);
+  }
+
+  &:disabled {
+    color: $color-muted;
+    cursor: not-allowed;
+  }
+}
+
+.notification-menu__body {
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+.notification-menu__empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: $space-4;
+  color: $color-muted;
+  text-align: center;
+  .material-icons {
+    font-size: 2rem;
+    margin-bottom: $space-2;
+    opacity: 0.5;
+  }
+  p {
+    margin: 0;
+    font-size: $font-size-xs;
+  }
+}
+
+.notification-item {
+  display: flex;
+  align-items: flex-start;
+  gap: $space-3;
+  padding: $space-3;
+  border-bottom: 1px solid $color-border;
+  cursor: pointer;
+  transition: background-color 0.15s ease;
+  outline: none;
+
+  &:hover {
+    background: $color-surface-muted;
+  }
+
+  &:focus-visible {
+    outline: 2px solid $color-primary;
+    outline-offset: -2px;
+    background: $color-surface-muted;
+  }
+
+  &:last-child {
+    border-bottom: none;
+  }
+}
+
+.notification-item--unread {
+  background: rgba($color-primary, 0.05);
+}
+
+.notification-item__content {
+  display: grid;
+  flex: 1;
+  min-width: 0;
+  gap: 3px;
+}
+
+.notification-item strong {
+  color: $color-text;
+  font-size: $font-size-xs;
+  line-height: 1.3;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+.notification-item small {
+  color: $color-muted;
+  font-size: 0.68rem;
+  line-height: 1.35;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+.notification-item__icon {
+  flex: 0 0 auto;
+  font-size: 19px;
+  color: $color-secondary;
+  margin-top: 2px;
+}
+
+.notification-item__unread-dot {
+  flex: 0 0 auto;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: $color-primary;
+  margin-top: 6px;
+}
+
+.notification-menu__footer {
+  padding: $space-2;
+  border-top: 1px solid $color-border;
+  text-align: center;
+
+  a {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 40px;
+    padding: $space-1 $space-3;
+    border-radius: $radius-sm;
+    color: $color-primary;
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-decoration: none;
+    @include focus-ring;
+
+    &:hover {
+      background: rgba($color-primary, 0.05);
+      text-decoration: underline;
+    }
+  }
+}
+
+.user-button {
+  gap: $space-2;
+  min-height: $touch-target;
+  padding: $space-2;
+  border-radius: $radius-md;
+  text-align: left;
+}
+
+.avatar {
+  display: grid;
+  flex: 0 0 auto;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: $color-primary;
+  color: #fff;
+  font-weight: 700;
+}
+
+/* Hidden on mobile: the name would push the actions out of the bar. */
+.user-copy { display: none; }
+
+.user-chevron { display: none; color: $color-muted; font-size: 19px; }
+
+.user-menu {
+  position: absolute;
+  top: calc(100% + #{$space-2});
+  right: 0;
+  z-index: $z-menu;
+  display: grid;
+  min-width: 200px;
+  max-width: calc(100vw - 1.5rem);
+  padding: $space-2;
+  border: 1px solid $color-border;
+  border-radius: $radius-md;
+  background: $color-surface;
+  box-shadow: $shadow-md;
+}
+
+.user-menu a,
+.user-menu button {
+  display: flex;
+  min-height: $touch-target;
+  align-items: center;
+  gap: $space-2;
+  padding: $space-3;
+  border: 0;
+  border-radius: $radius-sm;
+  background: transparent;
+  color: $color-text;
+  font: inherit;
+  text-align: left;
+  text-decoration: none;
+  cursor: pointer;
+  @include focus-ring;
+}
+
+.user-menu a:hover,
+.user-menu button:hover { background: $color-surface-muted; }
+.user-menu .material-icons { color: $color-muted; font-size: 18px; }
+
+/* Action labels hidden on mobile, revealed from the tablet breakpoint up. */
+.topbar-home-link,
+.topbar-logout-btn {
+  display: none;
+  align-items: center;
+  gap: $space-1;
+  min-height: $touch-target;
+  padding: $space-2 $space-3;
+  border: 1px solid $color-border;
+  border-radius: $radius-md;
+  background: $color-surface;
+  color: $color-text;
+  font: inherit;
+  font-size: $font-size-xs;
+  font-weight: 700;
+  text-decoration: none;
+  white-space: nowrap;
+  cursor: pointer;
+  @include focus-ring;
+}
+
+.topbar-home-link:hover,
+.topbar-logout-btn:hover {
+  border-color: $color-primary;
+  background: $color-surface-muted;
+  color: $color-primary;
+}
+
+.topbar-home-link .material-icons,
+.topbar-logout-btn .material-icons { color: $color-secondary; font-size: 18px; }
+.topbar-logout-btn:hover .material-icons { color: $color-primary; }
+
+/* ---------------------------------------------------------------------------
+   Tablet and up: wider bar, labelled account, real search field.
+   --------------------------------------------------------------------------- */
+@include from(sm) {
+  .dashboard-topbar {
+    gap: $space-4;
+    min-height: $topbar-height;
+    padding-inline: clamp(#{$space-4}, 3vw, #{$space-8});
+  }
+
+  .topbar-kicker { display: block; }
+  .user-copy { display: grid; gap: 2px; min-width: 0; }
+  .user-copy strong { font-size: $font-size-sm; }
+  .user-copy small { color: $color-muted; font-size: $font-size-xs; }
+  .user-chevron { display: inline-block; }
+
+  .topbar-search {
+    width: min(34vw, 300px);
+    margin-right: $space-2;
+    padding: 0 $space-3;
+    border-color: $color-border;
+    background: $color-surface-muted;
+  }
+
+  .topbar-search input {
+    display: block;
+    width: 100%;
+    min-width: 0;
+    padding: $space-3 0;
+    border: 0;
+    outline: 0;
+    background: transparent;
+    color: $color-text;
+    font: inherit;
+    font-size: $font-size-xs;
+  }
+
+  .topbar-search input::placeholder { color: $color-muted; }
+
+  .topbar-actions { gap: $space-3; }
+
+  .topbar-home-link,
+  .topbar-logout-btn { display: inline-flex; }
+}
+
+/* The menu button only exists while the sidebar is a drawer. */
+@include from(lg) {
+  .menu-button { display: none; }
+  .topbar-search { width: min(32vw, 380px); margin-right: $space-8; }
+}
+
+/* On tablet the compact rail is rendered by the sidebar itself, so the
+   hamburger stays available. */
+@include between(sm, lg) {
+  .menu-button { display: none; }
+}
+
+@include reduced-motion {
+  .topbar-search,
+  .user-menu,
+  .notification-menu { transition: none; }
+}

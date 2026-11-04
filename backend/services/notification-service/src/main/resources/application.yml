@@ -1,0 +1,17 @@
+server:
+  port: ${SERVER_PORT:8089}
+
+spring:
+  application:
+    name: notification-service
+  config:
+    import: optional:configserver:${CONFIG_SERVER_URL:http://localhost:8888}
+
+eureka:
+  client:
+    service-url:
+      defaultZone: ${EUREKA_URL:http://localhost:8761/eureka/}
+
+wwtrading:
+  security:
+    audience: ${JWT_AUDIENCE:wwtrading-api}

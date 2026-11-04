@@ -1,0 +1,35 @@
+name: wwtrading
+
+services:
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    image: wwtrading/frontend:latest
+    container_name: wwtrading-frontend
+    restart: unless-stopped
+    ports:
+      - "${FRONTEND_HTTP_PORT:-80}:3000"
+    environment:
+      PORT: 3000
+      API_GATEWAY_URL: http://api-gateway:8080
+      KEYCLOAK_INTERNAL_URL: http://keycloak:8080
+      API_BASE_URL: ${FRONTEND_API_BASE_URL:-}
+      SITE_URL: ${FRONTEND_PUBLIC_URL:-http://74.248.151.43}
+      TRACKING_BASE_URL: ${TRACKING_BASE_URL:-${FRONTEND_PUBLIC_URL:-http://74.248.151.43}}
+      KEYCLOAK_URL: ${KEYCLOAK_PUBLIC_URL:-http://74.248.151.43}
+      KEYCLOAK_REALM: ${KEYCLOAK_REALM:-wwtrading}
+      KEYCLOAK_CLIENT_ID: ${KEYCLOAK_CLIENT_ID:-wwtrading-web}
+      GOOGLE_SITE_VERIFICATION: ${GOOGLE_SITE_VERIFICATION:-}
+      GOOGLE_ANALYTICS_MEASUREMENT_ID: ${GOOGLE_ANALYTICS_MEASUREMENT_ID:-}
+    depends_on:
+      api-gateway:
+        condition: service_started
+    networks:
+      - platform
+    healthcheck:
+      test: ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://127.0.0.1:3000/healthz || exit 1"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+      start_period: 10s

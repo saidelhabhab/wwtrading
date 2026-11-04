@@ -1,0 +1,296 @@
+<section class="products" aria-labelledby="product-title">
+  <wwt-page-header
+    [headingLevel]="1"
+    headingId="product-title"
+    [title]="managementMode ? 'Produits' : (activeCatalogFilterLabel() || 'Nos produits')"
+    [subtitle]="managementMode
+      ? 'Administrez les équipements et consommables proposés par WWTRADING.'
+      : activeCatalogFilterLabel()
+        ? 'Découvrez nos équipements et solutions professionnelles dans la catégorie sélectionnée.'
+        : 'Découvrez nos solutions d’impression, consommables et pièces destinées aux professionnels.'"
+    [breadcrumb]="managementMode ? 'Espace manager / Produits' : 'Catalogue / Produits'">
+    @if (managementMode || canManageProducts()) {
+      <a header-actions class="primary-link" [routerLink]="addProductRoute()" aria-label="Ajouter un produit">
+        <span aria-hidden="true">+</span> Ajouter un produit
+      </a>
+    }
+  </wwt-page-header>
+
+  @if (!managementMode) {
+    <!-- Category Quick-Filter Chips Bar -->
+    <div class="catalog-chips-wrapper" aria-label="Filtrer par catégorie de produit">
+      <div class="catalog-chips-bar" role="tablist">
+        @for (chip of catalogChips; track chip.label) {
+          <a
+            class="catalog-chip"
+            [class.is-active]="isChipActive(chip.queryParams)"
+            [routerLink]="'/products'"
+            [queryParams]="chip.queryParams"
+            role="tab"
+            [attr.aria-selected]="isChipActive(chip.queryParams)">
+            <span class="material-icons chip-icon" aria-hidden="true">{{ chip.icon }}</span>
+            <span>{{ chip.label }}</span>
+          </a>
+        }
+      </div>
+    </div>
+
+    <!-- Active Filters Ribbon -->
+    @if (activeCatalogFilterLabel(); as filterLabel) {
+      <div class="active-filters-ribbon" role="region" aria-label="Filtres actifs">
+        <div class="ribbon-left">
+          <span class="ribbon-label">Filtre sélectionné :</span>
+          <span class="filter-tag">
+            <span class="material-icons" style="font-size: 1rem;" aria-hidden="true">check_circle</span>
+            <span>{{ filterLabel }}</span>
+          </span>
+          <a class="btn-clear-filters" routerLink="/products" aria-label="Réinitialiser les filtres">
+            <span class="material-icons" aria-hidden="true">close</span>
+            <span>Tout le catalogue</span>
+          </a>
+        </div>
+        <div class="ribbon-count">
+          <strong>{{ totalElements() }}</strong> produit{{ totalElements() > 1 ? 's' : '' }} disponible{{ totalElements() > 1 ? 's' : '' }}
+        </div>
+      </div>
+    }
+  }
+
+  @if (loading()) {
+    <output class="skeleton" role="status" aria-label="Chargement des produits">
+      <span></span><span></span><span></span>
+    </output>
+  } @else if (error()) {
+    <section class="state" role="alert">
+      <h2>Chargement impossible</h2>
+      <p>{{ error() }}</p>
+      <button type="button" (click)="load()">Réessayer</button>
+    </section>
+  } @else if (products().length === 0) {
+    <section class="state empty">
+      <h2>{{ managementMode ? 'Aucun produit trouvé' : 'Aucun produit disponible' }}</h2>
+      <p>{{ managementMode
+        ? 'Le catalogue ne contient actuellement aucun produit.'
+        : activeCatalogFilterLabel()
+          ? 'Aucun produit ne correspond à cette catégorie pour le moment.'
+          : 'Le catalogue sera affiché dès que des produits seront disponibles.' }}</p>
+      @if (!managementMode && activeCatalogFilterLabel()) {
+        <p><a class="primary-link" routerLink="/products">Voir tout le catalogue</a></p>
+      }
+    </section>
+  } @else {
+    @if (managementMode) {
+      <div class="management-table">
+        <table>
+          <caption class="visually-hidden">Gestion des produits WWTRADING</caption>
+          <thead>
+            <tr>
+              <th>Image</th>
+              <th>Produit</th>
+              <th>Référence</th>
+              <th>Type</th>
+              <th>Marque / Modèle</th>
+              <th>Catégorie</th>
+              <th>Prix</th>
+              <th>Garantie</th>
+              <th>Statut</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (product of products(); track product.id) {
+              <tr>
+                <td>
+                  @if (mainImage(product.id); as image) {
+                    @if (!imageFailed(image.id)) {
+                      <div class="table-product-image">
+                        <img [src]="imageUrl(image)" [alt]="product.name" loading="lazy" (error)="markImageFailed(image.id)">
+                      </div>
+                    } @else {
+                      <div class="table-product-image"><span>Image indisponible</span></div>
+                    }
+                  } @else if (imageLoading(product.id)) {
+                    <div class="table-product-image"><span>Chargement…</span></div>
+                  } @else {
+                    <div class="table-product-image"><span>Aucune image</span></div>
+                  }
+                </td>
+                <td><strong>{{ product.name }}</strong></td>
+                <td>{{ product.reference }}</td>
+                <td>{{ productTypeLabel(product.type) }}</td>
+                <td>{{ product.brand || '—' }}<br>{{ product.model || '—' }}</td>
+                <td>{{ machineCategoryLabel(product.machineCategory) || '—' }}</td>
+                <td><strong>{{ formatPrice(product.price) }}</strong></td>
+                <td>{{ warrantyLabel(product) || '—' }}</td>
+                <td><span class="status" [class.active]="product.active">{{ product.active ? 'Actif' : 'Inactif' }}</span></td>
+                <td>
+                  <div class="table-actions">
+                    <a [routerLink]="['/products', product.id]">Voir</a>
+                    <a [routerLink]="editProductRoute(product.id)">Modifier</a>
+                    <button
+                      type="button"
+                      [attr.data-testid]="'toggle-product-' + product.id"
+                      [disabled]="togglingProductId() === product.id"
+                      (click)="toggleProduct(product)">
+                      {{ togglingProductId() === product.id ? 'Traitement…' : (product.active ? 'Désactiver' : 'Activer') }}
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    } @else {
+      <section class="grid products-catalog-grid" aria-label="Liste des produits">
+        @for (product of products(); track product.id) {
+          <article
+            class="card"
+            [class.is-touched]="activeCardId() === product.id"
+            (touchstart)="onCardTouch(product.id)">
+            <div class="product-media">
+              <!-- Overlay Badges (Top-Left) -->
+              <div class="card-badges-overlay">
+                @if (product.colorMode) {
+                  <span class="badge-category">{{ product.colorMode === 'COLOR' ? 'Couleur' : 'Noir & Blanc' }}</span>
+                } @else {
+                  <span class="badge-category">{{ productTypeLabel(product.type) }}</span>
+                }
+                @if (product.active && (product.availableQuantity === null || (product.availableQuantity ?? 0) > 0)) {
+                  <span class="badge-stock">
+                    <span class="stock-dot"></span>
+                    <span>En stock</span>
+                  </span>
+                }
+              </div>
+
+              <!-- Floating Quick Actions (Top-Right) -->
+              @if (showCustomerActions()) {
+                <div
+                  class="card-floating-actions"
+                  [class.has-active]="inWishlist(product.reference)"
+                  aria-label="Actions rapides">
+                  <button
+                    class="card-action-btn card-wishlist"
+                    type="button"
+                    [disabled]="wishlistLoading() || wishlistPending() !== null"
+                    [attr.aria-label]="inWishlist(product.reference) ? 'Retirer des souhaits' : 'Ajouter aux souhaits'"
+                    [attr.aria-pressed]="inWishlist(product.reference)"
+                    (click)="toggleWishlistProduct(product); $event.stopPropagation()">
+                    <span class="material-icons" aria-hidden="true">{{ inWishlist(product.reference) ? 'favorite' : 'favorite_border' }}</span>
+                  </button>
+
+                  <button
+                    class="card-action-btn card-cart-btn"
+                    type="button"
+                    [disabled]="cartPending() !== null || !product.active || product.availableQuantity === 0"
+                    [attr.aria-label]="product.availableQuantity === 0 ? 'Produit actuellement indisponible' : cartPending() === product.id ? 'Ajout au panier en cours' : 'Ajouter ' + product.name + ' au panier'"
+                    (click)="addProductToCart(product); $event.stopPropagation()">
+                    <span class="material-icons" aria-hidden="true">{{ cartPending() === product.id ? 'hourglass_top' : 'add_shopping_cart' }}</span>
+                  </button>
+                </div>
+              }
+
+              <!-- Media Link & Image -->
+              <a class="media-link" [routerLink]="['/products', product.id]" [attr.aria-label]="'Voir ' + product.name">
+                @if (mainImage(product.id); as image) {
+                  @if (!imageLoaded(image.id) && !imageFailed(image.id)) {
+                    <output class="image-skeleton" aria-label="Chargement de l’image"></output>
+                  }
+                  @if (!imageFailed(image.id)) {
+                    <img
+                      [src]="imageUrl(image)"
+                      [alt]="product.name"
+                      [class.ready]="imageLoaded(image.id)"
+                      loading="lazy"
+                      (load)="markImageLoaded(image.id)"
+                      (error)="markImageFailed(image.id)"
+                    >
+                  } @else {
+                    <div class="image-fallback">
+                      <span class="material-icons" aria-hidden="true">image_not_supported</span>
+                      <strong>Image indisponible</strong>
+                    </div>
+                  }
+                } @else if (imageLoading(product.id)) {
+                  <output class="image-skeleton" aria-label="Chargement de l’image"></output>
+                } @else {
+                  <div class="image-fallback">
+                    <span class="material-icons" aria-hidden="true">image</span>
+                    <strong>Image non disponible</strong>
+                  </div>
+                }
+              </a>
+            </div>
+
+            <!-- Card Body -->
+            <div class="card-body">
+              <p class="type-badge">{{ productTypeLabel(product.type) }}</p>
+              <h2>
+                <a [routerLink]="['/products', product.id]">
+                  @if (product.brand) { <span class="product-brand">{{ product.brand }}</span> }
+                  <span>{{ product.model || product.name }}</span>
+                </a>
+              </h2>
+
+              <div class="card-specs-row">
+                @if (product.warrantyMonths) {
+                  <span class="spec-pill">
+                    <span class="material-icons" style="font-size: 0.85rem;" aria-hidden="true">verified</span>
+                    <span>Garantie {{ product.warrantyMonths }} mois</span>
+                  </span>
+                }
+                @if (machineCategoryLabel(product.machineCategory); as catLabel) {
+                  <span class="spec-pill">{{ catLabel }}</span>
+                }
+              </div>
+
+              <div class="meta">
+                <p class="price">{{ formatPrice(product.price) }} <small class="price-tax">TTC</small></p>
+                @if (product.availableQuantity !== null && product.availableQuantity !== undefined) {
+                  <span class="stock-status-inline">Qté : {{ product.availableQuantity }}</span>
+                }
+              </div>
+
+              @if (actionFeedbackProductId() === product.id && actionFeedback(); as feedback) {
+                <output class="card-feedback" [attr.role]="actionFeedbackFailed() ? 'alert' : 'status'" aria-live="polite">{{ feedback }}</output>
+              }
+
+              <div class="card-footer-actions">
+                <a class="detail-link" [routerLink]="['/products', product.id]">
+                  <span>Voir le produit</span>
+                  <span class="material-icons" aria-hidden="true">arrow_forward</span>
+                </a>
+                @if (showCustomerActions() && product.active && (product.availableQuantity === null || (product.availableQuantity ?? 0) > 0)) {
+                  <button
+                    class="btn-quick-cart"
+                    type="button"
+                    [disabled]="cartPending() === product.id"
+                    [attr.aria-label]="'Ajouter ' + product.name + ' au panier'"
+                    (click)="addProductToCart(product); $event.stopPropagation()">
+                    <span class="material-icons" aria-hidden="true">add_shopping_cart</span>
+                  </button>
+                }
+              </div>
+            </div>
+          </article>
+        }
+      </section>
+    }
+
+    <p class="result-count" aria-live="polite">{{ rangeStart() }}–{{ rangeEnd() }} sur {{ totalElements() }} produits</p>
+    @if (activeCatalogFilterLabel(); as filterLabel) {
+      <p class="result-count">
+        Catégorie « {{ filterLabel }} » — {{ totalElements() }} produit(s) au total.
+        <a class="primary-link" routerLink="/products">Tout le catalogue</a>
+      </p>
+    }
+    @if (totalPages() > 1) {
+      <nav class="pagination" aria-label="Pagination des produits">
+        <button type="button" [disabled]="firstPage()" (click)="load(pageNumber() - 1)">Précédent</button>
+        <p>Page <strong>{{ pageNumber() + 1 }}</strong> sur <strong>{{ totalPages() }}</strong></p>
+        <button type="button" [disabled]="lastPage()" (click)="load(pageNumber() + 1)">Suivant</button>
+      </nav>
+    }
+  }
+</section>

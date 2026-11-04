@@ -1,0 +1,27 @@
+spring:
+  jpa:
+    open-in-view: false
+    hibernate:
+      ddl-auto: validate
+    properties:
+      hibernate:
+        jdbc:
+          time_zone: UTC
+  flyway:
+    enabled: true
+  kafka:
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+
+wwtrading:
+  security:
+    audience: ${JWT_AUDIENCE:wwtrading-api}
+
+orders:
+  tracking:
+    frontend-base-url: ${TRACKING_BASE_URL:${FRONTEND_PUBLIC_URL:${APP_BASE_URL:http://localhost:4201}}}
+    token-ttl-days: ${ORDERS_TRACKING_TOKEN_TTL_DAYS:30}
+  rate-limit:
+    tracking-per-minute: ${ORDERS_RATE_LIMIT_TRACKING_PER_MINUTE:30}
+    checkout-per-minute: ${ORDERS_RATE_LIMIT_CHECKOUT_PER_MINUTE:15}

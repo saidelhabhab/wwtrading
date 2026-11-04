@@ -1,0 +1,423 @@
+<main class="service-page maintenance-page">
+  <!-- ── 1. HERO SECTION ── -->
+  <section class="service-hero" aria-labelledby="hero-title">
+    <div class="hero-bg-ambient" aria-hidden="true"></div>
+    <div class="hero-container">
+      <div class="hero-copy">
+        <div class="hero-badge">
+          <span class="badge-dot" aria-hidden="true"></span>
+          <span>SAV Certifié &bull; Konica Minolta &amp; Develop Maroc</span>
+        </div>
+        <h1 id="hero-title" class="hero-title">
+          Maintenance &amp; Assistance Technique
+        </h1>
+        <p class="hero-lead">
+          Contrats d'entretien préventif, dépannage d'urgence garanti en H+8 et télémaintenance spécialisée pour garantir la disponibilité absolue de vos systèmes d'impression professionnels.
+        </p>
+
+        <div class="hero-actions">
+          <a class="btn btn-primary" [routerLink]="interventionLink()">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"></path>
+            </svg>
+            <span>Demander une intervention technique</span>
+          </a>
+
+          <a class="btn btn-outline" routerLink="/devis">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+              <polyline points="14 2 14 8 20 8"></polyline>
+              <line x1="16" y1="13" x2="8" y2="13"></line>
+              <line x1="16" y1="17" x2="8" y2="17"></line>
+              <polyline points="10 9 9 9 8 9"></polyline>
+            </svg>
+            <span>Contrat de maintenance &bull; Devis</span>
+          </a>
+
+          <a class="btn btn-whatsapp" [href]="whatsappUrl" target="_blank" rel="noopener noreferrer">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+              <path d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.582 2.128 2.182-.573c.978.58 1.911.928 3.145.929 3.178 0 5.767-2.587 5.768-5.766.001-3.187-2.575-5.77-5.764-5.771zm3.392 8.244c-.144.405-.837.774-1.17.824-.312.045-.634.044-1.01-.069-.242-.073-.557-.19-1.023-.393-1.927-.837-3.179-2.775-3.275-2.903-.097-.128-.779-1.036-.779-1.975 0-.939.492-1.401.667-1.594.175-.193.382-.242.509-.242.128 0 .256.002.368.007.119.006.278-.045.435.334.162.39.553 1.349.601 1.448.049.098.082.213.016.342-.065.13-.098.212-.195.326-.098.115-.205.257-.294.346-.101.102-.206.213-.09.412.116.199.516.852 1.109 1.381.764.682 1.409.893 1.609.993.2.099.317.087.435-.049.118-.135.508-.59.643-.794.136-.204.271-.17.457-.101.186.069 1.183.558 1.387.66.204.102.339.153.39.237.05.085.05.49-.094.895z"/>
+            </svg>
+            <span>Urgence SAV WhatsApp</span>
+          </a>
+        </div>
+
+        <div class="hero-indicators">
+          <div class="indicator-item">
+            <strong>H+8</strong>
+            <span>Délai garanti sur tout le Maroc</span>
+          </div>
+          <div class="indicator-sep" aria-hidden="true"></div>
+          <div class="indicator-item">
+            <strong>100%</strong>
+            <span>Pièces &amp; consommables certifiés</span>
+          </div>
+          <div class="indicator-sep" aria-hidden="true"></div>
+          <div class="indicator-item">
+            <strong>+15 ans</strong>
+            <span>D'expertise technique dédiée</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="hero-visual">
+        <div class="visual-card">
+          <div class="visual-card-header">
+            <span class="status-indicator"></span>
+            <span>Support Opérationnel National</span>
+          </div>
+          <div class="visual-body">
+            <div class="metric-highlight">
+              <span class="metric-num">98.4%</span>
+              <span class="metric-lbl">Taux de résolution dès la 1ère visite</span>
+            </div>
+            <div class="visual-tags">
+              <span class="v-tag">Konica Minolta bizhub</span>
+              <span class="v-tag">Develop ineo</span>
+              <span class="v-tag">Presses de production</span>
+              <span class="v-tag">Multifonctions A3 / A4</span>
+            </div>
+          </div>
+          <div class="visual-footer">
+            <div class="sla-badge">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <circle cx="12" cy="12" r="10"></circle>
+                <polyline points="12 6 12 12 16 14"></polyline>
+              </svg>
+              <span>Engagement SLA contractuel</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── 2. VALUE PROPOSITION ── -->
+  <section class="section presentation-section" aria-labelledby="pres-title">
+    <div class="content-wrapper">
+      <header class="section-heading">
+        <p class="eyebrow">Notre philosophie de service</p>
+        <h2 id="pres-title">La continuité de vos impressions n'est pas négociable.</h2>
+        <p class="section-lead">
+          Une panne de photocopieur bloque la facturation, les contrats et les livraisons. WWTRADING intervient avec une organisation logistique rigoureuse pour éliminer les temps d'arrêt.
+        </p>
+      </header>
+    </div>
+  </section>
+
+  <!-- ── 3. SIX CORE SERVICES (EXPLICIT FOCUS) ── -->
+  <section class="section services-grid-section" aria-labelledby="services-title">
+    <div class="content-wrapper">
+      <div class="section-heading centered">
+        <p class="eyebrow">Éventail des prestations</p>
+        <h2 id="services-title">Les piliers de notre expertise technique</h2>
+        <p class="section-lead">Une prise en charge globale, de l'optimisation préventive aux interventions lourdes sur site.</p>
+      </div>
+
+      <div class="services-cards-grid">
+        <!-- 1. Maintenance préventive -->
+        <article class="service-card">
+          <div class="card-icon-box">
+            <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <circle cx="12" cy="12" r="10"></circle>
+              <polyline points="12 6 12 12 16 14"></polyline>
+            </svg>
+          </div>
+          <h3>Maintenance préventive</h3>
+          <p>Visites périodiques planifiées pour nettoyer l'optique, recalibrer les rouleaux et anticiper l'usure des pièces maîtresses avant tout incident.</p>
+          <ul class="card-bullets">
+            <li>Prolongation démontrée de la durée de vie</li>
+            <li>Nettoyage des têtes laser et miroirs</li>
+            <li>Remplacement proactif des consommables d'usure</li>
+          </ul>
+        </article>
+
+        <!-- 2. Maintenance corrective -->
+        <article class="service-card highlight-card">
+          <div class="card-icon-box">
+            <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"></path>
+            </svg>
+          </div>
+          <h3>Maintenance corrective</h3>
+          <p>Dépannage d'urgence sur site par un technicien certifié. Nos équipes mobiles sont déployées avec un stock de pièces courantes sous H+8.</p>
+          <ul class="card-bullets">
+            <li>Intervention sur site garantie en H+8</li>
+            <li>Remplacement immédiat des pièces défectueuses</li>
+            <li>Véhicules ateliers équipés pour le Maroc entier</li>
+          </ul>
+        </article>
+
+        <!-- 3. Contrats de maintenance -->
+        <article class="service-card">
+          <div class="card-icon-box">
+            <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+              <polyline points="14 2 14 8 20 8"></polyline>
+              <line x1="16" y1="13" x2="8" y2="13"></line>
+              <line x1="16" y1="17" x2="8" y2="17"></line>
+              <polyline points="10 9 9 9 8 9"></polyline>
+            </svg>
+          </div>
+          <h3>Contrats de maintenance</h3>
+          <p>Accords de service personnalisés : formule au coût par page (au clic) ou forfait annuel incluant main-d'œuvre, déplacements, pièces et toners.</p>
+          <ul class="card-bullets">
+            <li>Coûts de fonctionnement 100% prévisibles</li>
+            <li>Fourniture automatique des toners et tambours</li>
+            <li>Priorité d'intervention absolue 6j/7</li>
+          </ul>
+        </article>
+
+        <!-- 4. Diagnostic technique -->
+        <article class="service-card">
+          <div class="card-icon-box">
+            <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M22 12h-4l-3 9L9 3l-3 9H2"></path>
+            </svg>
+          </div>
+          <h3>Diagnostic technique</h3>
+          <p>Audit approfondi des compteurs d'usure, historique des codes erreurs constructeur et analyse thermique pour déceler les faiblesses latentes.</p>
+          <ul class="card-bullets">
+            <li>Lecture des logs internes Konica &amp; Develop</li>
+            <li>Test de conformité des densités de couleurs</li>
+            <li>Rapport technique clair avec préconisations</li>
+          </ul>
+        </article>
+
+        <!-- 5. Intervention sur équipements -->
+        <article class="service-card">
+          <div class="card-icon-box">
+            <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <circle cx="12" cy="12" r="3"></circle>
+              <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+            </svg>
+          </div>
+          <h3>Intervention sur équipements</h3>
+          <p>Réparations mécaniques de précision, remise à niveau des fours (fusers), réfection des unités de transfert et calibrage des modules de finition.</p>
+          <ul class="card-bullets">
+            <li>Outillage spécialisé certifié fabricant</li>
+            <li>Remplacement des courroies et engrenages</li>
+            <li>Contrôle qualité d'impression après intervention</li>
+          </ul>
+        </article>
+
+        <!-- 6. Assistance technique -->
+        <article class="service-card">
+          <div class="card-icon-box">
+            <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+            </svg>
+          </div>
+          <h3>Assistance technique &amp; Télémaintenance</h3>
+          <p>Support direct par des techniciens dédiés. Résolution immédiate des incidents logiciels, des paramétrages réseaux et des pilotes d'impression.</p>
+          <ul class="card-bullets">
+            <li>Prise en main à distance sécurisée</li>
+            <li>Configuration du scan vers e-mail et dossier</li>
+            <li>Aide aux utilisateurs et formation d'appoint</li>
+          </ul>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── 4. LES CONTRATS DE MAINTENANCE ── -->
+  <section class="section contracts-section" aria-labelledby="contracts-title">
+    <div class="content-wrapper">
+      <div class="section-heading centered">
+        <p class="eyebrow">Formules de souscription</p>
+        <h2 id="contracts-title">Un contrat adapté à l'intensité de votre activité</h2>
+        <p class="section-lead">Des formules claires et transparentes, sans frais cachés ni engagement rigide.</p>
+      </div>
+
+      <div class="contracts-grid">
+        <div class="contract-card">
+          <div class="card-badge">Économique</div>
+          <h3>Contrat Préventif</h3>
+          <p class="contract-desc">Idéal pour les entreprises souhaitant pérenniser leur matériel tout en gérant les réparations au cas par cas.</p>
+          <ul class="contract-features">
+            <li>&check; 3 à 4 visites d'entretien annuelles planifiées</li>
+            <li>&check; Nettoyage complet optique et calibration</li>
+            <li>&check; Assistance téléphonique et télémaintenance prioritaire</li>
+            <li>&check; Remise de 15% sur les pièces détachées</li>
+            <li>&minus; Main-d'œuvre corrective facturée au tarif réduit</li>
+          </ul>
+          <a class="btn btn-outline full-width" routerLink="/devis">Demander une étude</a>
+        </div>
+
+        <div class="contract-card featured">
+          <div class="card-badge featured-badge">Recommandé Entreprise</div>
+          <h3>Contrat Sérénité Tout-Inclus</h3>
+          <p class="contract-desc">La formule complète « Coût à la page » ou forfaitaire pour une tranquillité opérationnelle totale.</p>
+          <ul class="contract-features">
+            <li>&check; Interventions correctives illimitées avec délai H+8</li>
+            <li>&check; 100% des pièces d'usure et consommables inclus (hors papier)</li>
+            <li>&check; Fourniture proactive des toners noir et couleur</li>
+            <li>&check; Machine de remplacement en cas d'immobilisation &gt; 48h</li>
+            <li>&check; Facturation simple et transparente au volume réel</li>
+          </ul>
+          <a class="btn btn-primary full-width" routerLink="/devis">Obtenir ce contrat</a>
+        </div>
+
+        <div class="contract-card">
+          <div class="card-badge">Ponctuel</div>
+          <h3>Intervention à la Demande</h3>
+          <p class="contract-desc">Pour un dépannage immédiat sans engagement préalable pour tout parc Konica Minolta ou Develop.</p>
+          <ul class="contract-features">
+            <li>&check; Déplacement d'un technicien certifié sur votre site</li>
+            <li>&check; Diagnostic complet et devis gratuit avant réparation</li>
+            <li>&check; Pièces d'origine neuves avec garantie d'intervention</li>
+            <li>&check; Éligibilité à la bascule vers contrat sans frais</li>
+          </ul>
+          <a class="btn btn-outline full-width" [routerLink]="interventionLink()">Demander un technicien</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── 5. PROCESSUS 4 ÉTAPES ── -->
+  <section class="section process-section" aria-labelledby="process-title">
+    <div class="content-wrapper">
+      <div class="section-heading centered">
+        <p class="eyebrow">Organisation opérationnelle</p>
+        <h2 id="process-title">Votre intervention en quatre étapes fluides</h2>
+        <p class="section-lead">De votre appel jusqu'à la remise en service, chaque minute est optimisée.</p>
+      </div>
+
+      <div class="steps-flow">
+        <div class="step-card">
+          <div class="step-badge">01</div>
+          <h3>Signalement &amp; Diagnostic</h3>
+          <p>Vous ouvrez une demande via votre espace client, WhatsApp ou par téléphone en indiquant le modèle et les symptômes constatés.</p>
+        </div>
+
+        <div class="step-card">
+          <div class="step-badge">02</div>
+          <h3>Qualification &amp; Préparation</h3>
+          <p>Notre responsable technique analyse le code incident et affecte le technicien le plus proche muni des pièces d'origine adéquates.</p>
+        </div>
+
+        <div class="step-card">
+          <div class="step-badge">03</div>
+          <h3>Intervention H+8</h3>
+          <p>Arrivée sur site sous 8 heures ouvrées partout au Maroc. Démontage, remplacement des pièces et tests rigoureux d'impression.</p>
+        </div>
+
+        <div class="step-card">
+          <div class="step-badge">04</div>
+          <h3>Validation &amp; Rapport</h3>
+          <p>Signature numérique du bon d'intervention, rapport d'état transmis par e-mail et mise à jour de l'historique machine.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── 6. ENGAGEMENTS WWTRADING ── -->
+  <section class="section trust-section" aria-labelledby="trust-title">
+    <div class="content-wrapper">
+      <div class="trust-box">
+        <div class="trust-badge-col">
+          <span class="trust-stat">H+8</span>
+          <span class="trust-label">Délai d'intervention national garanti</span>
+        </div>
+        <div class="trust-content-col">
+          <p class="eyebrow">La garantie WWTRADING</p>
+          <h2 id="trust-title">L'assurance d'un partenaire technique pérenne</h2>
+          <div class="trust-grid">
+            <div class="trust-item">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#8f123f" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <polyline points="20 6 9 17 4 12"></polyline>
+              </svg>
+              <span><strong>Couverture nationale complète :</strong> de Tanger à Agadir, nos techniciens se déplacent partout.</span>
+            </div>
+            <div class="trust-item">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#8f123f" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <polyline points="20 6 9 17 4 12"></polyline>
+              </svg>
+              <span><strong>Techniciens formés constructeur :</strong> certification officielle sur tous les châssis Konica Minolta &amp; Develop.</span>
+            </div>
+            <div class="trust-item">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#8f123f" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <polyline points="20 6 9 17 4 12"></polyline>
+              </svg>
+              <span><strong>Pièces 100% d'origine :</strong> aucun composant générique susceptible d'endommager vos têtes d'impression.</span>
+            </div>
+            <div class="trust-item">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#8f123f" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <polyline points="20 6 9 17 4 12"></polyline>
+              </svg>
+              <span><strong>Stock tampon permanent :</strong> magasins de pièces de rechange et tambours alimentés en permanence.</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── 7. FAQ CIBLÉE ── -->
+  <section class="section faq-section" aria-labelledby="faq-title">
+    <div class="content-wrapper">
+      <div class="section-heading centered">
+        <p class="eyebrow">Foire aux questions</p>
+        <h2 id="faq-title">Questions fréquentes sur la maintenance</h2>
+        <p class="section-lead">Tout ce que vous devez savoir avant de planifier votre assistance.</p>
+      </div>
+
+      <div class="faq-list">
+        <details class="faq-item">
+          <summary>Que comprend exactement un contrat de maintenance tout-inclus ?</summary>
+          <div class="faq-answer">
+            <p>Notre contrat tout-inclus prend en charge l'ensemble des pièces d'usure, la main-d'œuvre, les déplacements sur votre site, ainsi que la fourniture des consommables et toners nécessaires à vos impressions. Seul le papier reste à la charge de votre entreprise.</p>
+          </div>
+        </details>
+
+        <details class="faq-item">
+          <summary>Quel est le délai réel d'intervention en cas de panne bloquante ?</summary>
+          <div class="faq-answer">
+            <p>Nous nous engageons sur un délai de H+8 (8 heures ouvrées) maximum sur l'ensemble du territoire national marocain. Pour les incidents mineurs ou logiciels, notre télémaintenance intervient dans l'heure.</p>
+          </div>
+        </details>
+
+        <details class="faq-item">
+          <summary>Peut-on souscrire un contrat sur une machine déjà existante ?</summary>
+          <div class="faq-answer">
+            <p>Oui. Nos techniciens réalisent un audit préalable gratuit de votre équipement Konica Minolta ou Develop pour évaluer son état et le remettre aux normes du fabricant si nécessaire avant la signature du contrat.</p>
+          </div>
+        </details>
+
+        <details class="faq-item">
+          <summary>Comment demander une intervention si je n'ai pas encore de compte client ?</summary>
+          <div class="faq-answer">
+            <p>Vous pouvez nous contacter directement par téléphone, WhatsApp ou via le formulaire de contact. Nos conseillers planifient immédiatement une intervention ponctuelle et vous transmettent un devis transparent avant toute réparation.</p>
+          </div>
+        </details>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── 8. BANNIÈRE CTA CONVERSION ── -->
+  <section class="section cta-section" aria-labelledby="cta-title">
+    <div class="content-wrapper">
+      <div class="cta-banner">
+        <div class="cta-copy">
+          <p class="eyebrow-light">Besoin d'un technicien ou d'un contrat ?</p>
+          <h2 id="cta-title">Sécurisez votre parc d'impression dès aujourd'hui</h2>
+          <p>
+            Évitez les pannes coûteuses. Bénéficiez d'une assistance réactive et d'un audit de conformité offert par nos experts certifiés.
+          </p>
+        </div>
+        <div class="cta-buttons">
+          <a class="btn btn-cta-primary" [routerLink]="interventionLink()">
+            <span>Demander une intervention technique</span>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <line x1="5" y1="12" x2="19" y2="12"></line>
+              <polyline points="12 5 19 12 12 19"></polyline>
+            </svg>
+          </a>
+          <a class="btn btn-cta-secondary" routerLink="/devis">
+            <span>Devis contrat de maintenance</span>
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>

@@ -1,0 +1,670 @@
+<wwt-dashboard-layout>
+  <div class="settings-page">
+    <wwt-page-header
+      title="Paramètres de la plateforme"
+      subtitle="Configurez les coordonnées de l’entreprise, les frais de livraison, les comptes bancaires et les règles de commande WWTRADING"
+      breadcrumb="Administration / Paramètres">
+    </wwt-page-header>
+
+    <!-- Settings Navigation Tabs -->
+    <nav class="settings-tabs" aria-label="Sections des paramètres" role="tablist">
+      <button
+        type="button"
+        role="tab"
+        class="tab-btn"
+        [class.tab-btn--active]="activeTab() === 'general'"
+        [attr.aria-selected]="activeTab() === 'general'"
+        (click)="setTab('general')">
+        <mat-icon>business</mat-icon>
+        <span>Entreprise &amp; Contact</span>
+      </button>
+
+      <button
+        type="button"
+        role="tab"
+        class="tab-btn"
+        [class.tab-btn--active]="activeTab() === 'delivery'"
+        [attr.aria-selected]="activeTab() === 'delivery'"
+        (click)="setTab('delivery')">
+        <mat-icon>local_shipping</mat-icon>
+        <span>Frais &amp; Logistique</span>
+        @if (deliverySettings()?.feesEnabled === false) {
+          <span class="tab-badge tab-badge--free">Gratuit</span>
+        }
+      </button>
+
+      <button
+        type="button"
+        role="tab"
+        class="tab-btn"
+        [class.tab-btn--active]="activeTab() === 'banks'"
+        [attr.aria-selected]="activeTab() === 'banks'"
+        (click)="setTab('banks')">
+        <mat-icon>account_balance</mat-icon>
+        <span>Banques &amp; Règlements</span>
+        <span class="tab-badge">{{ banks().length }}</span>
+      </button>
+
+      <button
+        type="button"
+        role="tab"
+        class="tab-btn"
+        [class.tab-btn--active]="activeTab() === 'orders'"
+        [attr.aria-selected]="activeTab() === 'orders'"
+        (click)="setTab('orders')">
+        <mat-icon>rule</mat-icon>
+        <span>Règles &amp; Workflow</span>
+      </button>
+
+      <button
+        type="button"
+        role="tab"
+        class="tab-btn"
+        [class.tab-btn--active]="activeTab() === 'services'"
+        [attr.aria-selected]="activeTab() === 'services'"
+        (click)="setTab('services')">
+        <mat-icon>hub</mat-icon>
+        <span>État des Services</span>
+        <span class="tab-badge tab-badge--online">Actif</span>
+      </button>
+    </nav>
+
+    <!-- ============================================================== -->
+    <!-- TAB 1: General & Company Settings -->
+    <!-- ============================================================== -->
+    @if (activeTab() === 'general') {
+      <section class="settings-section" aria-labelledby="company-section-title">
+        <div class="section-header">
+          <div class="section-header__info">
+            <span class="section-header__eyebrow">Identité Officielle</span>
+            <h2 id="company-section-title">Coordonnées de l’entreprise &amp; Contacts</h2>
+            <p>
+              Ces informations sont affichées dans l’en-tête, le pied de page du site public, les bons de commande PDF et les emails transactionnels clients.
+            </p>
+          </div>
+        </div>
+
+        @if (companySuccessMessage()) {
+          <div class="alert alert--success" role="alert">
+            <mat-icon class="alert-icon">check_circle</mat-icon>
+            <div class="alert-content">
+              <strong>Succès</strong>
+              <span>{{ companySuccessMessage() }}</span>
+            </div>
+          </div>
+        }
+
+        <div class="settings-card">
+          <form [formGroup]="companyForm" (ngSubmit)="saveCompanySettings()">
+            <div class="form-grid">
+              <div class="form-group form-group--full">
+                <label for="companyName">Raison sociale *</label>
+                <input id="companyName" type="text" formControlName="companyName" class="form-control" />
+              </div>
+
+              <div class="form-group form-group--full">
+                <label for="tagline">Slogan commercial &amp; Métier *</label>
+                <input id="tagline" type="text" formControlName="tagline" class="form-control" />
+              </div>
+
+              <div class="form-group">
+                <label for="phoneWhatsapp">Téléphone WhatsApp Officiel *</label>
+                <div class="input-with-addon">
+                  <span class="input-addon-icon"><mat-icon>chat</mat-icon></span>
+                  <input id="phoneWhatsapp" type="text" formControlName="phoneWhatsapp" class="form-control" />
+                </div>
+                <small class="form-hint">Utilisé pour le support direct et les notifications instantanées</small>
+              </div>
+
+              <div class="form-group">
+                <label for="phoneHotline">Ligne Directe Commerciale / SAV *</label>
+                <div class="input-with-addon">
+                  <span class="input-addon-icon"><mat-icon>phone</mat-icon></span>
+                  <input id="phoneHotline" type="text" formControlName="phoneHotline" class="form-control" />
+                </div>
+                <small class="form-hint">Numéro d’appel standard de l’équipe commerciale</small>
+              </div>
+
+              <div class="form-group">
+                <label for="emailSales">Email Devis &amp; Ventes *</label>
+                <div class="input-with-addon">
+                  <span class="input-addon-icon"><mat-icon>email</mat-icon></span>
+                  <input id="emailSales" type="email" formControlName="emailSales" class="form-control" />
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label for="emailSupport">Email Support Client *</label>
+                <div class="input-with-addon">
+                  <span class="input-addon-icon"><mat-icon>support_agent</mat-icon></span>
+                  <input id="emailSupport" type="email" formControlName="emailSupport" class="form-control" />
+                </div>
+              </div>
+
+              <div class="form-group form-group--full">
+                <label for="addressKenitra">Adresse Siège &amp; Showroom (Kénitra) *</label>
+                <input id="addressKenitra" type="text" formControlName="addressKenitra" class="form-control" />
+              </div>
+
+              <div class="form-group form-group--full">
+                <label for="addressTangier">Adresse Agence Régionale (Tanger) *</label>
+                <input id="addressTangier" type="text" formControlName="addressTangier" class="form-control" />
+              </div>
+
+              <div class="form-group form-group--full">
+                <label for="openingHours">Horaires d’ouverture *</label>
+                <input id="openingHours" type="text" formControlName="openingHours" class="form-control" />
+              </div>
+
+              <div class="form-group">
+                <label for="iceNumber">Identifiant Commun de l’Entreprise (ICE)</label>
+                <input id="iceNumber" type="text" formControlName="iceNumber" class="form-control" />
+              </div>
+
+              <div class="form-group">
+                <label for="rcNumber">Registre du Commerce (RC)</label>
+                <input id="rcNumber" type="text" formControlName="rcNumber" class="form-control" />
+              </div>
+            </div>
+
+            <div class="settings-actions">
+              <button type="submit" class="btn btn--primary" [disabled]="companySaving()">
+                <mat-icon>{{ companySaving() ? 'hourglass_top' : 'save' }}</mat-icon>
+                <span>{{ companySaving() ? 'Enregistrement…' : 'Enregistrer les coordonnées' }}</span>
+              </button>
+            </div>
+          </form>
+        </div>
+      </section>
+    }
+
+    <!-- ============================================================== -->
+    <!-- TAB 2: Delivery & Logistics Settings -->
+    <!-- ============================================================== -->
+    @if (activeTab() === 'delivery') {
+      <section class="settings-section" aria-labelledby="delivery-section-title">
+        <div class="section-header">
+          <div class="section-header__info">
+            <span class="section-header__eyebrow">Tarification Logistique</span>
+            <h2 id="delivery-section-title">Barème des frais de livraison &amp; Franchise</h2>
+            <p>
+              Tarifs d’expédition appliqués automatiquement lors du checkout selon la zone géographique de livraison renseignée par le client.
+            </p>
+          </div>
+
+          <div class="section-header__actions">
+            <button
+              type="button"
+              class="btn"
+              [class.btn--primary]="deliverySettings()?.feesEnabled === false"
+              [class.btn--secondary]="deliverySettings()?.feesEnabled !== false"
+              [disabled]="deliverySettingsSaving() || deliverySettingsLoading()"
+              (click)="toggleDeliveryFeesEnabled()">
+              <mat-icon>{{ deliverySettings()?.feesEnabled !== false ? 'toggle_on' : 'toggle_off' }}</mat-icon>
+              <span>{{ deliverySettings()?.feesEnabled !== false ? 'Désactiver les frais (0 DH partout)' : 'Activer les frais de livraison' }}</span>
+            </button>
+          </div>
+        </div>
+
+        @if (deliverySettingsError()) {
+          <div class="alert alert--error" role="alert">
+            <mat-icon class="alert-icon">error_outline</mat-icon>
+            <div class="alert-content">
+              <strong>Erreur de synchronisation</strong>
+              <span>{{ deliverySettingsError() }}</span>
+            </div>
+            <button type="button" class="btn-alert-action" (click)="loadDeliverySettings()">Réessayer</button>
+          </div>
+        }
+
+        @if (deliverySettingsMessage()) {
+          <div class="alert alert--success" role="alert">
+            <mat-icon class="alert-icon">check_circle</mat-icon>
+            <div class="alert-content">
+              <strong>Succès</strong>
+              <span>{{ deliverySettingsMessage() }}</span>
+            </div>
+          </div>
+        }
+
+        <div class="settings-card">
+          <form [formGroup]="deliverySettingsForm" (ngSubmit)="saveDeliverySettings()">
+            <div class="status-banner" [class.status-banner--disabled]="!deliverySettingsForm.get('feesEnabled')?.value">
+              <div class="status-banner__icon">
+                <mat-icon>{{ deliverySettingsForm.get('feesEnabled')?.value ? 'local_shipping' : 'money_off' }}</mat-icon>
+              </div>
+              <div class="status-banner__text">
+                <strong>{{ deliverySettingsForm.get('feesEnabled')?.value ? 'Frais de livraison actifs sur la boutique' : 'Frais de livraison désactivés (Livraison offerte 0 DH)' }}</strong>
+                <p>
+                  {{ deliverySettingsForm.get('feesEnabled')?.value
+                    ? 'Les clients paient les frais ci-dessous selon la destination, sauf si la commande dépasse le seuil de franchise.'
+                    : 'Toutes les commandes bénéficient de la livraison offerte quel que soit le panier et la ville.' }}
+                </p>
+              </div>
+            </div>
+
+            <div class="rates-grid">
+              <div class="rate-card rate-card--highlight">
+                <div class="rate-card__header">
+                  <span class="rate-card__zone-badge">Zone 1</span>
+                  <h3>Kénitra &amp; Environs</h3>
+                </div>
+                <p class="rate-card__description">Kénitra, Mehdia, Sidi Taibi, Sidi Yahya et zone industrielle.</p>
+                <div class="rate-card__input-wrapper">
+                  <label for="kenitraAreaFee">Montant des frais</label>
+                  <div class="input-with-addon">
+                    <input id="kenitraAreaFee" type="number" step="0.01" min="0" formControlName="kenitraAreaFee" class="form-control" />
+                    <span class="currency-addon">DH</span>
+                  </div>
+                  <small class="rate-card__hint">Tarif local préférentiel</small>
+                </div>
+              </div>
+
+              <div class="rate-card">
+                <div class="rate-card__header">
+                  <span class="rate-card__zone-badge">Zone 2</span>
+                  <h3>Casablanca &amp; Grand Casa</h3>
+                </div>
+                <p class="rate-card__description">Casablanca, Mohammedia, Bouskoura, Dar Bouazza, Nouaceur.</p>
+                <div class="rate-card__input-wrapper">
+                  <label for="casablancaFee">Montant des frais</label>
+                  <div class="input-with-addon">
+                    <input id="casablancaFee" type="number" step="0.01" min="0" formControlName="casablancaFee" class="form-control" />
+                    <span class="currency-addon">DH</span>
+                  </div>
+                  <small class="rate-card__hint">Tarif métropole économique</small>
+                </div>
+              </div>
+
+              <div class="rate-card">
+                <div class="rate-card__header">
+                  <span class="rate-card__zone-badge">Zone 3</span>
+                  <h3>Autres villes &amp; Régions</h3>
+                </div>
+                <p class="rate-card__description">Rabat-Salé, Tanger, Fès, Meknès, Marrakech, Agadir, Oujda, etc.</p>
+                <div class="rate-card__input-wrapper">
+                  <label for="otherAreasFee">Montant des frais</label>
+                  <div class="input-with-addon">
+                    <input id="otherAreasFee" type="number" step="0.01" min="0" formControlName="otherAreasFee" class="form-control" />
+                    <span class="currency-addon">DH</span>
+                  </div>
+                  <small class="rate-card__hint">Livraison nationale par transporteur</small>
+                </div>
+              </div>
+
+              <div class="rate-card rate-card--threshold">
+                <div class="rate-card__header">
+                  <span class="rate-card__zone-badge rate-card__zone-badge--green">Franchise</span>
+                  <h3>Seuil de gratuité</h3>
+                </div>
+                <p class="rate-card__description">Livraison 100% offerte dès que le sous-total dépasse ce montant.</p>
+                <div class="rate-card__input-wrapper">
+                  <label for="freeDeliveryThreshold">Montant d’achat minimum</label>
+                  <div class="input-with-addon">
+                    <input id="freeDeliveryThreshold" type="number" step="0.01" min="0" formControlName="freeDeliveryThreshold" class="form-control" />
+                    <span class="currency-addon">DH</span>
+                  </div>
+                  <small class="rate-card__hint">Livraison offerte sur toute destination</small>
+                </div>
+              </div>
+            </div>
+
+            <div class="settings-actions">
+              <button
+                type="submit"
+                class="btn btn--primary"
+                [disabled]="deliverySettingsSaving() || deliverySettingsLoading()">
+                <mat-icon>{{ deliverySettingsSaving() ? 'hourglass_top' : 'save' }}</mat-icon>
+                <span>{{ deliverySettingsSaving() ? 'Enregistrement en cours…' : 'Enregistrer les tarifs' }}</span>
+              </button>
+            </div>
+          </form>
+        </div>
+      </section>
+    }
+
+    <!-- ============================================================== -->
+    <!-- TAB 3: Banks & Payments Settings -->
+    <!-- ============================================================== -->
+    @if (activeTab() === 'banks') {
+      <section class="settings-section" aria-labelledby="banks-section-title">
+        <div class="section-header">
+          <div class="section-header__info">
+            <span class="section-header__eyebrow">Règlements &amp; Encaissements</span>
+            <h2 id="banks-section-title">Coordonnées bancaires &amp; RIB de virement</h2>
+            <p>
+              Comptes bancaires officiels proposés aux clients lors du virement intégral ou de l’acompte 50% / solde 50%.
+            </p>
+          </div>
+
+          <div class="section-header__actions">
+            <button type="button" class="btn btn--primary" (click)="openCreateBankModal()">
+              <mat-icon>add</mat-icon>
+              <span>Ajouter un compte bancaire</span>
+            </button>
+          </div>
+        </div>
+
+        @if (banksError()) {
+          <div class="alert alert--error" role="alert">
+            <mat-icon class="alert-icon">error_outline</mat-icon>
+            <div class="alert-content">
+              <strong>Erreur</strong>
+              <span>{{ banksError() }}</span>
+            </div>
+            <button type="button" class="btn-alert-action" (click)="loadBanks()">Réessayer</button>
+          </div>
+        }
+
+        @if (banksLoading()) {
+          <div class="loading-state">
+            <mat-icon class="spinner">hourglass_top</mat-icon>
+            <p>Chargement des comptes bancaires…</p>
+          </div>
+        } @else if (banks().length === 0) {
+          <div class="empty-state">
+            <mat-icon>account_balance</mat-icon>
+            <h3>Aucun compte bancaire enregistré</h3>
+            <p>Ajoutez le premier compte bancaire pour permettre aux clients de régler par virement.</p>
+            <button type="button" class="btn btn--primary" (click)="openCreateBankModal()">Ajouter un compte</button>
+          </div>
+        } @else {
+          <div class="banks-grid">
+            @for (bank of banks(); track (bank.id || bank.reference)) {
+              <div class="bank-card" [class.bank-card--inactive]="bank.active === false">
+                <div class="bank-card__top">
+                  <div class="bank-card__logo-wrap">
+                    <img [src]="resolveBankLogo(bank.logoUrl, bankNameDisplay(bank))" [alt]="bankNameDisplay(bank)" class="bank-card__logo" />
+                  </div>
+                  <div class="bank-card__badges">
+                    @if (bank.active !== false) {
+                      <span class="badge badge--success">Actif</span>
+                    } @else {
+                      <span class="badge badge--disabled">Inactif</span>
+                    }
+                  </div>
+                </div>
+
+                <div class="bank-card__body">
+                  <h3 class="bank-card__name">{{ bankNameDisplay(bank) }}</h3>
+                  <div class="bank-card__meta">
+                    <div class="meta-item">
+                      <span class="meta-label">Titulaire :</span>
+                      <strong class="meta-value">{{ bank.beneficiary || 'WWTRADING SARL' }}</strong>
+                    </div>
+                    <div class="meta-item">
+                      <span class="meta-label">Référence :</span>
+                      <span class="meta-value font-mono">{{ bank.reference }}</span>
+                    </div>
+                  </div>
+
+                  <div class="bank-card__rib-box">
+                    <span class="rib-label">RIB (24 chiffres)</span>
+                    <div class="rib-row">
+                      <code class="rib-code">{{ formatRib(bank.rib) }}</code>
+                      <button
+                        type="button"
+                        class="btn-copy"
+                        [class.btn-copy--copied]="copiedRib() === bank.rib"
+                        (click)="copyRib(bank.rib)"
+                        title="Copier le RIB">
+                        <mat-icon>{{ copiedRib() === bank.rib ? 'check' : 'content_copy' }}</mat-icon>
+                        <span>{{ copiedRib() === bank.rib ? 'Copié !' : 'Copier' }}</span>
+                      </button>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="bank-card__actions">
+                  <button type="button" class="btn-action" (click)="toggleBankActive(bank)">
+                    <mat-icon>{{ bank.active !== false ? 'visibility_off' : 'visibility' }}</mat-icon>
+                    <span>{{ bank.active !== false ? 'Désactiver' : 'Activer' }}</span>
+                  </button>
+                  <button type="button" class="btn-action" (click)="openEditBankModal(bank)">
+                    <mat-icon>edit</mat-icon>
+                    <span>Modifier</span>
+                  </button>
+                </div>
+              </div>
+            }
+          </div>
+        }
+      </section>
+    }
+
+    <!-- ============================================================== -->
+    <!-- TAB 4: Orders & Split 50/50 Policies -->
+    <!-- ============================================================== -->
+    @if (activeTab() === 'orders') {
+      <section class="settings-section" aria-labelledby="policy-section-title">
+        <div class="section-header">
+          <div class="section-header__info">
+            <span class="section-header__eyebrow">Règles Commerciales</span>
+            <h2 id="policy-section-title">Règles de commandes &amp; Paiement fractionné (50/50)</h2>
+            <p>
+              Paramètres régissant le paiement fractionné, le contrôle des justificatifs de virement et les garanties des matériels professionnels.
+            </p>
+          </div>
+        </div>
+
+        @if (policySuccessMessage()) {
+          <div class="alert alert--success" role="alert">
+            <mat-icon class="alert-icon">check_circle</mat-icon>
+            <div class="alert-content">
+              <strong>Succès</strong>
+              <span>{{ policySuccessMessage() }}</span>
+            </div>
+          </div>
+        }
+
+        <div class="settings-card">
+          <form [formGroup]="policyForm" (ngSubmit)="savePolicySettings()">
+            <div class="rules-highlight-box">
+              <mat-icon class="rules-icon">verified</mat-icon>
+              <div>
+                <strong>Workflow de paiement fractionné (SPLIT_50_50)</strong>
+                <p>
+                  1er versement : 50% par virement bancaire avec téléversement du reçu. Le client ne peut solder sa commande qu’après validation administrative du 1er versement.<br/>
+                  2ème versement : 50% réglable par virement bancaire ou en espèces selon le choix du client dans ses détails de commande.
+                </p>
+              </div>
+            </div>
+
+            <div class="form-grid">
+              <div class="form-group">
+                <label for="splitDepositPercent">Pourcentage d’acompte initial (%)</label>
+                <div class="input-with-addon">
+                  <input id="splitDepositPercent" type="number" min="10" max="90" formControlName="splitDepositPercent" class="form-control" />
+                  <span class="currency-addon">%</span>
+                </div>
+                <small class="form-hint">Standard de la plateforme : 50%</small>
+              </div>
+
+              <div class="form-group">
+                <label for="slipReviewTimeHours">Délai indicatif d’audit des justificatifs</label>
+                <div class="input-with-addon">
+                  <input id="slipReviewTimeHours" type="number" min="1" formControlName="slipReviewTimeHours" class="form-control" />
+                  <span class="currency-addon">Heures</span>
+                </div>
+                <small class="form-hint">Délai affiché aux clients après dépôt d’un reçu (ex : 24h ouvrées)</small>
+              </div>
+
+              <div class="form-group">
+                <label for="guaranteeMonths">Garantie matériel standard</label>
+                <div class="input-with-addon">
+                  <input id="guaranteeMonths" type="number" min="0" formControlName="guaranteeMonths" class="form-control" />
+                  <span class="currency-addon">Mois</span>
+                </div>
+                <small class="form-hint">Garantie pièces &amp; main-d’œuvre sur copieurs reconditionnés certifiés</small>
+              </div>
+
+              <div class="form-group form-group--toggle">
+                <label class="toggle-control">
+                  <input type="checkbox" formControlName="allowCashOnDeliveryForBalance" />
+                  <span class="toggle-slider"></span>
+                  <span class="toggle-label">Autoriser le règlement en espèces pour le 2ème versement (Solde)</span>
+                </label>
+                <small class="form-hint">Permet au client de choisir entre Virement Bancaire ou Espèces à la livraison</small>
+              </div>
+
+              <div class="form-group form-group--toggle">
+                <label class="toggle-control">
+                  <input type="checkbox" formControlName="notifyOnStatusChange" />
+                  <span class="toggle-slider"></span>
+                  <span class="toggle-label">Envoyer un email et message WhatsApp lors de la validation des versements</span>
+                </label>
+                <small class="form-hint">Alerte automatique du client lors de la confirmation d'un acompte ou solde</small>
+              </div>
+            </div>
+
+            <div class="settings-actions">
+              <button type="submit" class="btn btn--primary" [disabled]="policySaving()">
+                <mat-icon>{{ policySaving() ? 'hourglass_top' : 'save' }}</mat-icon>
+                <span>{{ policySaving() ? 'Enregistrement…' : 'Enregistrer les règles' }}</span>
+              </button>
+            </div>
+          </form>
+        </div>
+      </section>
+    }
+
+    <!-- ============================================================== -->
+    <!-- TAB 5: Microservices & Platform Health -->
+    <!-- ============================================================== -->
+    @if (activeTab() === 'services') {
+      <section class="settings-section" aria-labelledby="services-section-title">
+        <div class="section-header">
+          <div class="section-header__info">
+            <span class="section-header__eyebrow">Infrastructure &amp; Architecture</span>
+            <h2 id="services-section-title">État de santé des services WWTRADING</h2>
+            <p>
+              Surveillance en direct des passerelles d’API, services métier Spring Boot, base de données PostgreSQL et passerelle d’authentification Keycloak.
+            </p>
+          </div>
+
+          <div class="section-header__actions">
+            <button
+              type="button"
+              class="btn btn--secondary"
+              [disabled]="servicesChecking()"
+              (click)="checkServicesHealth()">
+              <mat-icon>{{ servicesChecking() ? 'sync' : 'refresh' }}</mat-icon>
+              <span>{{ servicesChecking() ? 'Test en cours…' : 'Rafraîchir les statuts' }}</span>
+            </button>
+          </div>
+        </div>
+
+        @if (servicesCheckedTime()) {
+          <div class="last-check-note">
+            <mat-icon>done_all</mat-icon>
+            <span>Dernière vérification à {{ servicesCheckedTime() }} — Tous les services répondent normalement.</span>
+          </div>
+        }
+
+        <div class="services-grid">
+          @for (svc of microservices(); track svc.name) {
+            <div class="service-card">
+              <div class="service-card__top">
+                <div class="service-card__icon-box">
+                  <mat-icon>dns</mat-icon>
+                </div>
+                <div class="service-card__status-badge">
+                  <span class="status-indicator"></span>
+                  <span>{{ svc.status === 'UP' ? 'Opérationnel' : 'Hors ligne' }}</span>
+                </div>
+              </div>
+
+              <div class="service-card__content">
+                <h3 class="service-card__title">{{ svc.name }}</h3>
+                <span class="service-card__port">Port : :{{ svc.port }}</span>
+                <p class="service-card__role">{{ svc.role }}</p>
+              </div>
+
+              <div class="service-card__footer">
+                <span class="latency-label">Latence moyenne :</span>
+                <strong class="latency-value font-mono">{{ svc.latencyMs }} ms</strong>
+              </div>
+            </div>
+          }
+        </div>
+      </section>
+    }
+  </div>
+
+  <!-- Bank Modal -->
+  @if (isBankModalOpen()) {
+    <div class="modal-backdrop" (click)="closeBankModal()">
+      <div class="modal-dialog" (click)="$event.stopPropagation()" role="dialog" aria-modal="true">
+        <div class="modal-header">
+          <h3>{{ editingBank() ? 'Modifier la banque' : 'Ajouter un compte bancaire' }}</h3>
+          <button type="button" class="btn-close" (click)="closeBankModal()" aria-label="Fermer">
+            <mat-icon>close</mat-icon>
+          </button>
+        </div>
+
+        <form [formGroup]="bankForm" (ngSubmit)="saveBank()">
+          <div class="modal-body">
+            @if (bankFormError()) {
+              <div class="alert alert--error" role="alert">
+                <mat-icon>error_outline</mat-icon>
+                <span>{{ bankFormError() }}</span>
+              </div>
+            }
+
+            <div class="form-group">
+              <label for="bankName">Nom de la banque *</label>
+              <input id="bankName" type="text" formControlName="bankName" class="form-control" placeholder="ex: CIH Bank, Attijariwafa bank" />
+            </div>
+
+            <div class="form-group">
+              <label for="reference">Code / Référence bancaire *</label>
+              <input id="reference" type="text" formControlName="reference" class="form-control" placeholder="ex: CIH_BANK, ATTIJARIWAFA" />
+            </div>
+
+            <div class="form-group">
+              <label for="rib">Relevé d’Identité Bancaire (RIB - 24 chiffres) *</label>
+              <input id="rib" type="text" formControlName="rib" class="form-control font-mono" placeholder="230 780 0000000000000000 00" />
+            </div>
+
+            <div class="form-group">
+              <label for="beneficiary">Nom du bénéficiaire officiel *</label>
+              <input id="beneficiary" type="text" formControlName="beneficiary" class="form-control" placeholder="ex: WWTRADING SARL" />
+            </div>
+
+            <div class="form-group">
+              <label>Logo de la banque</label>
+              @if (logoPreviewUrl()) {
+                <div class="logo-preview">
+                  <img [src]="logoPreviewUrl()" alt="Aperçu logo" />
+                  <button type="button" class="btn-remove-logo" (click)="removeSelectedLogo()">
+                    <mat-icon>delete</mat-icon>
+                  </button>
+                </div>
+              } @else {
+                <input type="file" accept="image/png,image/jpeg,image/webp" (change)="onLogoSelected($event)" class="form-control" />
+                <small class="form-hint">Format PNG ou JPG transparent recommandé (max 2 Mo)</small>
+              }
+            </div>
+
+            <div class="form-group">
+              <label class="toggle-control">
+                <input type="checkbox" formControlName="active" />
+                <span class="toggle-slider"></span>
+                <span class="toggle-label">Compte bancaire actif (visible au checkout)</span>
+              </label>
+            </div>
+          </div>
+
+          <div class="modal-footer">
+            <button type="button" class="btn btn--secondary" (click)="closeBankModal()">Annuler</button>
+            <button type="submit" class="btn btn--primary" [disabled]="bankSubmitting()">
+              <mat-icon>{{ bankSubmitting() ? 'hourglass_top' : 'save' }}</mat-icon>
+              <span>{{ bankSubmitting() ? 'Enregistrement…' : 'Enregistrer' }}</span>
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  }
+</wwt-dashboard-layout>
+

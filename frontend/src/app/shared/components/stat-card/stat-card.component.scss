@@ -1,0 +1,165 @@
+@use '../../styles/variables' as *;
+@use '../../styles/mixins' as *;
+
+/**
+ * KPI stat card. Fluid value size so four cards fit a laptop row and a single
+ * card still reads well at 360px without the number dominating the tile.
+ */
+.stat-card {
+  @include card;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  padding: clamp(#{$space-4}, 2vw, #{$space-5});
+  border-top: 3px solid #cbd5e1;
+  position: relative;
+  overflow: hidden;
+  transition: transform $transition-fast, box-shadow $transition-fast, border-color $transition-fast;
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: $shadow-md;
+  }
+}
+
+.status-success {
+  border-top-color: $color-success;
+  .stat-icon {
+    background: #ecfdf5;
+    color: #059669;
+  }
+}
+
+.status-warning {
+  border-top-color: $color-warning;
+  .stat-icon {
+    background: #fef3c7;
+    color: #d97706;
+  }
+}
+
+.status-danger {
+  border-top-color: $color-danger;
+  .stat-icon {
+    background: #fef2f2;
+    color: #dc2626;
+  }
+}
+
+.stat-card-heading,
+.stat-card-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: $space-3;
+}
+
+.stat-card-heading {
+  color: #64748b;
+  font-size: 0.82rem;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+
+.stat-card-heading > span:first-child {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.stat-icon {
+  display: grid;
+  flex: 0 0 auto;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  border-radius: $radius-sm;
+  background: #fdf2f6;
+  color: $color-primary;
+  font-family: 'Material Icons', sans-serif;
+  font-size: 20px;
+  font-weight: 400;
+  transition: transform $transition-fast;
+}
+
+.stat-card:hover .stat-icon {
+  transform: scale(1.05);
+}
+
+.stat-card strong {
+  display: block;
+  margin: $space-3 0 $space-2;
+  color: #0f172a;
+  font-size: clamp(1.75rem, 1.3rem + 1.2vw, 2.25rem);
+  font-weight: 800;
+  line-height: 1.05;
+  letter-spacing: -0.03em;
+  overflow-wrap: anywhere;
+}
+
+.stat-card-footer {
+  align-items: flex-start;
+  flex-wrap: wrap;
+  color: #64748b;
+  font-size: 0.76rem;
+  line-height: 1.45;
+}
+
+.stat-card-footer > span {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.trend {
+  font-weight: 700;
+  white-space: nowrap;
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  padding: 0.1rem 0.4rem;
+  border-radius: $radius-pill;
+  font-size: 0.72rem;
+}
+
+.trend.up {
+  color: #059669;
+  background: #ecfdf5;
+}
+
+.trend.down {
+  color: #dc2626;
+  background: #fef2f2;
+}
+
+.skeleton {
+  border-radius: $radius-sm;
+  background: #e2e8f0;
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
+.skeleton-value {
+  width: 45%;
+  height: 2rem;
+  margin: $space-3 0 $space-2;
+}
+
+.skeleton-copy {
+  width: 75%;
+  height: 0.9rem;
+}
+
+@keyframes pulse {
+  50% {
+    opacity: 0.5;
+  }
+}
+
+@include reduced-motion {
+  .stat-card:hover {
+    transform: none;
+  }
+  .skeleton {
+    animation: none;
+  }
+}

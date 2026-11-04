@@ -1,0 +1,174 @@
+@use 'sass:map';
+@use 'sass:math';
+@use 'variables' as *;
+
+/**
+ * WWTRADING responsive mixins.
+ *
+ * `from(md)` emits a min-width media query. Mobile-first: write the small-screen
+ * rules unprefixed, then widen with `from()` / `respond-to(desktop)`.
+ *
+ * Breakpoint scale (min-width):
+ *   > 480px        large mobile
+ *   > 641px        tablet portrait
+ *   > 769px        tablet landscape
+ *   > 1025px       laptop
+ *   > 1441px       large desktop
+ *   > 1921px       very large / TV
+ * Mobile (≤640px) and very small mobile (≤360px) are the unprefixed base plus
+ * `to(xs)` overrides.
+ */
+
+$breakpoints: (
+  xs: $bp-xs,
+  sm: $bp-sm,
+  md: $bp-md,
+  lg: $bp-lg,
+  xl: $bp-xl,
+  '2xl': $bp-2xl
+);
+
+/* Upward: the given breakpoint and wider. */
+@mixin from($name) {
+  $value: map.get($breakpoints, $name);
+  @if $value == null {
+    @error 'Unknown breakpoint `#{$name}`. Expected one of: #{map.keys($breakpoints)}.';
+  }
+  @media (min-width: $value) { @content; }
+}
+
+/* Downward: strictly below the given breakpoint. */
+@mixin to($name) {
+  $value: map.get($breakpoints, $name);
+  @if $value == null {
+    @error 'Unknown breakpoint `#{$name}`. Expected one of: #{map.keys($breakpoints)}.';
+  }
+  @media (max-width: ($value - 0.02px)) { @content; }
+}
+
+/* Only between two breakpoints. */
+@mixin between($lower-name, $upper-name) {
+  $lower: map.get($breakpoints, $lower-name);
+  $upper: map.get($breakpoints, $upper-name);
+  @media (min-width: $lower) and (max-width: ($upper - 0.02px)) { @content; }
+}
+
+/**
+ * Device-class aliases kept for readable component code.
+ * - mobile  : ≤ 640px (very small, normal and large mobile)
+ * - tablet  : 641 → 1024px (portrait and landscape)
+ * - desktop : ≥ 1025px
+ * - tv      : ≥ 1921px (4K / TV sized)
+ */
+@mixin respond-to($breakpoint) {
+  @if $breakpoint == mobile {
+    @include to(sm) { @content; }
+  } @else if $breakpoint == tablet {
+    @include between(sm, lg) { @content; }
+  } @else if $breakpoint == desktop {
+    @include from(lg) { @content; }
+  } @else if $breakpoint == tv {
+    @include from('2xl') { @content; }
+  } @else {
+    @error 'Unknown device alias `#{$breakpoint}`. Expected: mobile, tablet, desktop, tv.';
+  }
+}
+
+/* ---------------------------------------------------------------------------
+   Fluid helpers
+   --------------------------------------------------------------------------- */
+
+/** Fluid font-size clamped between two values across the viewport range. */
+@mixin fluid($min, $max, $min-vw: 360px, $max-vw: 1920px) {
+  $slope: math.div($max - $min, $max-vw - $min-vw);
+  $intercept: $min - $slope * $min-vw;
+  font-size: clamp(#{$min}, #{$intercept} + #{$slope * 100vw}, #{$max});
+}
+
+/* ---------------------------------------------------------------------------
+   Structural helpers
+   --------------------------------------------------------------------------- */
+
+/** Standard page container: never edge-to-edge, never stretched on TV. */
+@mixin page-container($max: $container-max-width) {
+  width: 100%;
+  max-width: $max;
+  margin-inline: auto;
+  padding-inline: clamp(#{$space-3}, 3vw, #{$space-10});
+}
+
+/** Guarantees a grid/flex child can shrink below its content width. */
+@mixin min-safe {
+  min-width: 0;
+  min-height: 0;
+}
+
+/* ---------------------------------------------------------------------------
+   Repeated patterns
+   --------------------------------------------------------------------------- */
+
+@mixin focus-ring {
+  &:focus-visible {
+    outline: 3px solid rgba($color-primary, 0.45);
+    outline-offset: 2px;
+  }
+}
+
+@mixin card {
+  background: $color-surface;
+  border: 1px solid $color-border;
+  border-radius: $radius-md;
+  box-shadow: $shadow-sm;
+}
+
+/** Horizontal scroll container for wide data tables. */
+@mixin table-scroll {
+  width: 100%;
+  max-width: 100%;
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  -webkit-overflow-scrolling: touch;
+  @include scrollbar;
+}
+
+@mixin truncate {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/** Long user-supplied values (emails, references) must be able to break. */
+@mixin break-anywhere {
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+@mixin scrollbar {
+  scrollbar-color: #b8c2c8 transparent;
+  scrollbar-width: thin;
+}
+
+/** Touch-friendly interactive minimum. */
+@mixin touch-target($size: $touch-target) {
+  min-height: $size;
+  min-width: $size;
+}
+
+/**
+ * Uniform modal shell: fits the viewport, scrolls internally, keeps actions
+ * reachable. Use on every overlay panel instead of a fixed width.
+ */
+@mixin modal-panel($max-width: 720px) {
+  width: min(#{$max-width}, 100%);
+  max-width: calc(100vw - 1.5rem);
+  max-height: calc(100dvh - 1.5rem);
+  overflow: auto;
+  overscroll-behavior: contain;
+  border-radius: $radius-lg;
+  background: $color-surface;
+  box-shadow: $shadow-lg;
+}
+
+@mixin reduced-motion {
+  @media (prefers-reduced-motion: reduce) { @content; }
+}

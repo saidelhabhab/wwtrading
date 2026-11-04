@@ -1,0 +1,342 @@
+<div class="auth-page">
+  <div class="auth-container">
+    <!-- Left Branding Panel -->
+    <div class="auth-brand-panel">
+      <div class="brand-content">
+        <a routerLink="/" class="brand-logo-link" aria-label="Retour à l'accueil WWTRADING">
+          <div class="brand-logo-wrapper">
+            <img src="assets/wwtrading-logo.png" alt="WWTRADING" class="brand-logo" />
+          </div>
+        </a>
+        <span class="brand-tag">
+          {{ lang() === 'FR' ? 'NOUVEAU COMPTE B2B' : 'NEW B2B ACCOUNT' }}
+        </span>
+        <h1 class="brand-title">
+          {{ lang() === 'FR' ? 'Rejoignez le Réseau Professionnel WWTRADING' : 'Join the WWTRADING Professional Network' }}
+        </h1>
+        <p class="brand-subtitle">
+          {{ lang() === 'FR'
+            ? 'Créez votre compte entreprise pour accéder à notre catalogue d\'équipements Konica Minolta & Develop, demander des devis et gérer vos consommables.'
+            : 'Create your business account to access our Konica Minolta & Develop catalog, request quotations, and manage consumables.' }}
+        </p>
+
+        <div class="brand-features">
+          <div class="feature-item">
+            <svg class="feature-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M22 11.08V12a10 10 0 11-5.93-9.14"/>
+              <polyline points="22 4 12 14.01 9 11.01"/>
+            </svg>
+            <span>{{ lang() === 'FR' ? 'Création de profil d\'entreprise instantanée' : 'Instant corporate profile creation' }}</span>
+          </div>
+          <div class="feature-item">
+            <svg class="feature-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07 19.5 19.5 0 01-6-6 19.79 19.79 0 01-3.07-8.67A2 2 0 014.11 2h3a2 2 0 012 1.72 12.84 12.84 0 00.7 2.81 2 2 0 01-.45 2.11L8.09 9.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45 12.84 12.84 0 002.81.7A2 2 0 0122 16.92z"/>
+            </svg>
+            <span>{{ lang() === 'FR' ? 'Assistance et suivi téléphonique dédié (+212)' : 'Dedicated phone support and onboarding (+212)' }}</span>
+          </div>
+          <div class="feature-item">
+            <svg class="feature-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <rect x="2" y="7" width="20" height="14" rx="2" ry="2"/>
+              <path d="M16 21V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v16"/>
+            </svg>
+            <span>{{ lang() === 'FR' ? 'Gestion unifiée de votre parc d\'impression' : 'Unified printer fleet & contract management' }}</span>
+          </div>
+        </div>
+      </div>
+      <div class="brand-footer">
+        <p>© 2026 WWTRADING · Konica Minolta &amp; Develop Expertise</p>
+      </div>
+    </div>
+
+    <!-- Right Form Card -->
+    <div class="auth-form-panel">
+      <div class="auth-card">
+        <!-- Top bar: Home link + Language Switcher -->
+        <div class="auth-card-top-bar">
+          <a routerLink="/" class="auth-home-link" [attr.aria-label]="lang() === 'FR' ? 'Retour à l\u2019accueil WWTRADING' : 'Back to WWTRADING home'" [title]="lang() === 'FR' ? 'Retour à l\u2019accueil' : 'Back to home'">
+            <svg class="auth-home-icon" viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M3 9.5 12 3l9 6.5"/>
+              <path d="M5 10v10a1 1 0 0 0 1 1h4v-6h4v6h4a1 1 0 0 0 1-1V10"/>
+            </svg>
+            <span>{{ lang() === 'FR' ? 'Retour à l\u2019accueil' : 'Back to home' }}</span>
+          </a>
+          <button
+            type="button"
+            class="wwt-lang-pill"
+            (click)="toggleLanguage()"
+            [attr.aria-label]="lang() === 'FR' ? 'Passer en anglais' : 'Switch to French'"
+            title="Changer de langue / Switch language">
+            <svg class="wwt-lang-globe" viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <circle cx="12" cy="12" r="10"></circle>
+              <line x1="2" y1="12" x2="22" y2="12"></line>
+              <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path>
+            </svg>
+            <span class="wwt-lang-current">{{ lang() }}</span>
+            <span class="wwt-lang-divider">·</span>
+            <span class="wwt-lang-target">{{ lang() === 'FR' ? 'EN' : 'FR' }}</span>
+          </button>
+        </div>
+
+        @if (successMessage()) {
+          <div class="success-card">
+            <div class="success-icon-wrapper">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="success-icon">
+                <path d="M22 11.08V12a10 10 0 11-5.93-9.14"/>
+                <polyline points="22 4 12 14.01 9 11.01"/>
+              </svg>
+            </div>
+            <h2 class="auth-title text-center">
+              {{ lang() === 'FR' ? 'Compte Créé avec Succès !' : 'Account Created Successfully!' }}
+            </h2>
+            <p class="auth-description text-center">
+              {{ successMessage() }}
+            </p>
+            <div class="mt-4">
+              <a routerLink="/login" class="btn btn-primary btn-block">
+                {{ lang() === 'FR' ? 'Se connecter maintenant' : 'Sign in now' }}
+              </a>
+            </div>
+          </div>
+        } @else {
+          <div class="auth-card-header">
+            <h2 class="auth-title">
+              {{ lang() === 'FR' ? 'Inscription Professionnelle' : 'Business Registration' }}
+            </h2>
+            <p class="auth-description">
+              {{ lang() === 'FR'
+                ? 'Renseignez vos coordonnées ci-dessous pour créer votre profil client.'
+                : 'Please fill in your details below to set up your business account.' }}
+            </p>
+          </div>
+
+          @if (errorMessage()) {
+            <div class="alert alert-error" role="alert">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="alert-icon">
+                <circle cx="12" cy="12" r="10"/>
+                <line x1="12" y1="8" x2="12" y2="12"/>
+                <line x1="12" y1="16" x2="12.01" y2="16"/>
+              </svg>
+              <span>{{ errorMessage() }}</span>
+            </div>
+          }
+
+          <form [formGroup]="form" (ngSubmit)="onSubmit()" class="auth-form">
+            <div class="form-row-2">
+              <div class="form-group">
+                <label for="reg-firstname" class="form-label">
+                  {{ lang() === 'FR' ? 'Prénom' : 'First Name' }} <span class="required">*</span>
+                </label>
+                <input
+                  id="reg-firstname"
+                  type="text"
+                  formControlName="firstName"
+                  class="form-input no-icon"
+                  [class.has-error]="showError('firstName')"
+                  placeholder="Mohammed"
+                  autocomplete="given-name"
+                  required
+                />
+                @if (showError('firstName')) {
+                  <span class="field-error">
+                    {{ lang() === 'FR' ? 'Le prénom est obligatoire.' : 'First name is required.' }}
+                  </span>
+                }
+              </div>
+
+              <div class="form-group">
+                <label for="reg-lastname" class="form-label">
+                  {{ lang() === 'FR' ? 'Nom' : 'Last Name' }} <span class="required">*</span>
+                </label>
+                <input
+                  id="reg-lastname"
+                  type="text"
+                  formControlName="lastName"
+                  class="form-input no-icon"
+                  [class.has-error]="showError('lastName')"
+                  placeholder="El Amrani"
+                  autocomplete="family-name"
+                  required
+                />
+                @if (showError('lastName')) {
+                  <span class="field-error">
+                    {{ lang() === 'FR' ? 'Le nom est obligatoire.' : 'Last name is required.' }}
+                  </span>
+                }
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="reg-email" class="form-label">
+                {{ lang() === 'FR' ? 'Adresse Email Professionnelle' : 'Business Email Address' }} <span class="required">*</span>
+              </label>
+              <div class="input-wrapper">
+                <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
+                  <polyline points="22,6 12,13 2,6"/>
+                </svg>
+                <input
+                  id="reg-email"
+                  type="email"
+                  formControlName="email"
+                  class="form-input"
+                  [class.has-error]="showError('email')"
+                  placeholder="contact@entreprise.ma"
+                  autocomplete="email"
+                  required
+                />
+              </div>
+              @if (showError('email')) {
+                <span class="field-error">
+                  {{ lang() === 'FR' ? 'Veuillez saisir un email valide.' : 'Please enter a valid email address.' }}
+                </span>
+              }
+            </div>
+
+            <div class="form-group">
+              <label for="reg-phone" class="form-label">
+                {{ lang() === 'FR' ? 'Téléphone Portable (Maroc)' : 'Phone Number (Morocco)' }} <span class="required">*</span>
+              </label>
+              <div class="input-wrapper">
+                <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07 19.5 19.5 0 01-6-6 19.79 19.79 0 01-3.07-8.67A2 2 0 014.11 2h3a2 2 0 012 1.72 12.84 12.84 0 00.7 2.81 2 2 0 01-.45 2.11L8.09 9.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45 12.84 12.84 0 002.81.7A2 2 0 0122 16.92z"/>
+                </svg>
+                <input
+                  id="reg-phone"
+                  type="tel"
+                  formControlName="phone"
+                  class="form-input"
+                  [class.has-error]="showError('phone')"
+                  placeholder="0612345678 ou +212612345678"
+                  autocomplete="tel"
+                  required
+                />
+              </div>
+              @if (showError('phone')) {
+                <span class="field-error">
+                  {{ lang() === 'FR' ? 'Numéro valide requis (ex: 0612345678 ou +2126...).' : 'Valid Moroccan phone number required (e.g. 0612345678).' }}
+                </span>
+              }
+            </div>
+
+            <div class="form-group">
+              <label for="reg-password" class="form-label">
+                {{ lang() === 'FR' ? 'Mot de Passe' : 'Password' }} <span class="required">*</span>
+              </label>
+              <div class="input-wrapper">
+                <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+                  <path d="M7 11V7a5 5 0 0110 0v4"/>
+                </svg>
+                <input
+                  id="reg-password"
+                  [type]="showPassword() ? 'text' : 'password'"
+                  formControlName="password"
+                  class="form-input"
+                  [class.has-error]="showError('password')"
+                  placeholder="••••••••••••"
+                  autocomplete="new-password"
+                  required
+                />
+                <button type="button" class="toggle-pwd-btn" (click)="toggleShowPassword()" [attr.aria-label]="lang() === 'FR' ? 'Afficher/masquer mot de passe' : 'Toggle password visibility'">
+                  <svg class="toggle-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    @if (showPassword()) {
+                      <path d="M17.94 17.94A10.07 10.07 0 0112 20c-7 0-11-8-11-8a18.45 18.45 0 015.06-5.94M9.9 4.24A9.12 9.12 0 0112 4c7 0 11 8 11 8a18.5 18.5 0 01-2.16 3.19m-6.72-1.07a3 3 0 11-4.24-4.24"/>
+                      <line x1="1" y1="1" x2="23" y2="23"/>
+                    } @else {
+                      <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                      <circle cx="12" cy="12" r="3"/>
+                    }
+                  </svg>
+                </button>
+              </div>
+
+              <!-- Password Checklist -->
+              <div class="pwd-checklist">
+                <div class="chk-item" [class.chk-valid]="pwdHasMinLength()">
+                  <span class="chk-icon">{{ pwdHasMinLength() ? '✓' : '○' }}</span>
+                  <span>{{ lang() === 'FR' ? 'Au moins 12 caractères' : 'At least 12 characters' }}</span>
+                </div>
+                <div class="chk-item" [class.chk-valid]="pwdHasUpper()">
+                  <span class="chk-icon">{{ pwdHasUpper() ? '✓' : '○' }}</span>
+                  <span>{{ lang() === 'FR' ? '1 majuscule (A-Z)' : '1 uppercase letter (A-Z)' }}</span>
+                </div>
+                <div class="chk-item" [class.chk-valid]="pwdHasLower()">
+                  <span class="chk-icon">{{ pwdHasLower() ? '✓' : '○' }}</span>
+                  <span>{{ lang() === 'FR' ? '1 minuscule (a-z)' : '1 lowercase letter (a-z)' }}</span>
+                </div>
+                <div class="chk-item" [class.chk-valid]="pwdHasNumber()">
+                  <span class="chk-icon">{{ pwdHasNumber() ? '✓' : '○' }}</span>
+                  <span>{{ lang() === 'FR' ? '1 chiffre (0-9)' : '1 number (0-9)' }}</span>
+                </div>
+                <div class="chk-item" [class.chk-valid]="pwdHasSpecial()">
+                  <span class="chk-icon">{{ pwdHasSpecial() ? '✓' : '○' }}</span>
+                  <span>{{ lang() === 'FR' ? '1 caractère spécial (@$!%*?&...)' : '1 special character (@$!%*?&...)' }}</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="reg-confirm-password" class="form-label">
+                {{ lang() === 'FR' ? 'Confirmer le Mot de Passe' : 'Confirm Password' }} <span class="required">*</span>
+              </label>
+              <div class="input-wrapper">
+                <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+                  <path d="M7 11V7a5 5 0 0110 0v4"/>
+                </svg>
+                <input
+                  id="reg-confirm-password"
+                  [type]="showConfirmPassword() ? 'text' : 'password'"
+                  formControlName="confirmPassword"
+                  class="form-input"
+                  [class.has-error]="showMismatchError() || showError('confirmPassword')"
+                  placeholder="••••••••••••"
+                  autocomplete="new-password"
+                  required
+                />
+                <button type="button" class="toggle-pwd-btn" (click)="toggleShowConfirmPassword()" [attr.aria-label]="lang() === 'FR' ? 'Afficher/masquer mot de passe' : 'Toggle password visibility'">
+                  <svg class="toggle-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    @if (showConfirmPassword()) {
+                      <path d="M17.94 17.94A10.07 10.07 0 0112 20c-7 0-11-8-11-8a18.45 18.45 0 015.06-5.94M9.9 4.24A9.12 9.12 0 0112 4c7 0 11 8 11 8a18.5 18.5 0 01-2.16 3.19m-6.72-1.07a3 3 0 11-4.24-4.24"/>
+                      <line x1="1" y1="1" x2="23" y2="23"/>
+                    } @else {
+                      <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                      <circle cx="12" cy="12" r="3"/>
+                    }
+                  </svg>
+                </button>
+              </div>
+              @if (showMismatchError()) {
+                <span class="field-error">
+                  {{ lang() === 'FR' ? 'Les mots de passe ne correspondent pas.' : 'Passwords do not match.' }}
+                </span>
+              }
+            </div>
+
+            <button
+              type="submit"
+              class="btn btn-primary btn-block"
+              [disabled]="loading()"
+            >
+              @if (loading()) {
+                <span class="spinner"></span> {{ lang() === 'FR' ? 'Création du compte en cours...' : 'Creating account...' }}
+              } @else {
+                {{ lang() === 'FR' ? 'Créer mon compte professionnel' : 'Create Business Account' }}
+              }
+            </button>
+          </form>
+        }
+
+        <div class="auth-divider">
+          <span>{{ lang() === 'FR' ? 'Vous avez déjà un compte ?' : 'Already have an account?' }}</span>
+        </div>
+
+        <div class="auth-card-footer">
+          <a routerLink="/login" class="btn btn-secondary btn-block">
+            {{ lang() === 'FR' ? 'Se connecter à votre compte' : 'Sign in to your account' }}
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

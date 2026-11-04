@@ -1,0 +1,8 @@
+**/target/
+**/.idea/
+**/.settings/
+**/.classpath
+**/.project
+**/*.log
+**/hs_err_pid*.log
+services/api-gateway/bin/

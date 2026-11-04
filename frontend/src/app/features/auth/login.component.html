@@ -1,0 +1,164 @@
+<div class="auth-page">
+  <div class="auth-container">
+    <!-- Left Branding Panel -->
+    <div class="auth-brand-panel">
+      <div class="brand-content">
+        <a routerLink="/" class="brand-logo-link" aria-label="Retour à l'accueil WWTRADING">
+          <div class="brand-logo-wrapper">
+            <img src="assets/wwtrading-logo.png" alt="WWTRADING" class="brand-logo" />
+          </div>
+        </a>
+        <span class="brand-tag">PORTAIL B2B PROFESSIONNEL</span>
+        <h1 class="brand-title">
+          {{ lang() === 'FR' ? 'Solutions d\'Impression & Équipements Professionnels' : 'Professional Printing Solutions & Systems' }}
+        </h1>
+        <p class="brand-subtitle">
+          {{ lang() === 'FR'
+            ? 'Espace sécurisé pour la gestion de vos photocopieurs Konica Minolta & Develop, consommables, devis et interventions techniques.'
+            : 'Secure workspace to manage your Konica Minolta & Develop printers, consumables, quotations, and service requests.' }}
+        </p>
+
+        <div class="brand-features">
+          <div class="feature-item">
+            <svg class="feature-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+            </svg>
+            <span>{{ lang() === 'FR' ? 'Authentification Sécurisée OIDC / Keycloak' : 'Secure OIDC / Keycloak Authentication' }}</span>
+          </div>
+          <div class="feature-item">
+            <svg class="feature-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M13 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V9z"/>
+              <polyline points="13 2 13 9 20 9"/>
+            </svg>
+            <span>{{ lang() === 'FR' ? 'Suivi des Devis & Commandes en Temps Réel' : 'Real-time Quotes & Orders Tracking' }}</span>
+          </div>
+          <div class="feature-item">
+            <svg class="feature-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="12" cy="12" r="10"/>
+              <polyline points="12 6 12 12 16 14"/>
+            </svg>
+            <span>{{ lang() === 'FR' ? 'Support & Assistance Technique Dédiée' : 'Dedicated Business Technical Support' }}</span>
+          </div>
+        </div>
+      </div>
+      <div class="brand-footer">
+        <p>© 2026 WWTRADING · Konica Minolta &amp; Develop Expertise</p>
+      </div>
+    </div>
+
+    <!-- Right Form Card -->
+    <div class="auth-form-panel">
+      <div class="auth-card">
+        <!-- Top bar: Home link + Language Switcher -->
+        <div class="auth-card-top-bar">
+          <a routerLink="/" class="auth-home-link" [attr.aria-label]="lang() === 'FR' ? 'Retour à l\u2019accueil WWTRADING' : 'Back to WWTRADING home'" [title]="lang() === 'FR' ? 'Retour à l\u2019accueil' : 'Back to home'">
+            <svg class="auth-home-icon" viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M3 9.5 12 3l9 6.5"/>
+              <path d="M5 10v10a1 1 0 0 0 1 1h4v-6h4v6h4a1 1 0 0 0 1-1V10"/>
+            </svg>
+            <span>{{ lang() === 'FR' ? 'Retour à l\u2019accueil' : 'Back to home' }}</span>
+          </a>
+          <button
+            type="button"
+            class="wwt-lang-pill"
+            (click)="toggleLanguage()"
+            [attr.aria-label]="lang() === 'FR' ? 'Passer en anglais' : 'Switch to French'"
+            title="Changer de langue / Switch language">
+            <svg class="wwt-lang-globe" viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <circle cx="12" cy="12" r="10"></circle>
+              <line x1="2" y1="12" x2="22" y2="12"></line>
+              <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path>
+            </svg>
+            <span class="wwt-lang-current">{{ lang() }}</span>
+            <span class="wwt-lang-divider">·</span>
+            <span class="wwt-lang-target">{{ lang() === 'FR' ? 'EN' : 'FR' }}</span>
+          </button>
+        </div>
+
+        <div class="auth-card-header">
+          <h2 class="auth-title">
+            {{ lang() === 'FR' ? 'Connexion à votre compte' : 'Sign in to your account' }}
+          </h2>
+          <p class="auth-description">
+            {{ lang() === 'FR'
+              ? 'Veuillez saisir votre adresse email professionnelle pour accéder à votre espace de travail.'
+              : 'Please enter your professional email address to access your workspace.' }}
+          </p>
+        </div>
+
+        @if (errorMessage()) {
+          <div class="alert alert-error" role="alert">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="alert-icon">
+              <circle cx="12" cy="12" r="10"/>
+              <line x1="12" y1="8" x2="12" y2="12"/>
+              <line x1="12" y1="16" x2="12.01" y2="16"/>
+            </svg>
+            <span>{{ errorMessage() }}</span>
+          </div>
+        }
+
+        <form [formGroup]="form" (ngSubmit)="onSubmit()" class="auth-form">
+          <div class="form-group">
+            <label for="login-email" class="form-label">
+              {{ lang() === 'FR' ? 'Adresse Email Professionnelle' : 'Professional Email Address' }}
+              <span class="required">*</span>
+            </label>
+            <div class="input-wrapper">
+              <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
+                <polyline points="22,6 12,13 2,6"/>
+              </svg>
+              <input
+                id="login-email"
+                type="email"
+                formControlName="email"
+                class="form-input"
+                [class.has-error]="showError('email')"
+                placeholder="nom@entreprise.ma"
+                autocomplete="email"
+                required
+              />
+            </div>
+            @if (showError('email')) {
+              <span class="field-error">
+                {{ lang() === 'FR' ? 'Veuillez saisir une adresse email valide.' : 'Please enter a valid email address.' }}
+              </span>
+            }
+          </div>
+
+          <div class="form-actions-row">
+            <a routerLink="/forgot-password" class="forgot-link">
+              {{ lang() === 'FR' ? 'Mot de passe oublié ?' : 'Forgot password?' }}
+            </a>
+          </div>
+
+          <button
+            type="submit"
+            class="btn btn-primary btn-block"
+            [disabled]="loading()"
+          >
+            @if (loading()) {
+              <span class="spinner"></span> {{ lang() === 'FR' ? 'Redirection sécurisée...' : 'Redirecting securely...' }}
+            } @else {
+              <span>{{ lang() === 'FR' ? 'Continuer la connexion' : 'Continue to Sign In' }}</span>
+              <svg class="btn-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <line x1="5" y1="12" x2="19" y2="12"/>
+                <polyline points="12 5 19 12 12 19"/>
+              </svg>
+            }
+          </button>
+        </form>
+
+        <div class="auth-divider">
+          <span>{{ lang() === 'FR' ? 'Nouveau client WWTRADING ?' : 'New to WWTRADING?' }}</span>
+        </div>
+
+        <div class="auth-card-footer">
+          <a routerLink="/register" class="btn btn-secondary btn-block">
+            {{ lang() === 'FR' ? 'Créer un compte professionnel' : 'Create a business account' }}
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

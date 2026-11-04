@@ -1,0 +1,54 @@
+# syntax=docker/dockerfile:1.7
+
+ARG MAVEN_IMAGE=maven:3.9.16-eclipse-temurin-21
+ARG RUNTIME_IMAGE=eclipse-temurin:21-jre
+
+FROM ${MAVEN_IMAGE} AS dependencies
+WORKDIR /workspace
+
+# Keep dependency resolution independent from Java source changes. The complete
+# reactor POM graph is required because Maven reads every declared module.
+COPY pom.xml pom.xml
+COPY common/common-security/pom.xml common/common-security/pom.xml
+COPY common/common-events/pom.xml common/common-events/pom.xml
+COPY services/discovery-server/pom.xml services/discovery-server/pom.xml
+COPY services/config-server/pom.xml services/config-server/pom.xml
+COPY services/api-gateway/pom.xml services/api-gateway/pom.xml
+COPY services/user-service/pom.xml services/user-service/pom.xml
+COPY services/quotation-service/pom.xml services/quotation-service/pom.xml
+COPY services/order-service/pom.xml services/order-service/pom.xml
+COPY services/cart-service/pom.xml services/cart-service/pom.xml
+COPY services/wishlist-service/pom.xml services/wishlist-service/pom.xml
+COPY services/product-service/pom.xml services/product-service/pom.xml
+COPY services/maintenance-service/pom.xml services/maintenance-service/pom.xml
+COPY services/support-service/pom.xml services/support-service/pom.xml
+COPY services/notification-service/pom.xml services/notification-service/pom.xml
+
+RUN --mount=type=cache,id=wwtrading-maven-repository,target=/root/.m2/repository,sharing=locked \
+    mvn -B -ntp -DskipTests dependency:go-offline
+
+FROM dependencies AS shared-modules
+COPY common/common-security/src common/common-security/src
+COPY common/common-events/src common/common-events/src
+RUN --mount=type=cache,id=wwtrading-maven-repository,target=/root/.m2/repository,sharing=locked \
+    mvn -B -ntp -DskipTests -pl common/common-security,common/common-events -am install
+
+FROM shared-modules AS build
+ARG SERVICE_PATH
+COPY ${SERVICE_PATH}/src ${SERVICE_PATH}/src
+RUN --mount=type=cache,id=wwtrading-maven-repository,target=/root/.m2/repository,sharing=locked \
+    test -n "${SERVICE_PATH}" \
+    && test -f "${SERVICE_PATH}/pom.xml" \
+    && mvn -B -ntp -DskipTests -pl "${SERVICE_PATH}" -am package \
+    && cp "${SERVICE_PATH}"/target/*.jar /workspace/app.jar
+
+FROM ${RUNTIME_IMAGE}
+ARG RUNTIME_DATA_DIR=""
+ARG RUNTIME_USER="10001"
+WORKDIR /app
+COPY --from=build /workspace/app.jar app.jar
+RUN if [ -n "${RUNTIME_DATA_DIR}" ]; then \
+      mkdir -p "${RUNTIME_DATA_DIR}" && chown -R 10001:10001 "${RUNTIME_DATA_DIR}"; \
+    fi
+USER ${RUNTIME_USER}
+ENTRYPOINT ["java", "-jar", "/app/app.jar"]

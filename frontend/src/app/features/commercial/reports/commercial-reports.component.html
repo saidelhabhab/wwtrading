@@ -1,0 +1,202 @@
+<wwt-dashboard-layout [title]="pageTitle()">
+  <wwt-page-header
+    [title]="pageTitle()"
+    [subtitle]="pageSubtitle()"
+    breadcrumb="Dashboard / Analytics"
+  ></wwt-page-header>
+
+  <main class="reports-page" aria-labelledby="reports-title">
+    <section class="report-heading">
+      <div>
+        <span class="eyebrow">Pilotage par données réelles</span>
+        <h1 id="reports-title">{{ pageTitle() }}</h1>
+        <p>{{ pageSubtitle() }}</p>
+      </div>
+      <div class="date-controls" aria-label="Période du rapport">
+        <div class="preset-list">
+          @for (option of presets; track option.value) {
+            <button type="button" [class.active]="preset() === option.value" (click)="selectPreset(option.value)">
+              {{ option.label }}
+            </button>
+          }
+        </div>
+        <div class="custom-dates">
+          <label>Du <input type="date" [ngModel]="from()" (ngModelChange)="from.set($event)" /></label>
+          <label>Au <input type="date" [ngModel]="to()" (ngModelChange)="to.set($event)" /></label>
+          <button type="button" class="apply-button" (click)="applyCustomPeriod()" [disabled]="!from() || !to() || from() > to()">
+            Appliquer
+          </button>
+        </div>
+      </div>
+    </section>
+
+    @if (loading()) {
+      <section class="state-card" role="status">
+        <mat-icon>analytics</mat-icon>
+        <strong>Chargement des rapports...</strong>
+      </section>
+    } @else if (error()) {
+      <section class="state-card state-card--error" role="alert">
+        <mat-icon>error_outline</mat-icon>
+        <strong>Impossible de charger les analytics.</strong>
+        <button type="button" (click)="reload()"><mat-icon>refresh</mat-icon> Réessayer</button>
+      </section>
+    } @else {
+      @if (partialError()) {
+        <div class="partial-warning" role="status"><mat-icon>info</mat-icon> Certaines sources sont momentanément indisponibles. Les données affichées restent réelles et ne sont pas remplacées par des zéros.</div>
+      }
+      <section class="kpi-grid domain-kpis" aria-label="Indicateurs métier">
+        @if (clientAnalytics(); as clients) {
+          <article class="kpi-card"><span class="kpi-icon"><mat-icon>business</mat-icon></span><div><span>Clients</span><strong>{{ clients.totalClients }}</strong><small>{{ clients.activeClients }} actifs · {{ clients.newClients }} nouveaux</small></div></article>
+        }
+        @if (orderAnalytics(); as orders) {
+          <article class="kpi-card"><span class="kpi-icon"><mat-icon>shopping_cart</mat-icon></span><div><span>{{ role() === 'CLIENT' ? 'Mes commandes' : 'Commandes' }}</span><strong>{{ orders.totalOrders }}</strong><small>{{ orders.totalValue | number: '1.2-2' }} DH de valeur commandée</small></div></article>
+        }
+        @if (quotationAnalytics(); as quotations) {
+          <article class="kpi-card"><span class="kpi-icon"><mat-icon>description</mat-icon></span><div><span>{{ role() === 'CLIENT' ? 'Mes devis' : 'Devis' }}</span><strong>{{ quotations.totalQuotations }}</strong><small>créés sur la période</small></div></article>
+        }
+        @if (maintenanceAnalytics(); as maintenance) {
+          <article class="kpi-card"><span class="kpi-icon"><mat-icon>engineering</mat-icon></span><div><span>{{ role() === 'TECHNICIAN' ? 'Interventions assignées' : role() === 'CLIENT' ? 'Mes demandes' : 'Maintenance' }}</span><strong>{{ maintenance.totalRequests }}</strong><small>sur la période</small></div></article>
+        }
+      </section>
+
+      <!-- Global financial analytics are restricted to ADMIN and MANAGER. CLIENT only ever
+           sees its own order figures, and COMMERCIAL/TECHNICIAN receive no revenue at all. -->
+      @if (canSeeGlobalFinance()) {
+        <wwt-financial-overview
+          [data]="financialData()"
+          [loading]="loading()"
+          [rangeLabel]="periodLabel()">
+        </wwt-financial-overview>
+      }
+
+      @if (orderAnalytics() || quotationAnalytics() || maintenanceAnalytics()) {
+        <section class="domain-grid">
+          @if (orderAnalytics(); as orders) {
+            <article class="panel domain-panel"><header><div><span class="eyebrow">Commandes</span><h2>Statuts des commandes</h2></div></header><div class="compact-bars">@for (item of orders.byStatus; track item.status) {<div><span>{{ businessStatusLabel(item.status) }}</span><strong>{{ item.count }}</strong></div>}</div><div class="mini-chart" aria-label="Évolution des commandes">@for (point of orders.overTime; track point.date) {<span [style.height.%]="domainBarHeight(orders.overTime, point.count)" [title]="point.date + ' : ' + point.count"></span>}</div></article>
+          }
+          @if (quotationAnalytics(); as quotations) {
+            <article class="panel domain-panel"><header><div><span class="eyebrow">Devis</span><h2>Statuts des devis</h2></div></header><div class="compact-bars">@for (item of quotations.byStatus; track item.status) {<div><span>{{ businessStatusLabel(item.status) }}</span><strong>{{ item.count }}</strong></div>}</div><div class="mini-chart" aria-label="Évolution des devis">@for (point of quotations.overTime; track point.date) {<span [style.height.%]="domainBarHeight(quotations.overTime, point.count)" [title]="point.date + ' : ' + point.count"></span>}</div></article>
+          }
+          @if (maintenanceAnalytics(); as maintenance) {
+            <article class="panel domain-panel"><header><div><span class="eyebrow">Maintenance</span><h2>Statuts des demandes</h2></div></header><div class="compact-bars">@for (item of maintenance.byStatus; track item.status) {<div><span>{{ businessStatusLabel(item.status) }}</span><strong>{{ item.count }}</strong></div>}</div><div class="mini-chart" aria-label="Évolution de la maintenance">@for (point of maintenance.overTime; track point.date) {<span [style.height.%]="domainBarHeight(maintenance.overTime, point.count)" [title]="point.date + ' : ' + point.count"></span>}</div></article>
+          }
+        </section>
+      }
+      @if (report(); as data) {
+      <section class="kpi-grid" aria-label="Indicateurs commerciaux">
+        <article class="kpi-card">
+          <span class="kpi-icon"><mat-icon>groups</mat-icon></span>
+          <div><span>Prospects</span><strong>{{ data.kpis.prospects }}</strong><small>créés sur la période</small></div>
+        </article>
+        <article class="kpi-card">
+          <span class="kpi-icon"><mat-icon>trending_down</mat-icon></span>
+          <div><span>Prospects perdus</span><strong>{{ data.kpis.lostProspects }}</strong><small>statut actuel « Perdu »</small></div>
+        </article>
+        <article class="kpi-card">
+          <span class="kpi-icon"><mat-icon>track_changes</mat-icon></span>
+          <div><span>Prospects actifs</span><strong>{{ data.kpis.activeProspects }}</strong><small>hors gagnés et perdus</small></div>
+        </article>
+        <article class="kpi-card">
+          <span class="kpi-icon"><mat-icon>emoji_events</mat-icon></span>
+          <div><span>Prospects gagnés</span><strong>{{ data.kpis.wonProspects }}</strong><small>statut actuel « Gagné »</small></div>
+        </article>
+      </section>
+
+      @if (data.kpis.prospects === 0) {
+        <section class="state-card state-card--empty">
+          <mat-icon>query_stats</mat-icon>
+          <strong>Aucune donnée commerciale pour cette période.</strong>
+          <p>Sélectionnez une période plus large ou commencez à enregistrer vos prospects.</p>
+        </section>
+      } @else {
+        <section class="analytics-grid">
+          <article class="panel activity-panel">
+            <header><div><span class="eyebrow">Évolution</span><h2>Activité commerciale</h2></div><span>Nouveaux prospects</span></header>
+            @if (data.activityOverTime.length > 0) {
+              <div class="bar-chart" role="img" aria-label="Nouveaux prospects par jour">
+                @for (point of data.activityOverTime; track point.date) {
+                  <div class="bar-column" [attr.aria-label]="point.date + ': ' + point.newProspects + ' prospect(s)'">
+                    <span class="bar-value">{{ point.newProspects }}</span>
+                    <span class="bar" [style.height.%]="activityHeight(point.newProspects)"></span>
+                    <small>{{ point.date | date: 'dd/MM' }}</small>
+                  </div>
+                }
+              </div>
+            } @else {
+              <p class="inline-empty">Aucune création de prospect sur la période.</p>
+            }
+          </article>
+
+          <article class="panel pipeline-panel">
+            <header><div><span class="eyebrow">Entonnoir</span><h2>Pipeline commercial</h2></div><span>{{ data.kpis.prospects }} prospect(s)</span></header>
+            <div class="pipeline-list">
+              @for (item of data.prospectsByStatus; track item.status) {
+                <div class="pipeline-row">
+                  <div class="pipeline-label"><span>{{ statusLabels[item.status] }}</span><strong>{{ item.count }} <small>{{ share(item.count) }}%</small></strong></div>
+                  <div class="pipeline-track"><span [class]="'pipeline-fill pipeline-fill--' + item.status.toLowerCase().replace('_', '-')" [style.width.%]="pipelineWidth(item.count)"></span></div>
+                </div>
+              }
+            </div>
+          </article>
+        </section>
+
+        <section class="panel recent-panel">
+          <header><div><span class="eyebrow">Dernières mises à jour</span><h2>Activité récente</h2></div><a [routerLink]="'/' + role().toLowerCase() + '/prospects'">Gérer les prospects <mat-icon>arrow_forward</mat-icon></a></header>
+          <div class="recent-grid">
+            @for (prospect of data.recentProspects; track prospect.id) {
+              <article class="recent-item">
+                <span class="initials">{{ prospect.companyName.slice(0, 2).toUpperCase() }}</span>
+                <div><strong>{{ prospect.companyName }}</strong><span>{{ prospect.contactName }}</span></div>
+                <span [class]="statusClass(prospect.status)">{{ statusLabels[prospect.status] }}</span>
+                <time [attr.datetime]="prospect.updatedAt">{{ prospect.updatedAt | date: 'dd/MM/yyyy HH:mm' }}</time>
+              </article>
+            }
+          </div>
+        </section>
+      }
+      }
+    }
+
+    @if (canSeeProspects()) {
+    <section class="panel detail-panel" aria-labelledby="detail-title">
+      <header><div><span class="eyebrow">Détail du portefeuille</span><h2 id="detail-title">Prospects de la période</h2></div><span class="result-count">{{ prospects()?.totalElements ?? 0 }} résultat(s)</span></header>
+      <div class="table-toolbar">
+        <label class="search-field"><mat-icon>search</mat-icon><input type="search" [ngModel]="search()" (ngModelChange)="search.set($event)" (keyup.enter)="applyTableFilters()" placeholder="Société, contact ou ville" aria-label="Rechercher dans le rapport" /></label>
+        <label class="filter-field"><span>Statut</span><select [ngModel]="statusFilter()" (ngModelChange)="statusFilter.set($event); applyTableFilters()"><option value="ALL">Tous</option>@for (status of statuses; track status) {<option [value]="status">{{ statusLabels[status] }}</option>}</select></label>
+        <button type="button" class="filter-button" (click)="applyTableFilters()"><mat-icon>filter_alt</mat-icon> Filtrer</button>
+        @if (search() || statusFilter() !== 'ALL') {<button type="button" class="clear-button" (click)="clearFilters()">Effacer</button>}
+      </div>
+
+      @if (listLoading()) {
+        <div class="table-state" role="status">Chargement des prospects...</div>
+      } @else if (listError()) {
+        <div class="table-state table-state--error" role="alert">Impossible de charger le détail du rapport. <button type="button" (click)="applyTableFilters()">Réessayer</button></div>
+      } @else if ((prospects()?.content?.length ?? 0) === 0) {
+        <div class="table-state">Aucun prospect ne correspond à ces critères.</div>
+      } @else {
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Prospect</th><th>Entreprise</th><th>Ville / activité</th><th>Statut</th><th>Création</th><th>Mise à jour</th></tr></thead>
+            <tbody>
+              @for (prospect of prospects()?.content ?? []; track prospect.id) {
+                <tr>
+                  <td data-label="Prospect"><strong>{{ prospect.contactName }}</strong></td>
+                  <td data-label="Entreprise">{{ prospect.companyName }}</td>
+                  <td data-label="Ville / activité"><span>{{ prospect.city || '—' }}</span><small>{{ prospect.activity || '—' }}</small></td>
+                  <td data-label="Statut"><span [class]="statusClass(prospect.status)">{{ statusLabels[prospect.status] }}</span></td>
+                  <td data-label="Création">{{ prospect.createdAt | date: 'dd/MM/yyyy' }}</td>
+                  <td data-label="Mise à jour">{{ prospect.updatedAt | date: 'dd/MM/yyyy HH:mm' }}</td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+        @if ((prospects()?.totalPages ?? 0) > 1) {
+          <footer class="pagination"><button type="button" (click)="goToPage(page() - 1)" [disabled]="prospects()?.first"><mat-icon>chevron_left</mat-icon> Précédent</button><span>Page {{ page() + 1 }} sur {{ prospects()?.totalPages }}</span><button type="button" (click)="goToPage(page() + 1)" [disabled]="prospects()?.last">Suivant <mat-icon>chevron_right</mat-icon></button></footer>
+        }
+      }
+    </section>
+    }
+  </main>
+</wwt-dashboard-layout>

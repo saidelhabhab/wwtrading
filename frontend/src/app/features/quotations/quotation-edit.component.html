@@ -1,0 +1,90 @@
+<main class="quotation-edit" aria-labelledby="quotation-edit-title">
+  <a class="back-link" [routerLink]="quotation() ? ['/devis', quotation()!.id] : ['/devis']">
+    ← Retour au devis
+  </a>
+
+  <header>
+    <p class="eyebrow">Contenu du devis</p>
+    <h1 id="quotation-edit-title">Modifier le devis</h1>
+    <p>Le client, le statut et les informations système restent inchangés.</p>
+  </header>
+
+  @if (loading()) {
+    <div class="skeleton" role="status" aria-label="Chargement du devis">
+      <span></span><span></span><span></span>
+    </div>
+  } @else if (notFound()) {
+    <section class="state" role="alert">
+      <h2>Devis introuvable</h2>
+      <p>La référence demandée n’existe pas.</p>
+    </section>
+  } @else {
+    @if (error()) {
+      <p class="message error" role="alert">{{ error() }}</p>
+    }
+    @if (success()) {
+      <p class="message success" role="status">Modifications enregistrées. Actualisation du détail…</p>
+    }
+
+    @if (quotation(); as item) {
+      <aside aria-label="Informations non modifiables">
+        <span>Client : {{ item.customerReference }}</span>
+        <span>Statut : {{ item.status }}</span>
+      </aside>
+
+      <form [formGroup]="form" (ngSubmit)="submit()" novalidate>
+        <div class="field">
+          <label for="edit-subject">Objet</label>
+          <input
+            id="edit-subject"
+            type="text"
+            formControlName="subject"
+            maxlength="200"
+            [attr.aria-invalid]="showError('subject')"
+            aria-describedby="edit-subject-error"
+          >
+          @if (showError('subject')) {
+            <p id="edit-subject-error" class="validation">Objet requis, 200 caractères maximum.</p>
+          }
+        </div>
+
+        <div class="field">
+          <label for="edit-description">Description de la demande</label>
+          <textarea
+            id="edit-description"
+            formControlName="requestDescription"
+            maxlength="4000"
+            rows="7"
+            [attr.aria-invalid]="showError('requestDescription')"
+            aria-describedby="edit-description-error"
+          ></textarea>
+          @if (showError('requestDescription')) {
+            <p id="edit-description-error" class="validation">Description requise, 4 000 caractères maximum.</p>
+          }
+        </div>
+
+        <div class="field">
+          <label for="edit-notes">Notes <span>(facultatif)</span></label>
+          <textarea
+            id="edit-notes"
+            formControlName="notes"
+            maxlength="10000"
+            rows="4"
+            [attr.aria-invalid]="showError('notes')"
+            aria-describedby="edit-notes-error"
+          ></textarea>
+          @if (showError('notes')) {
+            <p id="edit-notes-error" class="validation">10 000 caractères maximum.</p>
+          }
+        </div>
+
+        <div class="actions">
+          <a [routerLink]="['/devis', item.id]">Annuler</a>
+          <button type="submit" [disabled]="submitting()">
+            {{ submitting() ? 'Enregistrement…' : 'Enregistrer' }}
+          </button>
+        </div>
+      </form>
+    }
+  }
+</main>

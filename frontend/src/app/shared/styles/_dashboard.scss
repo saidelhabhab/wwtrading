@@ -1,0 +1,78 @@
+@use 'variables' as *;
+@use 'mixins' as *;
+
+/**
+ * Shared dashboard layout primitives.
+ *
+ * Mobile-first: the unprefixed rules describe the phone layout, then wider
+ * breakpoints add columns. Every container is width-safe (no fixed widths, no
+ * negative margins) so no viewport triggers horizontal page scrolling.
+ */
+
+/** Standard page wrapper used by dashboard feature pages. */
+.dashboard-page {
+  min-height: 100%;
+  padding-block: var(--dashboard-page-padding-block, #{$space-6});
+  padding-inline: var(--dashboard-page-padding-inline, #{$space-4});
+}
+
+/** Centred content column with a readable maximum width on TV screens. */
+.dashboard-content {
+  width: 100%;
+  max-width: var(--dashboard-max-width, #{$container-max-width});
+  margin-inline: auto;
+  min-width: 0;
+}
+
+/** KPI / card grid: 1 column on mobile, 2 on tablet, 4 on desktop. */
+.dashboard-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--dashboard-gap, #{$space-4});
+}
+
+@include from(sm) {
+  .dashboard-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+@include from(lg) {
+  .dashboard-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+}
+
+/**
+ * Two-column "main content + side information" layout.
+ * Collapses to a single column below the laptop breakpoint instead of keeping
+ * an unreadable split, and re-expands on large desktops.
+ */
+.dashboard-split {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--dashboard-gap, #{$space-4});
+}
+
+@include from(lg) {
+  .dashboard-split {
+    grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
+    align-items: start;
+  }
+}
+
+@include from('2xl') {
+  /* On TV / 4K the side column gets more room instead of tiny cards. */
+  .dashboard-split { grid-template-columns: minmax(0, 2.2fr) minmax(0, 1fr); }
+}
+
+/** Auto-fit card grid, used by product / machine / client card lists. */
+.card-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--dashboard-gap, #{$space-4});
+}
+
+@include from(xs) {
+  .card-grid { grid-template-columns: repeat(auto-fit, minmax(min(100%, 15rem), 1fr)); }
+}
+
+@include from('2xl') {
+  .card-grid { gap: $space-6; }
+}

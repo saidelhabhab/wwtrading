@@ -1,0 +1,142 @@
+wwtrading:
+  security:
+    audience: ${JWT_AUDIENCE:wwtrading-api}
+
+spring:
+  cloud:
+    gateway:
+      server:
+        webflux:
+          default-filters:
+            - name: RequestSize
+              args:
+                maxSize: 2MB
+
+          discovery:
+            locator:
+              enabled: false
+
+          routes:
+            # ==========================
+            # USER SERVICE
+            # ==========================
+            - id: user-service
+              uri: lb://user-service
+              predicates:
+                - Path=/api/v1/users, /api/v1/users/**, /api/v1/clients, /api/v1/clients/**, /api/v1/auth, /api/v1/auth/**
+
+            # ==========================
+            # PRODUCT SERVICE
+            # ==========================
+            - id: product-service
+              uri: lb://product-service
+              predicates:
+                - Path=/api/products, /api/products/**
+
+            # ==========================
+            # STOCK (product-service)
+            # ==========================
+            - id: stock
+              uri: lb://product-service
+              predicates:
+                - Path=/api/stock, /api/stock/**
+
+            # ==========================
+            # ORDER SERVICE
+            # ==========================
+            - id: order-service
+              uri: lb://order-service
+              predicates:
+                - Path=/api/orders, /api/orders/**, /api/admin/payment-banks, /api/admin/payment-banks/**, /api/admin/delivery-settings, /api/admin/delivery-settings/**
+
+            # ==========================
+            # INVENTORY SERVICE
+            # ==========================
+            - id: inventory-service
+              uri: lb://inventory-service
+              predicates:
+                - Path=/api/inventory, /api/inventory/**
+
+            # ==========================
+            # CART SERVICE
+            # ==========================
+            - id: cart-service
+              uri: lb://cart-service
+              predicates:
+                - Path=/api/cart, /api/cart/**
+
+            # ==========================
+            # WISHLIST SERVICE
+            # ==========================
+            - id: wishlist-service
+              uri: lb://wishlist-service
+              predicates:
+                - Path=/api/wishlist, /api/wishlist/**
+
+            # ==========================
+            # NOTIFICATION SERVICE
+            # ==========================
+            - id: notification-service
+              uri: lb://notification-service
+              predicates:
+                - Path=/api/notifications, /api/notifications/**
+
+            # ==========================
+            # QUOTATION SERVICE
+            # ==========================
+            - id: quotation-service
+              uri: lb://quotation-service
+              predicates:
+                - Path=/api/quotations, /api/quotations/**
+
+            # ==========================
+            # MAINTENANCE SERVICE
+            # ==========================
+            - id: maintenance-service
+              uri: lb://maintenance-service
+              predicates:
+                - Path=/api/maintenance, /api/maintenance/**
+
+            # ==========================
+            # SUPPORT SERVICE
+            # ==========================
+            - id: support-service
+              uri: lb://support-service
+              predicates:
+                - Path=/api/support, /api/support/**
+
+            # ==========================
+            # PROSPECTS (quotation-service)
+            # ==========================
+            - id: prospects
+              uri: lb://quotation-service
+              predicates:
+                - Path=/api/prospects, /api/prospects/**
+
+            # ==========================
+            # COMMERCIAL REPORTS (quotation-service)
+            # ==========================
+            - id: commercial-reports
+              uri: lb://quotation-service
+              predicates:
+                - Path=/api/reports/commercial, /api/reports/commercial/**
+
+            - id: order-analytics
+              uri: lb://order-service
+              predicates:
+                - Path=/api/analytics/orders
+
+            - id: quotation-analytics
+              uri: lb://quotation-service
+              predicates:
+                - Path=/api/analytics/quotations
+
+            - id: maintenance-analytics
+              uri: lb://maintenance-service
+              predicates:
+                - Path=/api/analytics/maintenance
+
+            - id: client-analytics
+              uri: lb://user-service
+              predicates:
+                - Path=/api/analytics/clients

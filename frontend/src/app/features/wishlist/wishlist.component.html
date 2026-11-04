@@ -1,0 +1,137 @@
+<section class="wishlist-page wishlist" aria-labelledby="wishlist-title">
+  <!-- Back navigation -->
+  <nav class="wishlist-breadcrumb" aria-label="Navigation secondaire">
+    <a routerLink="/products" class="back-link">
+      <span class="material-icons" aria-hidden="true">arrow_back</span>
+      <span>Retour au catalogue</span>
+    </a>
+  </nav>
+
+  <!-- Page Header -->
+  <header class="wishlist-header">
+    <div class="header-titles">
+      <p class="eyebrow">Espace professionnel</p>
+      <h1 id="wishlist-title">Ma liste de souhaits</h1>
+      <p class="intro">Retrouvez et gérez les références d'imprimantes, toners et consommables que vous souhaitez commander ultérieurement.</p>
+    </div>
+
+    @if (wishlist(); as current) {
+      @if (current.items && current.items.length > 0) {
+        <div class="header-tools">
+          <span class="count-pill">{{ current.items.length }} {{ current.items.length > 1 ? 'articles' : 'article' }}</span>
+          <button
+            type="button"
+            class="btn-clear-wishlist clear-action action"
+            [disabled]="clearing() || removingItemId() !== null"
+            (click)="clearWishlist()"
+          >
+            <span class="material-icons" aria-hidden="true">delete_sweep</span>
+            <span>{{ clearing() ? 'Suppression en cours…' : 'Vider la liste' }}</span>
+          </button>
+        </div>
+      }
+    }
+  </header>
+
+  <!-- State: Loading -->
+  @if (loading()) {
+    <div class="skeleton-grid skeleton" aria-label="Chargement de la liste de souhaits">
+      <div class="skeleton-card"><span></span></div>
+      <div class="skeleton-card"><span></span></div>
+      <div class="skeleton-card"><span></span></div>
+    </div>
+  } @else if (error()) {
+    <!-- State: Load Error -->
+    <section class="state error" role="alert">
+      <div class="state-icon" aria-hidden="true">
+        <span class="material-icons">error_outline</span>
+      </div>
+      <h2>Chargement impossible</h2>
+      <p>{{ error() }}</p>
+      <div class="state-actions">
+        <button type="button" class="action btn-primary" (click)="load()">Réessayer</button>
+        <a class="catalog-link btn-secondary" routerLink="/products">Parcourir les produits</a>
+      </div>
+    </section>
+  } @else if (!wishlist() || wishlist()?.items?.length === 0) {
+    <!-- State: Empty Wishlist -->
+    <section class="state empty" aria-labelledby="empty-wishlist-heading">
+      <div class="empty-icon-box" aria-hidden="true">
+        <span class="material-icons">favorite_border</span>
+      </div>
+      <h2 id="empty-wishlist-heading">Votre liste de souhaits est vide</h2>
+      <p>
+        Vous n’avez enregistré aucun équipement, toner ou pièce détachée pour le moment.
+        Explorez le catalogue WWTRADING pour préparer vos commandes.
+      </p>
+      <div class="state-actions">
+        <a class="catalog-link btn-primary" routerLink="/products">
+          <span class="material-icons" aria-hidden="true">storefront</span>
+          <span>Découvrir nos produits</span>
+        </a>
+      </div>
+    </section>
+  } @else {
+    <!-- Inline Action Error Feedback -->
+    @if (actionError(); as message) {
+      <div class="action-error inline-error" role="alert">
+        <span class="material-icons" aria-hidden="true">info</span>
+        <span>{{ message }}</span>
+      </div>
+    }
+
+    <!-- Product Cards Grid -->
+    <div class="wishlist-grid items" aria-label="Articles de la liste de souhaits">
+      @for (item of wishlist()?.items; track item.id) {
+        <article class="wishlist-card item" [attr.aria-busy]="removingItemId() === item.id">
+          <!-- Top Remove Action Button -->
+          <button
+            type="button"
+            class="btn-remove-wishlist action"
+            [disabled]="clearing() || removingItemId() !== null"
+            [attr.aria-label]="'Retirer la référence ' + item.productReference"
+            (click)="removeItem(item.id)"
+          >
+            <span class="material-icons" aria-hidden="true">delete_outline</span>
+            <span class="remove-label">{{ removingItemId() === item.id ? 'Retrait…' : 'Retirer' }}</span>
+          </button>
+
+          <!-- Controlled Fixed Dimension Media Thumbnail -->
+          <div class="card-thumb" aria-hidden="true">
+            <span class="material-icons thumb-icon">print</span>
+            <span class="thumb-tag">Konica Minolta & Develop</span>
+          </div>
+
+          <!-- Card Content / Body -->
+          <div class="card-content item-content">
+            <span class="card-label item-label">Référence produit</span>
+            <h2 class="card-reference item-reference">{{ item.productReference }}</h2>
+            <p class="card-spec">Équipement d'impression & consommables professionnels</p>
+            <span class="card-price-badge">Tarif catalogue pro</span>
+          </div>
+
+          <!-- Card Actions (Add to Cart & View Product) -->
+          <div class="card-footer">
+            <button
+              type="button"
+              class="btn-add-to-cart action"
+              [disabled]="clearing() || removingItemId() !== null || addingProductReference() !== null"
+              [attr.aria-label]="'Ajouter ' + item.productReference + ' au panier'"
+              (click)="addToCart(item.productReference)"
+            >
+              <span class="material-icons" aria-hidden="true">
+                {{ addingProductReference() === item.productReference ? 'hourglass_top' : 'add_shopping_cart' }}
+              </span>
+              <span>{{ addingProductReference() === item.productReference ? 'Ajout en cours…' : 'Ajouter au panier' }}</span>
+            </button>
+
+            <a class="btn-view-product" routerLink="/products" title="Consulter la fiche dans le catalogue">
+              <span>Voir le produit</span>
+              <span class="material-icons" aria-hidden="true">arrow_forward</span>
+            </a>
+          </div>
+        </article>
+      }
+    </div>
+  }
+</section>

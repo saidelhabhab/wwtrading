@@ -1,0 +1,845 @@
+<main class="checkout" aria-labelledby="checkout-title">
+  <header class="checkout-header">
+    <div class="trust-badge-bar">
+      <span class="lock-icon" aria-hidden="true">🔒</span>
+      <span>Commande &amp; Paiement 100% Sécurisés · WWTRADING Maroc</span>
+    </div>
+
+    <p class="eyebrow">Commande</p>
+
+    <h1 id="checkout-title">Finaliser votre demande</h1>
+
+    <p class="intro">
+      @if (quotationId) {
+        Votre devis accepté fixe les références, quantités et tarifs négociés. Choisissez votre mode de réception et de règlement ci-dessous.
+      } @else if (guestMode()) {
+        Commandez en toute simplicité sans création préalable de compte. Renseignez vos coordonnées de contact puis choisissez votre mode de réception et de règlement.
+      } @else {
+        Vérifiez l’adresse de livraison ainsi que les références sélectionnées, puis enregistrez votre commande.
+      }
+    </p>
+
+    <nav class="checkout-stepper" aria-label="Étapes de la commande">
+      <div class="stepper-item" [class.active]="true">
+        <span class="num">1</span>
+        <span>{{ isDelivery() ? 'Coordonnées & Livraison' : 'Coordonnées (Retrait)' }}</span>
+      </div>
+      <span class="stepper-separator" aria-hidden="true"></span>
+      <div class="stepper-item" [class.active]="selectedDeliveryMethod()">
+        <span class="num">2</span>
+        <span>Mode de réception</span>
+      </div>
+      <span class="stepper-separator" aria-hidden="true"></span>
+      <div class="stepper-item" [class.active]="selectedPaymentMethod()">
+        <span class="num">3</span>
+        <span>Mode de règlement</span>
+      </div>
+      <span class="stepper-separator" aria-hidden="true"></span>
+      <div class="stepper-item" [class.active]="requiresBankSelection() ? selectedBankReference() : selectedPaymentMethod()">
+        <span class="num">4</span>
+        <span>Confirmation</span>
+      </div>
+    </nav>
+  </header>
+
+  @if (loading()) {
+    <output class="state">
+      <h2>Préparation du checkout…</h2>
+      <p>Chargement des informations de votre panier et calcul des options disponibles.</p>
+    </output>
+  } @else if (error()) {
+    <section class="state" role="alert">
+      <h2>Chargement impossible</h2>
+      <p>{{ error() }}</p>
+      <button type="button" (click)="load()">
+        Réessayer
+      </button>
+    </section>
+  } @else {
+    @if (createdOrder(); as order) {
+      <output class="state">
+        <h2>Commande confirmée avec succès</h2>
+
+        <p>
+          Votre commande a été enregistrée avec la référence
+          <strong>{{ order.orderNumber || order.id }}</strong>
+          @if (order.orderNumber && order.orderNumber !== order.id) {
+            <span> (ID système : <strong>{{ order.id }}</strong>)</span>
+          }.
+        </p>
+
+        @if (proofUploadError()) {
+          <p class="unavailable" role="alert">{{ proofUploadError() }}</p>
+          <button type="button" [disabled]="submitting()" (click)="retryTransferProof()">
+            {{ submitting() ? 'Envoi en cours…' : 'Réessayer l’envoi de la preuve' }}
+          </button>
+        }
+
+        <p>
+          Statut :
+          <strong>{{ orderStatusLabel(order.status, order.deliveryMethod) }} ({{ order.status }})</strong>
+          · Réception :
+          <strong>{{ order.deliveryMethod === 'PICKUP' ? 'Retrait sur place (Magasin)' : 'Livraison directe' }}</strong>
+          · Frais de port :
+          <strong>{{ order.deliveryFee | number:'1.2-2' }} DH</strong>
+          · Règlement :
+          <strong>{{ paymentPlanLabel(order.paymentPlan, order.paymentMethod, order.deliveryMethod) }}</strong>
+          · Statut paiement :
+          <strong>{{ paymentStatusLabel(order.paymentStatus) }}</strong>
+        </p>
+
+        @if (order.paymentMethod === 'PAY_ON_PICKUP' || order.paymentPlan === 'PAY_ON_PICKUP') {
+          <div class="bank-box">
+            <strong>Paiement et retrait en magasin</strong>
+            <p>
+              Votre commande est enregistrée et sera préparée par nos équipes. Vous pourrez régler l’intégralité du montant de
+              <strong>{{ order.total | number:'1.2-2' }} DH</strong> directement sur place au moment du retrait en magasin (espèces ou chèque certifié).
+            </p>
+            <p>
+              Référence à présenter lors du retrait : <strong>{{ order.orderNumber || order.id }}</strong>.
+            </p>
+          </div>
+        } @else if ((order.paymentBankName || order.paymentBankRib) && (order.paymentMethod === 'BANK_TRANSFER' || order.paymentMethod === 'SPLIT_50_50')) {
+          <div class="bank-box">
+            <strong>Instructions de virement bancaire</strong>
+            @if (order.paymentBankName) {
+              <p>Banque partenaire : <strong>{{ order.paymentBankName }}</strong></p>
+            }
+            @if (order.paymentBankBeneficiary) {
+              <p>Bénéficiaire : <strong>{{ order.paymentBankBeneficiary }}</strong></p>
+            }
+            @if (order.paymentBankRib) {
+              <p>
+                RIB : <code>{{ order.paymentBankRib }}</code>
+                <button type="button" class="copy-rib-btn" (click)="copyRib(order.paymentBankRib)">
+                  {{ copiedRib() === order.paymentBankRib ? '✓ RIB copié' : '📋 Copier le RIB' }}
+                </button>
+              </p>
+            }
+            <p>
+              Montant à régler par virement bancaire :
+              <strong>{{ (order.paymentMethod === 'SPLIT_50_50' ? (order.upfrontPaymentAmount ?? (order.total / 2)) : order.total) | number:'1.2-2' }} DH</strong>
+              · Référence de virement à indiquer : <strong>{{ order.orderNumber || order.id }}</strong>
+            </p>
+          </div>
+        }
+
+        @if (order.guestOrder || guestMode()) {
+          <div class="tracking-card">
+            <strong>Suivi sécurisé de votre commande</strong>
+            <p>
+              Un e-mail de confirmation contenant le récapitulatif détaillé et votre lien de suivi sécurisé en temps réel a été adressé à
+              <strong>{{ order.contactEmail || order.customerReference }}</strong>.
+            </p>
+            @if (order.trackingToken) {
+              <div class="tracking-actions">
+                <a [routerLink]="['/suivi-commande']" [queryParams]="{ token: order.trackingToken }">
+                  Accéder au suivi de la commande
+                </a>
+                @if (order.trackingUrl) {
+                  <button type="button" (click)="copyTrackingLink(order.trackingUrl)">
+                    {{ trackingLinkCopied() ? '✓ Lien copié !' : '📋 Copier le lien de suivi' }}
+                  </button>
+                }
+              </div>
+            }
+            <p style="margin-top: .75rem; font-size: .88rem; color: #625f5c;">
+              Vous souhaitez retrouver l'ensemble de vos commandes dans votre espace client ? Créez ou connectez-vous à un compte WWTRADING avec l’adresse
+              <strong>{{ order.contactEmail || order.customerReference }}</strong> vérifiée pour rattacher automatiquement toutes vos commandes passées.
+            </p>
+          </div>
+        }
+
+        <h3>Détail des articles commandés</h3>
+
+        <ul>
+          @for (item of order.items; track item.id) {
+            <li>
+              <strong>{{ item.productName || item.productReference }}</strong>
+              @if (item.productName) {
+                <span> (Réf. {{ item.productReference }})</span>
+              }
+              · Quantité : {{ item.quantity }}
+              · Prix unitaire : {{ item.unitPrice | number:'1.2-2' }} DH
+              · Total ligne : <strong>{{ item.subtotal | number:'1.2-2' }} DH</strong>
+            </li>
+          }
+        </ul>
+
+        <p>Sous-total articles : <strong>{{ order.subtotal | number:'1.2-2' }} DH</strong></p>
+        @if (order.discount && order.discount > 0) {
+          <p>Remise accordée : <strong>− {{ order.discount | number:'1.2-2' }} DH</strong></p>
+        }
+        <p>
+          Frais de port : <strong>{{ order.deliveryFee | number:'1.2-2' }} DH</strong>
+          @if (deliveryFeeWaivedLabel(order.deliveryFeeWaivedReason); as waivedText) {
+            <span> ({{ waivedText }})</span>
+          }
+        </p>
+        <p>Montant total : <strong>{{ order.total | number:'1.2-2' }} DH</strong></p>
+
+        @if (order.paymentMethod === 'SPLIT_50_50' || order.paymentPlan === 'SPLIT_50_50') {
+          <p>Acompte de 50 % à la commande (virement) : <strong>{{ order.upfrontPaymentAmount | number:'1.2-2' }} DH</strong></p>
+          <p>{{ order.deliveryMethod === 'PICKUP' ? 'Solde 50 % au retrait en magasin' : 'Solde 50 % à la livraison' }} : <strong>{{ order.remainingDeliveryAmount | number:'1.2-2' }} DH</strong></p>
+          <p>Montant reçu : <strong>{{ (order.amountPaid ?? 0) | number:'1.2-2' }} DH</strong> · Reste à régler : <strong>{{ (order.outstandingBalance ?? order.total) | number:'1.2-2' }} DH</strong></p>
+        } @else if (order.paymentMethod === 'PAY_ON_PICKUP' || order.paymentPlan === 'PAY_ON_PICKUP') {
+          <p>Paiement intégral sur place : <strong>{{ order.total | number:'1.2-2' }} DH</strong></p>
+          <p>Montant reçu : <strong>{{ (order.amountPaid ?? 0) | number:'1.2-2' }} DH</strong> · Reste à régler : <strong>{{ (order.outstandingBalance ?? order.total) | number:'1.2-2' }} DH</strong></p>
+        }
+
+        @if (order.shippingAddress; as shippingAddress) {
+          @if (shippingAddress.addressLine1 || shippingAddress.city) {
+            <address>
+              <strong>
+                {{ shippingAddress.firstName }}
+                {{ shippingAddress.lastName }}
+              </strong>
+              <br>
+              {{ shippingAddress.addressLine1 }}
+              @if (shippingAddress.addressLine2) {
+                , {{ shippingAddress.addressLine2 }}
+              }
+              <br>
+              {{ shippingAddress.postalCode }}
+              {{ shippingAddress.city }}
+              <br>
+              {{ shippingAddress.country }}
+            </address>
+          }
+        }
+
+        <div style="display: flex; gap: 1rem; flex-wrap: wrap; margin-top: 1.5rem;">
+          @if (!order.guestOrder && !guestMode()) {
+            <a [routerLink]="['/orders', order.id]">
+              Voir la commande dans mon compte
+            </a>
+          }
+
+          <a routerLink="/products">
+            Poursuivre mes achats
+          </a>
+        </div>
+      </output>
+    } @else if (!quotationId && cart()?.items?.length === 0) {
+      <section class="state">
+        <h2>Votre panier est vide</h2>
+        <p>Ajoutez au moins un produit à votre panier pour finaliser votre commande.</p>
+        <a routerLink="/products">
+          Explorer le catalogue
+        </a>
+      </section>
+    } @else {
+      <!-- Mobile summary toggle button (< 1024px) -->
+      <button
+        type="button"
+        class="mobile-summary-bar"
+        (click)="toggleMobileSummary()"
+        [attr.aria-expanded]="mobileSummaryOpen()"
+      >
+        <span class="toggle-left">
+          <span aria-hidden="true">🛍️</span>
+          <span>{{ mobileSummaryOpen() ? 'Masquer le récapitulatif' : 'Voir le récapitulatif de la commande' }}</span>
+          <span aria-hidden="true">{{ mobileSummaryOpen() ? '▲' : '▼' }}</span>
+        </span>
+        <span class="toggle-right">
+          @if (pricing(); as quote) {
+            {{ quote.total | number:'1.2-2' }} DH
+          } @else {
+            {{ cart()?.items?.length ?? 0 }} article(s)
+          }
+        </span>
+      </button>
+
+      @if (mobileSummaryOpen()) {
+        <div class="mobile-summary-dropdown">
+          <ul>
+            @if (quotation(); as acceptedQuotation) {
+              @for (line of acceptedQuotation.lines ?? []; track line.productId) {
+                <li>
+                  <span>{{ line.productName }} (× {{ line.proposedQuantity }})</span>
+                  <strong>{{ (line.proposedLineTotal ?? 0) | number:'1.2-2' }} DH</strong>
+                </li>
+              }
+            } @else {
+              @for (item of cart()?.items; track item.id) {
+                <li>
+                  <span>{{ item.productReference }} (× {{ item.quantity }})</span>
+                  @if (item.availableQuantity != null) {
+                    <small>Dispo: {{ item.availableQuantity }}</small>
+                  }
+                </li>
+              }
+            }
+          </ul>
+          @if (pricing(); as quote) {
+            <div class="mobile-summary-total">
+              <span>Total TTC :</span>
+              <strong>{{ quote.total | number:'1.2-2' }} DH</strong>
+            </div>
+          }
+        </div>
+      }
+
+      <div class="layout">
+        <div class="steps">
+
+          @if (guestMode()) {
+            <section class="step" aria-labelledby="guest-contact-step-title">
+              <div class="step-heading">
+                <span class="step-number">1</span>
+                <h2 id="guest-contact-step-title">
+                  {{ isDelivery() ? 'Coordonnées & Adresse de livraison' : 'Coordonnées de contact (Retrait en magasin)' }}
+                </h2>
+              </div>
+
+              <div class="guest-form-grid">
+                <div class="field">
+                  <label for="guest-full-name">
+                    <span>Nom complet *</span>
+                    <span class="field-hint-pill">Requis</span>
+                  </label>
+                  <input
+                    id="guest-full-name"
+                    name="guest-full-name"
+                    type="text"
+                    autocomplete="name"
+                    placeholder="Ex. : Karim El Amrani"
+                    [value]="guestFullName()"
+                    (input)="guestFullName.set($any($event.target).value)"
+                  >
+                </div>
+
+                <div class="field">
+                  <label for="guest-email">
+                    <span>Adresse e-mail *</span>
+                    <span class="field-hint-pill">Requis</span>
+                  </label>
+                  <input
+                    id="guest-email"
+                    name="guest-email"
+                    type="email"
+                    autocomplete="email"
+                    placeholder="exemple@domaine.ma"
+                    [value]="guestEmail()"
+                    (input)="guestEmail.set($any($event.target).value)"
+                  >
+                  <small>Pour recevoir votre confirmation et le lien de suivi sécurisé.</small>
+                </div>
+
+                <div class="field">
+                  <label for="guest-phone">
+                    <span>Téléphone (Maroc / WhatsApp) *</span>
+                    <span class="field-hint-pill">Requis</span>
+                  </label>
+                  <input
+                    id="guest-phone"
+                    name="guest-phone"
+                    type="tel"
+                    autocomplete="tel"
+                    placeholder="Ex. : 06 00 00 00 00"
+                    [value]="guestPhone()"
+                    (input)="guestPhone.set($any($event.target).value)"
+                  >
+                </div>
+
+                <div class="field">
+                  <label for="guest-company">
+                    <span>Société / Organisation</span>
+                    <span class="field-hint-pill">Facultatif</span>
+                  </label>
+                  <input
+                    id="guest-company"
+                    name="guest-company"
+                    type="text"
+                    autocomplete="organization"
+                    placeholder="Nom de votre entreprise"
+                    [value]="guestCompany()"
+                    (input)="guestCompany.set($any($event.target).value)"
+                  >
+                </div>
+
+                @if (isDelivery()) {
+                  <div class="field">
+                    <label for="guest-city">
+                      <span>Ville de livraison *</span>
+                      <span class="field-hint-pill">Requis</span>
+                    </label>
+                    <input
+                      id="guest-city"
+                      name="guest-city"
+                      type="text"
+                      list="wwt-morocco-cities"
+                      autocomplete="address-level2"
+                      placeholder="Ex. : Kénitra, Casablanca, Rabat…"
+                      [value]="guestCity()"
+                      (input)="updateGuestCity($any($event.target).value)"
+                    >
+                    <datalist id="wwt-morocco-cities">
+                      @for (cityOption of popularCities; track cityOption) {
+                        <option [value]="cityOption"></option>
+                      }
+                    </datalist>
+                    @if (deliverySettings(); as ds) {
+                      <small>
+                        @if (!ds.feesEnabled) {
+                          Frais de livraison offerts sur toutes les villes.
+                        } @else {
+                          Kénitra &amp; environs : {{ ds.kenitraAreaFee | number:'1.0-2' }} DH · Casablanca : {{ ds.casablancaFee | number:'1.0-2' }} DH · Autres villes : {{ ds.otherAreasFee | number:'1.0-2' }} DH@if (ds.freeDeliveryThreshold > 0) { · Gratuit dès {{ ds.freeDeliveryThreshold | number:'1.0-2' }} DH}.
+                        }
+                      </small>
+                    }
+                  </div>
+
+                  <div class="field">
+                    <label for="guest-postal-code">
+                      <span>Code postal</span>
+                      <span class="field-hint-pill">Facultatif</span>
+                    </label>
+                    <input
+                      id="guest-postal-code"
+                      name="guest-postal-code"
+                      type="text"
+                      autocomplete="postal-code"
+                      placeholder="Ex. : 14000"
+                      [value]="guestPostalCode()"
+                      (input)="guestPostalCode.set($any($event.target).value)"
+                    >
+                  </div>
+
+                  <div class="field full-width">
+                    <label for="guest-address-1">
+                      <span>Adresse complète de livraison *</span>
+                      <span class="field-hint-pill">Requis</span>
+                    </label>
+                    <input
+                      id="guest-address-1"
+                      name="guest-address-1"
+                      type="text"
+                      autocomplete="address-line1"
+                      placeholder="Numéro, rue, quartier, résidence, étage…"
+                      [value]="guestAddressLine1()"
+                      (input)="guestAddressLine1.set($any($event.target).value)"
+                    >
+                  </div>
+
+                  <div class="field full-width">
+                    <label for="guest-address-2">
+                      <span>Complément d’adresse</span>
+                      <span class="field-hint-pill">Facultatif</span>
+                    </label>
+                    <input
+                      id="guest-address-2"
+                      name="guest-address-2"
+                      type="text"
+                      autocomplete="address-line2"
+                      placeholder="Point de repère, instructions pour le livreur…"
+                      [value]="guestAddressLine2()"
+                      (input)="guestAddressLine2.set($any($event.target).value)"
+                    >
+                  </div>
+                }
+              </div>
+            </section>
+          } @else if (isDelivery()) {
+            <section
+              class="step"
+              aria-labelledby="address-step-title"
+            >
+              <div class="step-heading">
+                <span class="step-number">1</span>
+
+                <h2 id="address-step-title">
+                  Adresse de livraison
+                </h2>
+              </div>
+
+              @if (addresses().length === 0) {
+                <p class="unavailable">
+                  Aucune adresse enregistrée dans votre compte.
+                  Veuillez ajouter une adresse pour la livraison.
+                </p>
+              } @else {
+                <div
+                  class="address-grid"
+                  role="radiogroup"
+                  aria-label="Choisir une adresse de livraison"
+                >
+                  @for (address of addresses(); track address.id) {
+                    <label
+                      class="choice"
+                      [class.selected]="
+                        selectedAddressId() === address.id
+                      "
+                    >
+                      <input
+                        type="radio"
+                        name="delivery-address"
+                        [value]="address.id"
+                        [checked]="
+                          selectedAddressId() === address.id
+                        "
+                        (change)="selectAddress(address.id)"
+                      >
+
+                      <span>
+                        <strong>
+                          {{ address.firstName }}
+                          {{ address.lastName }}
+                        </strong>
+
+                        @if (address.defaultAddress) {
+                          <span class="badge">
+                            Par défaut
+                          </span>
+                        }
+
+                        <address>
+                          {{ address.addressLine1 }}
+
+                          @if (address.addressLine2) {
+                            , {{ address.addressLine2 }}
+                          }
+
+                          <br>
+
+                          {{ address.postalCode }}
+                          {{ address.city }}
+
+                          <br>
+
+                          {{ address.country }}
+                        </address>
+                      </span>
+                    </label>
+                  }
+                </div>
+              }
+
+              <a
+                class="manage-link"
+                routerLink="/addresses"
+                [queryParams]="{
+                  returnUrl: quotationId ? '/checkout?quotationId=' + quotationId : '/checkout'
+                }"
+              >
+                + Ajouter ou gérer une adresse
+              </a>
+            </section>
+          }
+
+          <section
+            class="step"
+            aria-labelledby="delivery-step-title"
+          >
+            <div class="step-heading">
+              <span class="step-number">
+                {{ (isDelivery() || guestMode()) ? '2' : '1' }}
+              </span>
+
+              <h2 id="delivery-step-title">
+                Mode de réception
+              </h2>
+            </div>
+
+            <div
+              class="address-grid"
+              role="radiogroup"
+              aria-label="Choisir un mode de réception"
+            >
+              @for (method of deliveryMethods(); track method.code) {
+                <label
+                  class="choice"
+                  [class.selected]="
+                    selectedDeliveryMethod() === method.code
+                  "
+                >
+                  <input
+                    type="radio"
+                    name="delivery-method"
+                    [value]="method.code"
+                    [checked]="
+                      selectedDeliveryMethod() === method.code
+                    "
+                    (change)="
+                      selectDeliveryMethod(method.code)
+                    "
+                  >
+
+                  <span>
+                    <strong>
+                      {{ method.title }}
+                    </strong>
+
+                    <small>
+                      {{ method.description }}
+                    </small>
+
+                    @if (method.code === 'PICKUP') {
+                      <span class="choice-badge free">Gratuit (0 DH) · Magasin WWTRADING</span>
+                    } @else if (pricing()?.deliveryFee !== undefined && selectedDeliveryMethod() === 'DELIVERY') {
+                      <span class="choice-badge" [class.free]="pricing()?.deliveryFee === 0">
+                        {{ pricing()?.deliveryFee === 0 ? 'Livraison offerte (0 DH)' : (pricing()?.deliveryFee | number:'1.2-2') + ' DH (' + (deliveryAreaLabel(pricing()?.deliveryArea) || 'Zone calculée') + ')' }}
+                      </span>
+                    } @else {
+                      <span class="choice-badge">Livraison directe à domicile / chantier</span>
+                    }
+                  </span>
+                </label>
+              }
+            </div>
+          </section>
+
+          <section
+            class="step"
+            aria-labelledby="payment-step-title"
+          >
+            <div class="step-heading">
+              <span class="step-number">
+                {{ (isDelivery() || guestMode()) ? '3' : '2' }}
+              </span>
+
+              <h2 id="payment-step-title">
+                Mode de règlement
+              </h2>
+            </div>
+
+            <div
+              class="address-grid"
+              role="radiogroup"
+              aria-label="Choisir un mode de paiement"
+            >
+              @for (method of visiblePaymentMethods(); track method.code) {
+                <label
+                  class="choice"
+                  [class.selected]="
+                    selectedPaymentMethod() === method.code
+                  "
+                >
+                  <input
+                    type="radio"
+                    name="payment-method"
+                    [value]="method.code"
+                    [checked]="
+                      selectedPaymentMethod() === method.code
+                    "
+                    (change)="
+                      selectPaymentMethod(method.code)
+                    "
+                  >
+
+                  <span>
+                    <strong>
+                      {{ method.title }}
+                    </strong>
+
+                    <small>
+                      {{ method.description }}
+                    </small>
+
+                    @if (method.code === 'PAY_ON_PICKUP') {
+                      <span class="choice-badge free">0 DH à la commande · Paiement intégral au retrait</span>
+                    } @else if (method.code === 'SPLIT_50_50') {
+                      <span class="choice-badge">50% d'acompte · 50% au retrait / à la livraison</span>
+                    } @else if (method.code === 'BANK_TRANSFER') {
+                      <span class="choice-badge">Règlement 100% sécurisé par virement bancaire</span>
+                    }
+                  </span>
+                </label>
+              }
+            </div>
+          </section>
+
+          @if (requiresBankSelection()) {
+            <section class="step" aria-labelledby="bank-step-title">
+              <div class="step-heading">
+                <span class="step-number">4</span>
+                <h2 id="bank-step-title">Coordonnées bancaires pour le virement</h2>
+              </div>
+
+              @if (paymentBanks().length === 0) {
+                <p class="unavailable">Aucune banque n’est configurée pour le moment.</p>
+              } @else {
+                <div class="address-grid" role="radiogroup" aria-label="Choisir une banque">
+                  @for (bank of paymentBanks(); track bank.reference) {
+                    <label class="choice" [class.selected]="selectedBankReference() === bank.reference">
+                      <input type="radio" name="payment-bank" [value]="bank.reference"
+                        [checked]="selectedBankReference() === bank.reference"
+                        (change)="selectBank(bank.reference)">
+                      <span>
+                        <div class="bank-choice-header">
+                          <div class="bank-logo-badge">
+                            <img
+                              [src]="resolveBankLogo(bank.logoUrl, bank.name || bank.reference)"
+                              [alt]="bank.name || bank.reference"
+                              class="bank-logo-img"
+                              (error)="onLogoError($event, bank.name || bank.reference)">
+                          </div>
+                          <strong>{{ bank.name || bank.reference }}</strong>
+                        </div>
+                        <small>
+                          RIB : <code>{{ formatRib(bank.rib) }}</code>
+                          <button type="button" class="copy-rib-btn" (click)="$event.preventDefault(); copyRib(bank.rib)">
+                            {{ copiedRib() === bank.rib ? '✓ RIB copié' : '📋 Copier le RIB' }}
+                          </button>
+                        </small>
+                        @if (bank.beneficiary) {
+                          <small>Bénéficiaire : <strong>{{ bank.beneficiary }}</strong></small>
+                        }
+                      </span>
+                    </label>
+                  }
+                </div>
+
+                <label class="upload-field">
+                  <strong>Preuve de virement bancaire (facultatif à cette étape)</strong>
+                  <input type="file" accept="image/jpeg,image/png" (change)="onTransferProofSelected($event)">
+                  <small>Format JPG, JPEG ou PNG. Vous pourrez également joindre votre reçu ultérieurement depuis le lien de suivi sécurisé.</small>
+                </label>
+                @if (transferProofPreview(); as preview) {
+                  <img class="proof-preview" [src]="preview" alt="Aperçu de la preuve de virement">
+                }
+              }
+            </section>
+          }
+
+        </div>
+
+        <aside
+          class="summary"
+          aria-labelledby="summary-title"
+        >
+          <p class="eyebrow">
+            Récapitulatif
+          </p>
+
+          <h2 id="summary-title">
+            Votre sélection
+          </h2>
+
+          <ul>
+            @if (quotation(); as acceptedQuotation) {
+              @for (line of acceptedQuotation.lines ?? []; track line.productId) {
+                <li>
+                  <span><strong>{{ line.productName }}</strong><small>{{ line.productReference }}</small></span>
+                  <span>× {{ line.proposedQuantity }} · {{ line.proposedUnitPrice | number:'1.2-2' }} DH</span>
+                </li>
+              }
+            } @else {
+              @for (item of cart()?.items; track item.id) {
+                <li>
+                  <span>
+                    <strong>
+                      {{ item.productReference }}
+                    </strong>
+
+                    <small>
+                      Référence produit
+                    </small>
+
+                    @if (item.availableQuantity != null) {
+                      <small>
+                        Disponible : {{ item.availableQuantity }}
+                      </small>
+                    }
+                  </span>
+
+                  <span>
+                    × {{ item.quantity }}
+                  </span>
+                </li>
+              }
+            }
+          </ul>
+
+          @if (pricing(); as quote) {
+            <div class="pricing-breakdown" aria-live="polite">
+              <p><span>Sous-total</span><strong>{{ quote.subtotal | number:'1.2-2' }} DH</strong></p>
+              @if (quotation(); as acceptedQuotation) {
+                <p><span>Remise du devis</span><strong>− {{ acceptedQuotation.discount | number:'1.2-2' }} DH</strong></p>
+              }
+              <p>
+                <span>Frais de livraison</span>
+                <strong>{{ quote.deliveryFee === 0 ? '0.00 DH (Gratuit)' : ((quote.deliveryFee | number:'1.2-2') + ' DH') }}</strong>
+              </p>
+              <p class="pricing-total"><span>Total TTC</span><strong>{{ quote.total | number:'1.2-2' }} DH</strong></p>
+            </div>
+            @if (deliveryFeeWaivedLabel(quote.deliveryFeeWaivedReason); as waivedText) {
+              <span class="waiver-badge">{{ waivedText }}</span>
+            }
+            @if (selectedPaymentMethod() === 'SPLIT_50_50') {
+              <div class="split-breakdown" aria-label="Échéancier 50/50">
+                <div>
+                  <span>Acompte 50 % à la commande (virement)</span>
+                  <strong>{{ (quote.upfrontPaymentAmount ?? (quote.total / 2)) | number:'1.2-2' }} DH</strong>
+                </div>
+                <div>
+                  <span>{{ selectedDeliveryMethod() === 'PICKUP' ? 'Solde 50 % au retrait en magasin' : 'Solde 50 % à la livraison' }}</span>
+                  <strong>{{ (quote.remainingDeliveryAmount ?? (quote.total / 2)) | number:'1.2-2' }} DH</strong>
+                </div>
+              </div>
+            } @else if (selectedPaymentMethod() === 'PAY_ON_PICKUP') {
+              <div class="split-breakdown" aria-label="Paiement en magasin">
+                <div>
+                  <span>Acompte à payer en ligne</span>
+                  <strong>0.00 DH</strong>
+                </div>
+                <div>
+                  <span>Montant dû lors du retrait</span>
+                  <strong>{{ quote.total | number:'1.2-2' }} DH</strong>
+                </div>
+              </div>
+            }
+            <small>Montants recalculés et validés par le serveur lors de la confirmation.</small>
+          } @else if (pricingLoading()) {
+            <p role="status">Calcul du montant en cours…</p>
+          } @else if (pricingError()) {
+            <p class="unavailable" role="alert">{{ pricingError() }}</p>
+            <button type="button" (click)="refreshPricing()">Réessayer le calcul</button>
+          } @else if (guestMode()) {
+            <p>Saisissez votre ville de livraison (ou choisissez Retrait sur place) pour afficher le montant.</p>
+          } @else {
+            <p>Choisissez une adresse de livraison pour afficher le montant.</p>
+          }
+
+          @if (submissionError()) {
+            <p
+              class="unavailable"
+              role="alert"
+            >
+              {{ submissionError() }}
+            </p>
+          }
+
+          <button
+            class="confirm"
+            type="button"
+            [disabled]="!canConfirm()"
+            (click)="submitOrder()"
+          >
+            {{
+              submitting()
+                ? 'Création en cours…'
+                : 'Enregistrer la commande'
+            }}
+          </button>
+
+          <div class="summary-trust-badges">
+            <div class="trust-item">
+              <span class="icon" aria-hidden="true">🔒</span>
+              <span>Transactions sécurisées et chiffrées SSL 256-bit</span>
+            </div>
+            <div class="trust-item">
+              <span class="icon" aria-hidden="true">⚡</span>
+              <span>Traitement et préparation express de votre commande</span>
+            </div>
+            <div class="trust-item">
+              <span class="icon" aria-hidden="true">💬</span>
+              <span>Assistance directe par WhatsApp &amp; Téléphone</span>
+            </div>
+          </div>
+        </aside>
+
+      </div>
+    }
+  }
+</main>

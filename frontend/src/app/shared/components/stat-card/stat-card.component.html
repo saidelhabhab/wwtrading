@@ -1,0 +1,5 @@
+<article class="stat-card" [class]="'status-' + status">
+	<div class="stat-card-heading"><span>{{ title }}</span><span class="stat-icon" aria-hidden="true">{{ icon }}</span></div>
+	@if (loading) { <div class="skeleton skeleton-value"></div><div class="skeleton skeleton-copy"></div> }
+	@else { <strong>{{ value }}</strong><div class="stat-card-footer"><span>{{ description }}</span>@if (trend) { <span class="trend" [class]="trendDirection">{{ trend }}</span> }</div> }
+</article>

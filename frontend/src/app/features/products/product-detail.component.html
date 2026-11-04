@@ -1,0 +1,379 @@
+<section class="product-detail" aria-labelledby="product-detail-title">
+  <!-- Top Navigation & Breadcrumb -->
+  <nav class="detail-nav" aria-label="Fil d'ariane et retour">
+    <a class="back-link" href="/products">
+      <span class="material-icons" aria-hidden="true">arrow_back</span>
+      <span>Retour aux produits</span>
+    </a>
+    @if (product(); as item) {
+      <div class="breadcrumb-trail" aria-hidden="true">
+        <span>Catalogue</span>
+        <span class="sep">/</span>
+        <span>{{ PRODUCT_TYPE_LABELS[item.type] }}</span>
+        @if (colorModeLabel(); as mode) {
+          <span class="sep">/</span>
+          <span>{{ mode }}</span>
+        }
+        <span class="sep">/</span>
+        <span class="current-item">{{ item.model || item.name }}</span>
+      </div>
+    }
+  </nav>
+
+  @if (loading()) {
+    <div class="skeleton" role="status" aria-label="Chargement du produit">
+      <div class="skeleton-hero">
+        <span class="skeleton-img"></span>
+        <div class="skeleton-info">
+          <span class="skeleton-line" style="width: 30%;"></span>
+          <span class="skeleton-line" style="width: 70%; height: 2.5rem;"></span>
+          <span class="skeleton-line" style="width: 40%; height: 2rem;"></span>
+          <span class="skeleton-line" style="width: 100%; height: 5rem;"></span>
+          <span class="skeleton-line" style="width: 50%; height: 3rem;"></span>
+        </div>
+      </div>
+    </div>
+  } @else if (notFound()) {
+    <section class="state state--empty" role="alert">
+      <span class="material-icons state-icon" aria-hidden="true">inventory_2</span>
+      <p class="eyebrow">Produit introuvable</p>
+      <h1 id="product-detail-title">Ce produit n’existe pas</h1>
+      <p>Il a peut-être été retiré du catalogue ou la référence est incorrecte.</p>
+      <a class="btn-return" href="/products">Retourner au catalogue</a>
+    </section>
+  } @else if (error()) {
+    <section class="state state--error" role="alert">
+      <span class="material-icons state-icon" aria-hidden="true">error_outline</span>
+      <p class="eyebrow">Erreur de chargement</p>
+      <h1 id="product-detail-title">Chargement impossible</h1>
+      <p>{{ error() }}</p>
+      <button type="button" class="btn-retry" (click)="load()">Réessayer</button>
+    </section>
+  } @else {
+    @if (product(); as item) {
+      <!-- Main Product Hero Section -->
+      <div class="product-hero">
+        <!-- Left: Image Gallery -->
+        <section class="gallery" aria-label="Galerie du produit">
+          @if (imagesLoading()) {
+            <div class="gallery-loading" role="status" aria-label="Chargement des images"></div>
+          } @else {
+            @if (selectedImage(); as image) {
+              <div class="gallery-layout" [class.has-thumbnails]="images().length > 1">
+                @if (images().length > 1) {
+                  <div class="thumbnails" aria-label="Choisir une image">
+                    @for (thumbnail of images(); track thumbnail.id; let index = $index) {
+                      <button
+                        type="button"
+                        class="thumbnail"
+                        [class.selected]="thumbnail.id === image.id"
+                        [attr.aria-label]="'Afficher ' + item.name + ', image ' + (index + 1)"
+                        [attr.aria-pressed]="thumbnail.id === image.id"
+                        (click)="selectImage(thumbnail)"
+                      >
+                        @if (!imageFailed(thumbnail.id)) {
+                          <img [src]="imageUrl(thumbnail)" [alt]="item.name + ' — image ' + (index + 1)" loading="lazy" (error)="markImageFailed(thumbnail.id)">
+                        } @else {
+                          <span aria-hidden="true">▧</span>
+                        }
+                      </button>
+                    }
+                  </div>
+                }
+
+                <div class="main-image">
+                  <!-- Badges on Main Image -->
+                  <div class="main-image-badges" aria-hidden="true">
+                    @if (colorModeLabel(); as mode) {
+                      <span class="img-badge img-badge--accent">{{ mode }}</span>
+                    } @else {
+                      <span class="img-badge">{{ PRODUCT_TYPE_LABELS[item.type] }}</span>
+                    }
+                    @if (item.active && (item.availableQuantity === null || (item.availableQuantity ?? 0) > 0)) {
+                      <span class="img-badge img-badge--stock">
+                        <span class="dot"></span> En stock
+                      </span>
+                    }
+                  </div>
+
+                  @if (!imageLoaded(image.id) && !imageFailed(image.id)) {
+                    <div class="gallery-loading" role="status" aria-label="Chargement de l’image"></div>
+                  }
+                  @if (!imageFailed(image.id)) {
+                    <img
+                      [src]="imageUrl(image)"
+                      [alt]="item.name + ' — image ' + (selectedIndex() + 1)"
+                      loading="eager"
+                      fetchpriority="high"
+                      decoding="async"
+                      [class.ready]="imageLoaded(image.id)"
+                      (load)="markImageLoaded(image.id)"
+                      (error)="markImageFailed(image.id)"
+                    >
+                  } @else {
+                    <div class="gallery-fallback">
+                      <span class="material-icons" aria-hidden="true">image_not_supported</span>
+                      <strong>Image indisponible</strong>
+                    </div>
+                  }
+
+                  @if (images().length > 1) {
+                    <button type="button" class="gallery-nav previous" aria-label="Image précédente" (click)="showPrevious()">
+                      <span class="material-icons" aria-hidden="true">chevron_left</span>
+                    </button>
+                    <button type="button" class="gallery-nav next" aria-label="Image suivante" (click)="showNext()">
+                      <span class="material-icons" aria-hidden="true">chevron_right</span>
+                    </button>
+                    <span class="image-counter" aria-live="polite">{{ selectedIndex() + 1 }} / {{ images().length }}</span>
+                  }
+                </div>
+              </div>
+            } @else {
+              <div class="gallery-fallback empty">
+                <span class="material-icons" aria-hidden="true">image</span>
+                <strong>{{ imageApiFailed() ? 'Images momentanément indisponibles' : 'Aucune image disponible' }}</strong>
+              </div>
+            }
+          }
+        </section>
+
+        <!-- Right: Product Summary & Purchase Actions -->
+        <section class="product-summary" aria-label="Présentation du produit">
+          <header class="summary-header">
+            <div class="summary-title-wrap">
+              <div class="summary-meta-top">
+                <span class="eyebrow">{{ PRODUCT_TYPE_LABELS[item.type] }}</span>
+                @if (colorModeLabel(); as mode) {
+                  <span class="meta-dot">·</span>
+                  <span class="mode-tag">{{ mode }}</span>
+                }
+              </div>
+              <h1 id="product-detail-title">
+                @if (item.brand) { <span class="product-brand">{{ item.brand }}</span> }
+                <span>{{ item.model || item.name }}</span>
+              </h1>
+              @if (item.model && item.name && item.name !== item.model) {
+                <p class="product-name">{{ item.name }}</p>
+              }
+              <div class="product-ref-pill">
+                <span class="reference">Référence : <strong>{{ item.reference }}</strong></span>
+              </div>
+            </div>
+            <span class="status" [class.active]="item.active">
+              <span class="status-indicator"></span>
+              {{ item.active ? 'Actif' : 'Inactif' }}
+            </span>
+          </header>
+
+          <!-- Price Display -->
+          <div class="price-container">
+            <div class="price-main">
+              <span class="hero-price">{{ formatPrice(item.price) }}</span>
+              <span class="price-tax">TTC</span>
+            </div>
+            @if ((item.availableQuantity ?? 0) > 0) {
+              <div class="stock-pill in-stock">
+                <span class="material-icons" aria-hidden="true">check_circle</span>
+                <span>{{ availabilityLabel() }}</span>
+              </div>
+            } @else if (item.active) {
+              <div class="stock-pill on-demand">
+                <span class="material-icons" aria-hidden="true">schedule</span>
+                <span>Sur commande</span>
+              </div>
+            }
+          </div>
+
+          <!-- Description Short Excerpt -->
+          <p class="essential-info">{{ item.description || 'Description non disponible.' }}</p>
+
+          <!-- Purchase & Wishlist Actions -->
+          <div class="purchase-actions" aria-label="Actions produit">
+            @if (!authenticated() || canUseCart()) {
+              <button
+                class="cart-primary"
+                type="button"
+                [disabled]="addingToCart() || !item.active || item.availableQuantity === 0"
+                (click)="addToCart()"
+              >
+                <span class="material-icons" aria-hidden="true">{{ addingToCart() ? 'hourglass_top' : 'add_shopping_cart' }}</span>
+                <span>{{ addingToCart() ? 'Ajout en cours…' : item.availableQuantity === 0 || !item.active ? 'Produit indisponible' : 'Ajouter au panier' }}</span>
+              </button>
+            }
+
+            @if (!authenticated() || canUseWishlist()) {
+              @if (wishlistUnavailable()) {
+                <button class="wishlist-primary" type="button" [disabled]="wishlistLoading()" (click)="loadWishlist()">
+                  <span class="material-icons" aria-hidden="true">refresh</span>
+                  <span>Réessayer</span>
+                </button>
+              } @else {
+                <button
+                  class="wishlist-primary"
+                  type="button"
+                  [disabled]="wishlistLoading() || wishlistPending()"
+                  [attr.aria-pressed]="wishlistItem() !== null"
+                  [attr.aria-label]="wishlistItem() ? 'Retirer ce produit des souhaits' : 'Ajouter ce produit aux souhaits'"
+                  (click)="toggleWishlist()"
+                >
+                  <span class="material-icons" aria-hidden="true">{{ wishlistItem() ? 'favorite' : 'favorite_border' }}</span>
+                  <span>{{ wishlistPending() ? 'Mise à jour…' : wishlistItem() ? 'Dans mes souhaits' : 'Ajouter aux souhaits' }}</span>
+                </button>
+              }
+            }
+          </div>
+
+          @if (cartFeedback(); as feedback) {
+            <p class="action-feedback" [attr.role]="cartAddFailed() ? 'alert' : 'status'">
+              <span class="material-icons" aria-hidden="true">{{ cartAddFailed() ? 'error' : 'check_circle' }}</span>
+              <span>{{ feedback }}</span>
+            </p>
+          }
+          @if (wishlistFeedback(); as feedback) {
+            <p class="action-feedback" [attr.role]="wishlistActionFailed() ? 'alert' : 'status'">
+              <span class="material-icons" aria-hidden="true">{{ wishlistActionFailed() ? 'error' : 'check_circle' }}</span>
+              <span>{{ feedback }}</span>
+            </p>
+          }
+
+          <!-- Commercial Trust Ribbon -->
+          <div class="trust-features-card">
+            <div class="trust-item">
+              <span class="material-icons trust-icon" aria-hidden="true">local_shipping</span>
+              <div>
+                <strong>Livraison &amp; Installation</strong>
+                <span>Kénitra, Casablanca et partout au Maroc</span>
+              </div>
+            </div>
+            <div class="trust-item">
+              <span class="material-icons trust-icon" aria-hidden="true">payments</span>
+              <div>
+                <strong>Paiement flexible</strong>
+                <span>Virement direct ou acompte 50% à la livraison</span>
+              </div>
+            </div>
+            <div class="trust-item">
+              <span class="material-icons trust-icon" aria-hidden="true">verified_user</span>
+              <div>
+                <strong>Garantie &amp; SAV certifié</strong>
+                <span>Support technique et pièces d'origine Konica Minolta</span>
+              </div>
+            </div>
+          </div>
+        </section>
+      </div>
+
+      <!-- Technical Specifications & Details Grid -->
+      <div class="detail-grid">
+        <!-- 1. Informations produit -->
+        <section class="detail-card" aria-labelledby="identity-title">
+          <div class="detail-card__header">
+            <span class="material-icons card-icon" aria-hidden="true">info</span>
+            <h2 id="identity-title">Informations produit</h2>
+          </div>
+          <dl>
+            <div class="dl-row">
+              <dt>Référence</dt>
+              <dd><strong>{{ item.reference }}</strong></dd>
+            </div>
+            <div class="dl-row">
+              <dt>Marque</dt>
+              <dd>{{ item.brand || 'Non renseignée' }}</dd>
+            </div>
+            <div class="dl-row">
+              <dt>Modèle</dt>
+              <dd>{{ item.model || 'Non renseigné' }}</dd>
+            </div>
+            <div class="dl-row">
+              <dt>Prix unitaire</dt>
+              <dd><strong class="price-highlight">{{ formatPrice(item.price) }}</strong></dd>
+            </div>
+          </dl>
+        </section>
+
+        <!-- 2. Classification -->
+        <section class="detail-card" aria-labelledby="classification-title">
+          <div class="detail-card__header">
+            <span class="material-icons card-icon" aria-hidden="true">category</span>
+            <h2 id="classification-title">Classification</h2>
+          </div>
+          <dl>
+            <div class="dl-row">
+              <dt>Type</dt>
+              <dd>{{ PRODUCT_TYPE_LABELS[item.type] }}</dd>
+            </div>
+            @if (machineCategoryLabel(); as category) {
+              <div class="dl-row">
+                <dt>Catégorie</dt>
+                <dd>{{ category }}</dd>
+              </div>
+            }
+            @if (colorModeLabel(); as colorMode) {
+              <div class="dl-row">
+                <dt>Impression</dt>
+                <dd>{{ colorMode }}</dd>
+              </div>
+            }
+          </dl>
+        </section>
+
+        <!-- 3. Caractéristiques -->
+        <section class="detail-card" aria-labelledby="features-title">
+          <div class="detail-card__header">
+            <span class="material-icons card-icon" aria-hidden="true">tune</span>
+            <h2 id="features-title">Caractéristiques</h2>
+          </div>
+          <dl>
+            <div class="dl-row">
+              <dt>Garantie en mois</dt>
+              <dd>{{ item.warrantyMonths ?? 'Non renseignée' }}</dd>
+            </div>
+            <div class="dl-row">
+              <dt>Garantie en copies</dt>
+              <dd>{{ item.warrantyCopies === null ? 'Non renseignée' : formatCopies(item.warrantyCopies) }}</dd>
+            </div>
+            <div class="dl-row">
+              <dt>Disponibilité</dt>
+              <dd>{{ availabilityLabel() }}</dd>
+            </div>
+          </dl>
+        </section>
+
+        <!-- 4. Description détaillée -->
+        <section class="detail-card description-block" aria-labelledby="description-title">
+          <div class="detail-card__header">
+            <span class="material-icons card-icon" aria-hidden="true">description</span>
+            <h2 id="description-title">Description</h2>
+          </div>
+          <div class="description-content">
+            <p>{{ item.description || 'Description non disponible.' }}</p>
+          </div>
+        </section>
+      </div>
+
+      <!-- Management Bar (Admin & Manager) -->
+      @if (canManageProducts()) {
+        <nav class="management-actions" aria-label="Actions de gestion du produit">
+          <a class="action-btn" [href]="managementProductRoute('new')">
+            <span class="material-icons" aria-hidden="true">add</span>
+            <span>Nouveau produit</span>
+          </a>
+          <a class="action-btn primary-action" [href]="managementProductRoute(item.id + '/edit')">
+            <span class="material-icons" aria-hidden="true">edit</span>
+            <span>Modifier ce produit</span>
+          </a>
+          <button
+            type="button"
+            class="toggle-status-button action-btn"
+            [attr.data-testid]="'toggle-product-status'"
+            [disabled]="togglingStatus()"
+            (click)="toggleProductStatus()"
+          >
+            <span class="material-icons" aria-hidden="true">{{ item.active ? 'visibility_off' : 'visibility' }}</span>
+            <span>{{ togglingStatus() ? (item.active ? 'Désactivation...' : 'Activation...') : (item.active ? 'Désactiver' : 'Activer') }}</span>
+          </button>
+        </nav>
+      }
+    }
+  }
+</section>

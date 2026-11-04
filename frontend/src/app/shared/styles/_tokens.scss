@@ -1,0 +1,118 @@
+/**
+ * WWTRADING responsive design tokens.
+ *
+ * Single source of truth for spacing, radii, elevation, typography, colours and
+ * the responsive breakpoint scale. Components should reference these tokens
+ * instead of inventing new values so the whole platform stays coherent.
+ *
+ * The breakpoint scale is intentionally exposed both as SCSS variables (for
+ * `@media` queries) and as CSS custom properties (for `clamp()`/fluid math).
+ */
+
+/* ---------------------------------------------------------------------------
+   Breakpoints — min-width based (">= value"), so component rules cascade
+   upward and mobile is always the unprefixed base.
+   --------------------------------------------------------------------------- */
+$bp-xs: 480px; // large mobile
+$bp-sm: 641px; // tablet portrait
+$bp-md: 769px; // tablet landscape
+$bp-lg: 1025px; // laptop / small desktop
+$bp-xl: 1441px; // large desktop
+$bp-2xl: 1921px; // very large / TV / 4K
+
+/* ---------------------------------------------------------------------------
+   Spacing scale
+   --------------------------------------------------------------------------- */
+$space-1: 0.25rem;
+$space-2: 0.5rem;
+$space-3: 0.75rem;
+$space-4: 1rem;
+$space-5: 1.25rem;
+$space-6: 1.5rem;
+$space-8: 2rem;
+$space-10: 2.5rem;
+$space-12: 3rem;
+
+/* ---------------------------------------------------------------------------
+   Radii
+   --------------------------------------------------------------------------- */
+$radius-xs: 6px;
+$radius-sm: 8px;
+$radius-md: 12px;
+$radius-lg: 16px;
+$radius-xl: 20px;
+$radius-2xl: 24px;
+$radius-pill: 999px;
+
+/* ---------------------------------------------------------------------------
+   Elevation — modern layered soft shadows
+   --------------------------------------------------------------------------- */
+$shadow-xs: 0 1px 2px 0 rgba(15, 23, 42, 0.05);
+$shadow-sm: 0 1px 3px 0 rgba(15, 23, 42, 0.07), 0 1px 2px -1px rgba(15, 23, 42, 0.05);
+$shadow-md: 0 4px 6px -1px rgba(15, 23, 42, 0.08), 0 2px 4px -2px rgba(15, 23, 42, 0.06);
+$shadow-lg: 0 10px 15px -3px rgba(15, 23, 42, 0.08), 0 4px 6px -4px rgba(15, 23, 42, 0.04);
+$shadow-xl: 0 20px 25px -5px rgba(15, 23, 42, 0.1), 0 8px 10px -6px rgba(15, 23, 42, 0.05);
+
+/* ---------------------------------------------------------------------------
+   Colours — WWTRADING identity: premium obsidian & magenta accent.
+   --------------------------------------------------------------------------- */
+$color-primary: #af0f50;
+$color-primary-hover: #930b42;
+$color-primary-dark: #6e0832;
+$color-primary-soft: #fdf2f6;
+$color-primary-tint: #fce7f0;
+$color-secondary: #0284c7;
+$color-secondary-soft: #f0f9ff;
+$color-background: #f8fafc;
+$color-surface: #ffffff;
+$color-surface-muted: #f1f5f9;
+$color-surface-elevated: #ffffff;
+$color-ink: #0f172a;
+$color-text: #1e293b;
+$color-muted: #64748b;
+$color-subtle: #94a3b8;
+$color-border: #e2e8f0;
+$color-border-subtle: #f1f5f9;
+$color-sidebar-bg: #0f172a;
+$color-sidebar-surface: #1e293b;
+$color-sidebar-border: rgba(255, 255, 255, 0.08);
+$color-success: #10b981;
+$color-success-soft: #ecfdf5;
+$color-warning: #f59e0b;
+$color-warning-soft: #fffbeb;
+$color-danger: #ef4444;
+$color-danger-soft: #fef2f2;
+$color-info: #3b82f6;
+$color-info-soft: #eff6ff;
+
+/* ---------------------------------------------------------------------------
+   Layout constants
+   --------------------------------------------------------------------------- */
+$sidebar-width: 268px;
+$sidebar-compact-width: 84px;
+$topbar-height: 72px;
+$topbar-height-mobile: 62px;
+$container-max-width: 1680px;
+$container-max-width-wide: 1760px;
+
+/* Reading measure — long paragraphs never stretch past this. */
+$measure: 68ch;
+
+/* Minimum comfortable touch target. */
+$touch-target: 44px;
+
+/* ---------------------------------------------------------------------------
+   Motion
+   --------------------------------------------------------------------------- */
+$transition-fast: 160ms ease;
+$transition-standard: 240ms ease;
+
+/* ---------------------------------------------------------------------------
+   Z-index scale
+   --------------------------------------------------------------------------- */
+$z-sidebar: 20;
+$z-topbar: 30;
+$z-overlay: 40;
+$z-menu: 50;
+$z-modal: 80;
+$z-toast: 100;

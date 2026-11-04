@@ -1,0 +1,315 @@
+@use '../../styles/variables' as *;
+@use '../../styles/mixins' as *;
+
+/**
+ * Dashboard sidebar.
+ *
+ * Desktop : fixed-width column in the flex shell.
+ * Tablet  : compact icon rail (labels stay in the a11y tree and appear as a
+ *           tooltip on hover / keyboard focus).
+ * Mobile  : off-canvas drawer opened from the topbar, full-width touch rows.
+ */
+
+:host {
+  display: block;
+  flex: 0 0 $sidebar-width;
+  min-width: 0;
+}
+
+.dashboard-sidebar {
+  position: sticky;
+  top: 0;
+  z-index: $z-sidebar;
+  display: flex;
+  flex-direction: column;
+  width: $sidebar-width;
+  max-width: 100%;
+  height: 100vh;
+  height: 100dvh;
+  padding: $space-6 $space-4;
+  color: #fff;
+  background: #0f172a;
+  border-right: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+/* ---------------------------------------------------------------------------
+   Brand
+   --------------------------------------------------------------------------- */
+.sidebar-brand {
+  display: flex;
+  align-items: center;
+  gap: $space-3;
+  padding: 0 $space-3 $space-6;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.sidebar-brand img {
+  width: 116px;
+  max-width: 100%;
+  height: auto;
+  filter: brightness(0) invert(1);
+}
+
+.sidebar-brand div {
+  display: grid;
+  gap: 3px;
+  min-width: 0;
+}
+
+.sidebar-brand strong {
+  color: #fff;
+  font-size: 0.72rem;
+  letter-spacing: 0.08em;
+  font-weight: 700;
+}
+
+.sidebar-brand span {
+  color: #94a3b8;
+  font-size: 0.64rem;
+  line-height: 1.3;
+}
+
+/* ---------------------------------------------------------------------------
+   Navigation — scrolls independently so a long menu never pushes the footer
+   actions off-screen and never stretches the page.
+   --------------------------------------------------------------------------- */
+nav {
+  display: grid;
+  align-content: start;
+  flex: 1;
+  gap: $space-1;
+  min-height: 0;
+  padding-top: $space-5;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  @include scrollbar;
+}
+
+.sidebar-footer-actions {
+  display: grid;
+  gap: $space-1;
+  margin-top: auto;
+  padding-top: $space-4;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.sidebar-link {
+  display: flex;
+  width: 100%;
+  min-height: $touch-target;
+  align-items: center;
+  gap: $space-3;
+  padding: 8px $space-3;
+  border: 0;
+  border-left: 3px solid transparent;
+  border-radius: $radius-sm;
+  background: transparent;
+  color: #94a3b8;
+  font: inherit;
+  text-align: left;
+  text-decoration: none;
+  cursor: pointer;
+  transition:
+    background $transition-fast,
+    color $transition-fast,
+    border-color $transition-fast;
+  @include focus-ring;
+}
+
+.sidebar-link:hover {
+  color: #ffffff;
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.sidebar-link.active {
+  color: #ffffff;
+  background: linear-gradient(90deg, rgba(175, 15, 80, 0.22) 0%, rgba(175, 15, 80, 0.06) 100%);
+  border-left-color: #af0f50;
+
+  .sidebar-icon {
+    color: #f472b6;
+  }
+}
+
+.sidebar-link--disabled {
+  cursor: not-allowed;
+  opacity: 0.45;
+}
+
+.sidebar-icon {
+  display: inline-grid;
+  flex: 0 0 auto;
+  place-items: center;
+  width: 22px;
+  color: #cbd5e1;
+  font-size: 20px;
+  transition: color $transition-fast;
+}
+
+.sidebar-link:hover .sidebar-icon {
+  color: #fdf2f6;
+}
+
+.sidebar-link-copy {
+  display: grid;
+  flex: 1;
+  gap: 2px;
+  min-width: 0;
+}
+
+/* Labels wrap to two lines rather than being clipped in a narrow sidebar. */
+.sidebar-link-copy strong {
+  color: inherit;
+  font-size: 0.8rem;
+  font-weight: 650;
+  line-height: 1.25;
+}
+
+.sidebar-link-copy small {
+  color: #64748b;
+  font-size: 0.65rem;
+  line-height: 1.3;
+}
+
+.sidebar-soon {
+  flex: 0 0 auto;
+  color: #64748b;
+  font-size: 0.58rem;
+  background: rgba(255, 255, 255, 0.08);
+  padding: 2px 6px;
+  border-radius: $radius-pill;
+}
+
+/* ---------------------------------------------------------------------------
+   Mobile: off-canvas drawer
+   --------------------------------------------------------------------------- */
+@include respond-to(mobile) {
+  :host {
+    position: fixed;
+    inset: 0 auto 0 0;
+    z-index: $z-overlay + 2;
+    width: min(86vw, #{$sidebar-width});
+    max-width: 100%;
+    transform: translateX(-102%);
+    transition: transform $transition-standard;
+  }
+
+  :host-context(.sidebar-open) {
+    transform: translateX(0);
+  }
+
+  .dashboard-sidebar {
+    width: 100%;
+    padding-bottom: max(#{$space-6}, env(safe-area-inset-bottom));
+    box-shadow: 0 24px 60px rgb(0 0 0 / 45%);
+  }
+
+  /* Drawer rows are generous touch targets. */
+  .sidebar-link {
+    min-height: 52px;
+    padding-block: $space-3;
+  }
+
+  .sidebar-link-copy strong { font-size: 0.86rem; }
+  .sidebar-link-copy small { font-size: 0.7rem; }
+}
+
+/* ---------------------------------------------------------------------------
+   Tablet: compact icon rail. Labels are visually hidden but remain in the
+   accessibility tree, and re-appear while a row is hovered or focused.
+   --------------------------------------------------------------------------- */
+@include respond-to(tablet) {
+  :host { flex-basis: $sidebar-compact-width; }
+
+  .dashboard-sidebar {
+    width: $sidebar-compact-width;
+    align-items: center;
+    padding-inline: $space-2;
+    overflow: hidden;
+  }
+
+  .sidebar-brand {
+    justify-content: center;
+    padding-inline: 0;
+  }
+
+  .sidebar-brand img { width: 52px; }
+  .sidebar-brand div { display: none; }
+
+  nav {
+    width: 100%;
+    align-content: start;
+    padding-top: $space-5;
+  }
+
+  .sidebar-footer-actions { width: 100%; }
+
+  .sidebar-link {
+    position: relative;
+    justify-content: center;
+    gap: 0;
+    padding-inline: $space-2;
+    border-left-width: 0;
+    border-radius: $radius-sm;
+  }
+
+  .sidebar-link.active { border-left-width: 0; box-shadow: inset 3px 0 0 #af0f50; }
+
+  /* Visually hidden but still announced by screen readers. */
+  .sidebar-link-copy,
+  .sidebar-soon {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+    border: 0;
+  }
+
+  /* Reveal the label as a floating tooltip on hover / keyboard focus. */
+  .sidebar-link:hover .sidebar-link-copy,
+  .sidebar-link:focus-visible .sidebar-link-copy {
+    position: absolute;
+    top: 50%;
+    left: calc(100% + #{$space-3});
+    z-index: $z-menu;
+    display: grid;
+    width: max-content;
+    max-width: 15rem;
+    padding: $space-2 $space-3;
+    clip: auto;
+    margin: 0;
+    border-radius: $radius-sm;
+    background: #0f172a;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    color: #fff;
+    box-shadow: $shadow-xl;
+    transform: translateY(-50%);
+  }
+
+  .sidebar-link--disabled:hover .sidebar-link-copy { display: none; }
+}
+
+/* ---------------------------------------------------------------------------
+   Large desktop: a touch more air, same column width so content stays balanced.
+   --------------------------------------------------------------------------- */
+@include from('2xl') {
+  :host { flex-basis: 292px; }
+
+  .dashboard-sidebar {
+    width: 292px;
+    padding: $space-8 $space-5;
+  }
+
+  .sidebar-link { min-height: 54px; }
+  .sidebar-link-copy strong { font-size: 0.85rem; }
+  .sidebar-link-copy small { font-size: 0.7rem; }
+}
+
+@include reduced-motion {
+  :host,
+  .sidebar-link { transition: none; }
+}

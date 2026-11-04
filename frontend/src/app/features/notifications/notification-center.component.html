@@ -1,0 +1,152 @@
+<wwt-dashboard-layout title="Notifications">
+  <wwt-page-header
+    title="Notifications"
+    subtitle="Consultez et gérez vos alertes et notifications en temps réel."
+    [breadcrumb]="breadcrumb()">
+  </wwt-page-header>
+
+  <main class="notifications-page" aria-labelledby="notifications-title">
+    <section class="notifications-panel" aria-labelledby="notifications-list-title">
+      <header class="panel-header">
+        <div class="panel-header__titles">
+          <span class="eyebrow">Centre d'alertes</span>
+          <h2 id="notifications-list-title">Vos notifications</h2>
+        </div>
+
+        <div class="panel-header__actions">
+          <div class="filter-tabs" role="tablist" aria-label="Filtrer les notifications">
+            <button
+              type="button"
+              role="tab"
+              class="tab-btn"
+              [class.tab-btn--active]="filter() === 'all'"
+              [attr.aria-selected]="filter() === 'all'"
+              (click)="setFilter('all')">
+              Tous
+            </button>
+            <button
+              type="button"
+              role="tab"
+              class="tab-btn"
+              [class.tab-btn--active]="filter() === 'unread'"
+              [attr.aria-selected]="filter() === 'unread'"
+              (click)="setFilter('unread')">
+              Non lus
+              @if (unreadCount() > 0) {
+                <span class="unread-badge">{{ unreadCount() > 99 ? '99+' : unreadCount() }}</span>
+              }
+            </button>
+          </div>
+
+          <button
+            type="button"
+            class="btn btn--mark-all"
+            [disabled]="markingAll() || unreadCount() === 0"
+            (click)="markAllAsRead()">
+            <span class="material-icons" aria-hidden="true">done_all</span>
+            <span>Tout marquer comme lu</span>
+          </button>
+        </div>
+      </header>
+
+      @if (loading()) {
+        <div class="state-box state-box--loading" role="status" aria-live="polite">
+          <span class="spinner" aria-hidden="true"></span>
+          <span>Chargement de vos notifications...</span>
+        </div>
+      } @else if (error()) {
+        <div class="state-box state-box--error" role="alert">
+          <span class="material-icons state-box__icon" aria-hidden="true">error_outline</span>
+          <strong>Impossible de charger les notifications</strong>
+          <p>{{ error() }}</p>
+          <button type="button" class="btn btn--retry" (click)="load()">
+            <span class="material-icons" aria-hidden="true">refresh</span> Réessayer
+          </button>
+        </div>
+      } @else if (filteredNotifications().length === 0) {
+        <div class="state-box state-box--empty">
+          <span class="material-icons state-box__icon" aria-hidden="true">notifications_off</span>
+          @if (filter() === 'unread') {
+            <strong>Aucune notification non lue</strong>
+            <p>Vous avez lu toutes vos notifications.</p>
+            <button type="button" class="btn btn--secondary" (click)="setFilter('all')">
+              Afficher toutes les notifications
+            </button>
+          } @else {
+            <strong>Aucune notification pour le moment</strong>
+            <p>Vous êtes à jour. Vous recevrez ici les alertes concernant vos commandes et interventions.</p>
+          }
+        </div>
+      } @else {
+        <div class="notification-list" role="list">
+          @for (item of filteredNotifications(); track item.id) {
+            <article
+              class="notification-card"
+              [class.notification-card--unread]="!item.readAt"
+              role="listitem"
+              tabindex="0"
+              [attr.aria-label]="item.title + ' - ' + (item.readAt ? 'Lu' : 'Non lu')"
+              (click)="onNotificationClick(item)"
+              (keydown.enter)="onNotificationClick(item)"
+              (keydown.space)="onNotificationClick(item); $event.preventDefault()">
+              <div class="notification-card__icon-wrap">
+                <span class="material-icons notification-card__icon" aria-hidden="true">
+                  {{ typeIcons[item.type] || 'notifications' }}
+                </span>
+              </div>
+
+              <div class="notification-card__content">
+                <div class="notification-card__header">
+                  <h3 class="notification-card__title">{{ item.title }}</h3>
+                  <time class="notification-card__date" [attr.datetime]="item.createdAt">
+                    {{ item.createdAt | date: 'dd/MM/yyyy à HH:mm' }}
+                  </time>
+                </div>
+                <p class="notification-card__message">{{ item.message }}</p>
+                @if (item.actionUrl) {
+                  <a [routerLink]="item.actionUrl" class="notification-card__link" (click)="$event.stopPropagation()">
+                    Consulter <span class="material-icons" aria-hidden="true">chevron_right</span>
+                  </a>
+                }
+              </div>
+
+              @if (!item.readAt) {
+                <div class="notification-card__unread-indicator" title="Non lu" aria-label="Notification non lue"></div>
+              }
+            </article>
+          }
+        </div>
+
+        @if (page(); as p) {
+          @if (p.totalPages > 1) {
+            <footer class="pagination-bar" aria-label="Pagination des notifications">
+              <button
+                type="button"
+                class="btn btn--page"
+                [disabled]="p.first || loading()"
+                (click)="goToPage(currentPageIndex() - 1)"
+                aria-label="Page précédente">
+                <span class="material-icons" aria-hidden="true">chevron_left</span>
+                <span>Précédent</span>
+              </button>
+
+              <span class="page-info">
+                Page {{ p.number + 1 }} sur {{ p.totalPages }}
+              </span>
+
+              <button
+                type="button"
+                class="btn btn--page"
+                [disabled]="p.last || loading()"
+                (click)="goToPage(currentPageIndex() + 1)"
+                aria-label="Page suivante">
+                <span>Suivant</span>
+                <span class="material-icons" aria-hidden="true">chevron_right</span>
+              </button>
+            </footer>
+          }
+        }
+      }
+    </section>
+  </main>
+</wwt-dashboard-layout>

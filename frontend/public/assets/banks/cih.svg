@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 50" width="160" height="50">
+  <rect width="160" height="50" rx="8" fill="#ffffff"/>
+  <!-- CIH Bank Logo Symbol -->
+  <g transform="translate(10, 8)">
+    <rect x="0" y="4" width="26" height="26" rx="6" fill="#f58220"/>
+    <path d="M7 17 L19 17 M13 11 L13 23" stroke="#ffffff" stroke-width="3" stroke-linecap="round"/>
+  </g>
+  <!-- CIH BANK Text -->
+  <text x="44" y="27" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif" font-weight="900" font-size="20" fill="#003b79" letter-spacing="1">CIH</text>
+  <text x="88" y="27" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif" font-weight="700" font-size="14" fill="#f58220" letter-spacing="0.5">BANK</text>
+  <text x="45" y="38" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif" font-weight="600" font-size="7" fill="#6c757d" letter-spacing="0.8">BANQUE DU MAROC</text>
+</svg>
+

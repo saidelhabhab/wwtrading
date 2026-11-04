@@ -1,0 +1,90 @@
+:host {
+  display: inline-flex;
+  vertical-align: middle;
+}
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.38rem;
+  width: fit-content;
+  max-width: 100%;
+  border-radius: 9999px;
+  font-weight: 600;
+  line-height: 1.2;
+  white-space: nowrap;
+  letter-spacing: -0.01em;
+  transition: all 0.15s ease;
+}
+
+.badge--md {
+  padding: 0.28rem 0.65rem;
+  font-size: 0.72rem;
+}
+
+.badge--sm {
+  padding: 0.18rem 0.5rem;
+  font-size: 0.68rem;
+}
+
+.badge__dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.badge--success {
+  background: #ecfdf5;
+  color: #065f46;
+  border: 1px solid #a7f3d0;
+}
+.badge--success .badge__dot {
+  background: #10b981;
+}
+
+.badge--warning {
+  background: #fef3c7;
+  color: #92400e;
+  border: 1px solid #fde68a;
+}
+.badge--warning .badge__dot {
+  background: #f59e0b;
+}
+
+.badge--danger {
+  background: #fef2f2;
+  color: #991b1b;
+  border: 1px solid #fecaca;
+}
+.badge--danger .badge__dot {
+  background: #ef4444;
+}
+
+.badge--info {
+  background: #f0f9ff;
+  color: #075985;
+  border: 1px solid #bae6fd;
+}
+.badge--info .badge__dot {
+  background: #0284c7;
+}
+
+.badge--primary {
+  background: #fdf2f6;
+  color: #8f123f;
+  border: 1px solid #fbcfe8;
+}
+.badge--primary .badge__dot {
+  background: #af0f50;
+}
+
+.badge--neutral {
+  background: #f1f5f9;
+  color: #475569;
+  border: 1px solid #e2e8f0;
+}
+.badge--neutral .badge__dot {
+  background: #94a3b8;
+}
+

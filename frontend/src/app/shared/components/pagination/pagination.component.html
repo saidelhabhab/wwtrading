@@ -1,0 +1,38 @@
+<nav class="pagination" aria-label="Pagination des résultats" *ngIf="total() > 1">
+  <div class="pagination__info" *ngIf="totalItems !== undefined">
+    <span>Total : <strong>{{ totalItems }}</strong> éléments</span>
+  </div>
+
+  <div class="pagination__controls">
+    <button
+      type="button"
+      class="pagination__btn"
+      [disabled]="page() <= 1"
+      (click)="prev()"
+      aria-label="Page précédente">
+      <span class="material-icons" aria-hidden="true">chevron_left</span>
+    </button>
+
+    <div class="pagination__pages">
+      @for (p of pages(); track p) {
+        <button
+          type="button"
+          class="pagination__page-btn"
+          [class.active]="p === page()"
+          [attr.aria-current]="p === page() ? 'page' : null"
+          (click)="goTo(p)">
+          {{ p }}
+        </button>
+      }
+    </div>
+
+    <button
+      type="button"
+      class="pagination__btn"
+      [disabled]="page() >= total()"
+      (click)="next()"
+      aria-label="Page suivante">
+      <span class="material-icons" aria-hidden="true">chevron_right</span>
+    </button>
+  </div>
+</nav>

@@ -1,0 +1,161 @@
+@use '../../styles/variables' as *;
+@use '../../styles/mixins' as *;
+
+/**
+ * Page header — titre + sous-titre + slot d'actions.
+ *
+ * Organisation responsive (mobile-first) :
+ *   1. Base       — petit mobile (≤ 480px)   : tout empilé, actions pleine largeur
+ *   2. from(xs)   — grand mobile (≥ 481px)   : actions en ligne sous le titre
+ *   3. from(md)   — tablette (≥ 769px)       : titre + actions sur la même ligne
+ *   4. from(lg)   — laptop (≥ 1025px)        : respiration, typographie plus grande
+ *   5. from(xl)   — grand écran (≥ 1441px)   : marges plus généreuses
+ *   6. from(2xl)  — TV / 4K (≥ 1921px)       : titres et marges à l'échelle du média
+ */
+
+/* ---------- 1. Base — petit mobile ---------- */
+.page-header {
+  @include min-safe;
+
+  display: grid;
+  grid-template-areas:
+    'breadcrumb'
+    'content'
+    'actions';
+  align-items: center;
+  gap: $space-3;
+  /* marges latérales légères + marge haute réduite (l'espace au-dessus est géré par le layout parent) */
+  margin-inline: clamp($space-2, 2vw, $space-4);
+  margin-block: clamp($space-2, 1.5vw, $space-3) $space-4;
+}
+
+/* Fil d'Ariane : pilote discrète, alignée à gauche */
+.page-header__breadcrumb {
+  grid-area: breadcrumb;
+  margin: 0;
+  align-self: center;
+  justify-self: start;
+
+  p {
+    display: inline-flex;
+    align-items: center;
+    gap: $space-2;
+    margin: 0;
+    padding: $space-1 $space-3;
+    border: 1px solid $color-border;
+    border-radius: 999px;
+    background: $color-surface;
+    color: $color-primary;
+    font-size: $font-size-xs;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    @include break-anywhere;
+  }
+}
+
+.page-header__content {
+  grid-area: content;
+  @include min-safe;
+  /* titre + sous-titre alignés à gauche, dans l'axe du fil d'Ariane */
+  justify-self: start;
+  text-align: left;
+
+  .page-header__title {
+    justify-self: start;
+    padding-left: $space-3;
+    border-left: 4px solid $color-primary;
+  }
+}
+
+.page-header__title {
+  margin: 0;
+  font-size: clamp(1.3rem, 1rem + 1.2vw, 1.6rem);
+  font-weight: 800;
+  line-height: 1.15;
+  letter-spacing: -0.02em;
+}
+
+.page-header__subtitle {
+  max-width: 68ch;
+  margin: $space-2 0 0;
+  color: $color-muted;
+  line-height: 1.6;
+}
+
+.page-header__actions {
+  grid-area: actions;
+  display: flex;
+  flex-wrap: wrap;
+  gap: $space-2;
+  /* actions alignées à gauche sur mobile, à droite sur tablette+ (voir from(md)) */
+  justify-self: start;
+  justify-content: flex-start;
+
+  ::ng-deep > * { flex: 1 1 auto; }
+}
+
+/* ---------- 2. Grand mobile ---------- */
+@include from(xs) {
+  .page-header__actions {
+    ::ng-deep > * { flex: 0 1 auto; }
+  }
+}
+
+/* ---------- 3. Tablette (portrait + paysage) ---------- */
+@include from(md) {
+  .page-header {
+    grid-template-areas:
+      'breadcrumb actions'
+      'content actions';
+    grid-template-columns: 1fr auto;
+    grid-template-rows: auto 1fr;
+    gap: $space-3 $space-5;
+    margin-inline: clamp($space-4, 2.5vw, $space-6);
+    margin-block: $space-2 $space-4;
+  }
+
+  .page-header__actions {
+    grid-row: 1 / span 2;
+    align-self: center;
+    justify-self: end;
+    justify-content: flex-end;
+  }
+
+  .page-header__title { font-size: clamp(1.5rem, 1.2rem + 0.9vw, 1.85rem); }
+}
+
+/* ---------- 4. Laptop ---------- */
+@include from(lg) {
+  .page-header {
+    gap: $space-6;
+    margin-inline: clamp($space-5, 3vw, $space-8);
+    margin-block: clamp($space-5, 2vw, $space-6) clamp($space-6, 2.5vw, $space-8);
+  }
+
+  .page-header__title { font-size: clamp(1.7rem, 1.4rem + 0.8vw, 2rem); }
+}
+
+/* ---------- 5. Grand écran ---------- */
+@include from(xl) {
+  .page-header {
+    margin-inline: clamp($space-6, 3vw, $space-10);
+    margin-block: $space-6 $space-8;
+  }
+
+  .page-header__title { font-size: clamp(2rem, 1.7rem + 0.6vw, 2.3rem); }
+  .page-header__subtitle { font-size: $font-size-md; }
+}
+
+/* ---------- 6. TV / 4K ---------- */
+@include from('2xl') {
+  .page-header {
+    gap: $space-8;
+    margin-inline: clamp($space-8, 4vw, $space-12);
+    margin-block: $space-8 $space-10;
+  }
+
+  .page-header__breadcrumb p { font-size: $font-size-sm; }
+  .page-header__title { font-size: clamp(2.4rem, 2rem + 0.8vw, 3rem); }
+  .page-header__subtitle { max-width: 80ch; }
+}

@@ -1,0 +1,209 @@
+<main class="cart-page" aria-labelledby="cart-title">
+  <!-- Back link / navigation -->
+  <nav class="cart-breadcrumb" aria-label="Navigation secondaire">
+    <a routerLink="/products" class="back-link">
+      <span class="material-icons" aria-hidden="true">arrow_back</span>
+      <span>Continuer mes achats</span>
+    </a>
+  </nav>
+
+  <!-- Page Header -->
+  <header class="cart-header">
+    <div class="header-titles">
+      <p class="eyebrow">Commande professionnelle</p>
+      <h1 id="cart-title">Votre panier</h1>
+    </div>
+    @if (cart(); as currentCart) {
+      @if (currentCart.items.length > 0) {
+        <span class="header-count-badge">{{ itemCount() }} {{ itemCount() > 1 ? 'articles' : 'article' }}</span>
+      }
+    }
+  </header>
+
+  <!-- State: Loading -->
+  @if (loading()) {
+    <output class="state loading" aria-label="Chargement du panier">
+      <div class="skeleton-item"></div>
+      <div class="skeleton-item"></div>
+      <div class="skeleton-item"></div>
+    </output>
+  } @else if (error() && !cart()) {
+    <!-- State: Full Load Error -->
+    <section class="state error" role="alert">
+      <div class="state-icon" aria-hidden="true">
+        <span class="material-icons">error_outline</span>
+      </div>
+      <h2>Chargement impossible</h2>
+      <p>{{ error() }}</p>
+      <button type="button" class="btn-primary" (click)="load()">Réessayer</button>
+    </section>
+  } @else {
+    @if (cart(); as currentCart) {
+      @if (currentCart.items.length === 0) {
+        <!-- State: Empty Cart -->
+        <section class="state empty" aria-labelledby="empty-cart-title">
+          <div class="empty-icon-box" aria-hidden="true">
+            <span class="material-icons">remove_shopping_cart</span>
+          </div>
+          <h2 id="empty-cart-title">Votre panier est vide</h2>
+          <p>
+            Vous n’avez aucun équipement ou consommable dans votre sélection actuelle.
+            Découvrez nos solutions d’impression professionnelles WWTRADING.
+          </p>
+          <a class="btn-primary" routerLink="/products">
+            <span class="material-icons" aria-hidden="true">storefront</span>
+            <span>Découvrir nos produits</span>
+          </a>
+        </section>
+      } @else {
+        <!-- Inline Action Error -->
+        @if (error()) {
+          <div class="inline-error" role="alert">
+            <span class="material-icons" aria-hidden="true">info</span>
+            <span>{{ error() }}</span>
+          </div>
+        }
+
+        <!-- Main Cart 2-Column Layout -->
+        <div class="cart-layout">
+          <!-- Left Column: Products List -->
+          <section class="items-column" aria-label="Articles du panier">
+            <div class="items-bar">
+              <span class="items-count-text">
+                {{ currentCart.items.length }} {{ currentCart.items.length > 1 ? 'références sélectionnées' : 'référence sélectionnée' }}
+              </span>
+              <button
+                type="button"
+                class="btn-clear-cart clear"
+                [disabled]="clearing() || pendingItemId() !== null"
+                (click)="clear()"
+              >
+                <span class="material-icons" aria-hidden="true">delete_sweep</span>
+                <span>{{ clearing() ? 'Suppression…' : 'Vider le panier' }}</span>
+              </button>
+            </div>
+
+            <div class="items-list">
+              @for (item of currentCart.items; track item.id) {
+                <article class="cart-card cart-item" [class.is-pending]="pendingItemId() === item.id">
+                  <!-- Fixed Dimension Product Thumbnail -->
+                  <div class="product-thumb" aria-hidden="true">
+                    <span class="material-icons thumb-icon">print</span>
+                    <span class="thumb-badge">WWT</span>
+                  </div>
+
+                  <!-- Product Identity Details -->
+                  <div class="product-info product-identity">
+                    <span class="product-tag item-label">Équipement & consommables</span>
+                    <h2 class="product-title">{{ item.productReference }}</h2>
+                    <p class="product-meta">Référence certifiée Konica Minolta & Develop</p>
+                  </div>
+
+                  <!-- Quantity Controls -->
+                  <div class="quantity-wrapper quantity" aria-label="Quantité">
+                    <span class="quantity-label">Quantité</span>
+                    <div class="stepper">
+                      <button
+                        type="button"
+                        class="stepper-btn"
+                        [disabled]="item.quantity <= 1 || pendingItemId() !== null || clearing()"
+                        [attr.aria-label]="'Réduire la quantité de ' + item.productReference"
+                        (click)="changeQuantity(item, -1)"
+                      >
+                        −
+                      </button>
+
+                      <output class="stepper-output" [attr.aria-label]="'Quantité ' + item.quantity">
+                        {{ item.quantity }}
+                      </output>
+
+                      <button
+                        type="button"
+                        class="stepper-btn"
+                        [disabled]="pendingItemId() !== null || clearing() || (item.availableQuantity != null && item.quantity >= item.availableQuantity)"
+                        [attr.aria-label]="'Augmenter la quantité de ' + item.productReference"
+                        (click)="changeQuantity(item, 1)"
+                      >
+                        +
+                      </button>
+                    </div>
+                    @if (item.availableQuantity != null && item.quantity >= item.availableQuantity) {
+                      <small class="quantity-limit-message">Quantité maximale atteinte. Maximum disponible : {{ item.availableQuantity }}.</small>
+                    }
+                  </div>
+
+                  <!-- Remove Action -->
+                  <div class="card-actions">
+                    <button
+                      type="button"
+                      class="btn-remove remove"
+                      [disabled]="pendingItemId() !== null || clearing()"
+                      [attr.aria-label]="'Supprimer ' + item.productReference + ' du panier'"
+                      (click)="remove(item)"
+                    >
+                      <span class="material-icons" aria-hidden="true">delete_outline</span>
+                      <span>{{ pendingItemId() === item.id ? 'Suppression…' : 'Supprimer' }}</span>
+                    </button>
+                  </div>
+                </article>
+              }
+            </div>
+          </section>
+
+          <!-- Right Column: Order Summary -->
+          <aside class="summary-column summary" aria-labelledby="summary-title">
+            <div class="summary-card">
+              <div class="summary-header">
+                <p class="eyebrow">Récapitulatif</p>
+                <h2 id="summary-title">Total de la sélection</h2>
+              </div>
+
+              <dl class="summary-metrics">
+                <div class="metric-row">
+                  <dt>Références distinctes</dt>
+                  <dd>{{ currentCart.items.length }}</dd>
+                </div>
+                <div class="metric-row total-row">
+                  <dt>Total des articles</dt>
+                  <dd>{{ itemCount() }}</dd>
+                </div>
+              </dl>
+
+              <!-- B2B Service Guarantees -->
+              <div class="summary-guarantees" aria-label="Garanties de service">
+                <div class="guarantee-line">
+                  <span class="material-icons" aria-hidden="true">verified</span>
+                  <span>Matériel & consommables d’origine</span>
+                </div>
+                <div class="guarantee-line">
+                  <span class="material-icons" aria-hidden="true">local_shipping</span>
+                  <span>Livraison & installation Tanger → Agadir</span>
+                </div>
+                <div class="guarantee-line">
+                  <span class="material-icons" aria-hidden="true">support_agent</span>
+                  <span>Assistance technique & SAV H+8</span>
+                </div>
+              </div>
+
+              <!-- Main CTAs -->
+              <div class="summary-cta-group">
+                <a class="btn-checkout primary-link" routerLink="/checkout">
+                  <span>Passer à la commande</span>
+                  <span class="material-icons" aria-hidden="true">arrow_forward</span>
+                </a>
+
+                <a class="btn-continue-shopping" routerLink="/products">
+                  <span>Continuer mes achats</span>
+                </a>
+              </div>
+
+              <p class="summary-note">
+                Les conditions de facturation et les prix unitaires contractuels sont validés à l'étape suivante selon votre compte d'entreprise.
+              </p>
+            </div>
+          </aside>
+        </div>
+      }
+    }
+  }
+</main>

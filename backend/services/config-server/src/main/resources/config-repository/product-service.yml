@@ -1,0 +1,32 @@
+spring:
+  servlet:
+    multipart:
+      max-file-size: ${PRODUCT_IMAGE_MAX_SIZE:10MB}
+      max-request-size: ${PRODUCT_IMAGE_MAX_REQUEST_SIZE:11MB}
+  jpa:
+    open-in-view: false
+    hibernate:
+      ddl-auto: validate
+    properties:
+      hibernate:
+        jdbc:
+          time_zone: UTC
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+  kafka:
+    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:kafka:9092}
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+
+wwtrading:
+  security:
+    audience: ${JWT_AUDIENCE:wwtrading-api}
+
+product:
+  image:
+    max-size: ${PRODUCT_IMAGE_MAX_SIZE:10MB}
+    storage:
+      path: ${PRODUCT_IMAGE_STORAGE_PATH:${java.io.tmpdir}/wwtrading/product-images}
+

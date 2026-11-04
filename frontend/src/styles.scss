@@ -1,0 +1,543 @@
+@use './app/shared/styles/dashboard';
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ===========================================================================
+   WWTRADING design tokens
+   Single source of truth consumed by every dashboard, panel and feature page.
+   Feature SCSS uses `var(--dashboard-*)` / `var(--wwt-*)` so the palette and
+   rhythm stay identical across the whole application.
+   =========================================================================== */
+:root {
+  color-scheme: light;
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  color: #0f172a;
+  background: #f8fafc;
+
+  /* Brand */
+  --dashboard-primary: #af0f50;
+  --dashboard-primary-hover: #930b42;
+  --dashboard-primary-dark: #6e0832;
+  --dashboard-primary-soft: #fdf2f6;
+  --dashboard-primary-tint: #fce7f0;
+  --dashboard-primary-contrast: #ffffff;
+  --wwt-primary: #0f172a;
+  --wwt-primary-dark: #020617;
+
+  /* Surfaces */
+  --dashboard-surface: #ffffff;
+  --dashboard-surface-muted: #f8fafc;
+  --dashboard-surface-subtle: #f1f5f9;
+  --wwt-surface: #ffffff;
+
+  /* Text */
+  --dashboard-text: #0f172a;
+  --dashboard-text-muted: #64748b;
+  --dashboard-text-subtle: #94a3b8;
+
+  /* Lines + elevation */
+  --dashboard-border: #e2e8f0;
+  --dashboard-border-subtle: #f1f5f9;
+  --wwt-border: #e2e8f0;
+  --dashboard-shadow-xs: 0 1px 2px 0 rgba(15, 23, 42, 0.05);
+  --dashboard-shadow-sm: 0 1px 3px 0 rgba(15, 23, 42, 0.08), 0 1px 2px -1px rgba(15, 23, 42, 0.04);
+  --dashboard-shadow: 0 4px 6px -1px rgba(15, 23, 42, 0.08), 0 2px 4px -2px rgba(15, 23, 42, 0.04);
+  --dashboard-shadow-lg: 0 10px 15px -3px rgba(15, 23, 42, 0.09), 0 4px 6px -4px rgba(15, 23, 42, 0.04);
+  --dashboard-shadow-xl: 0 20px 25px -5px rgba(15, 23, 42, 0.1), 0 8px 10px -6px rgba(15, 23, 42, 0.04);
+
+  /* Semantic */
+  --dashboard-success: #10b981;
+  --dashboard-success-soft: #ecfdf5;
+  --dashboard-warning: #f59e0b;
+  --dashboard-warning-soft: #fef3c7;
+  --dashboard-danger: #ef4444;
+  --dashboard-danger-soft: #fef2f2;
+  --dashboard-info: #0284c7;
+  --dashboard-info-soft: #f0f9ff;
+  --dashboard-focus: rgba(175, 15, 80, 0.35);
+
+  /* Layout rhythm */
+  --dashboard-radius-xs: 6px;
+  --dashboard-radius-sm: 8px;
+  --dashboard-radius: 12px;
+  --dashboard-radius-lg: 16px;
+  --dashboard-radius-xl: 20px;
+  --dashboard-gap: clamp(1rem, 2vw, 1.5rem);
+  --dashboard-page-padding-block: clamp(1rem, 2.4vw, 2.5rem);
+  --dashboard-page-padding-inline: clamp(0.85rem, 3vw, 2.5rem);
+  --dashboard-max-width: 1680px;
+
+  /* Motion */
+  --dashboard-transition: 180ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* ---------------------------------------------------------------------------
+   Document defaults
+   The base font is fluid so 4K displays do not render microscopic text and
+   360px phones keep a comfortable reading size.
+   --------------------------------------------------------------------------- */
+html {
+  scroll-behavior: smooth;
+  font-size: 100%;
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
+@media (min-width: 1921px) {
+  /* Slight optical upscale on TV / 4K, matching the wider spacing. */
+  html { font-size: 112.5%; }
+}
+
+body {
+  /* 320px is the hard floor the layout is designed down to. */
+  min-width: 320px;
+  min-height: 100vh;
+  margin: 0;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+/**
+ * Long user-generated values (references, emails, product names) are the main
+ * source of horizontal overflow. Media and SVG keep their intrinsic sizing.
+ */
+img,
+video,
+canvas,
+svg {
+  max-width: 100%;
+}
+
+img,
+video {
+  height: auto;
+}
+
+table {
+  max-width: 100%;
+}
+
+pre,
+code {
+  overflow-wrap: anywhere;
+}
+
+a {
+  color: inherit;
+}
+
+/* ---------------------------------------------------------------------------
+   Typography hierarchy
+   Utility classes used by feature pages; sizes are fluid via clamp().
+   --------------------------------------------------------------------------- */
+.wwt-page-title { font-size: clamp(1.65rem, 1.15rem + 1.6vw, 2.5rem); line-height: 1.15; letter-spacing: -0.02em; }
+.wwt-section-title { font-size: clamp(1.15rem, 1rem + 0.5vw, 1.45rem); line-height: 1.25; letter-spacing: -0.01em; }
+.wwt-card-title { font-size: clamp(1rem, 0.95rem + 0.2vw, 1.15rem); line-height: 1.35; }
+.wwt-body { font-size: 0.95rem; line-height: 1.65; }
+.wwt-secondary { font-size: 0.85rem; line-height: 1.55; color: var(--dashboard-text-muted); }
+.wwt-caption { font-size: 0.72rem; line-height: 1.45; letter-spacing: 0.06em; text-transform: uppercase; color: var(--dashboard-text-subtle); }
+
+/* Long-form copy never stretches past a comfortable reading measure. */
+.wwt-measure { max-width: 68ch; }
+
+/* ---------------------------------------------------------------------------
+   Focus visibility
+   --------------------------------------------------------------------------- */
+:focus-visible {
+  outline: 3px solid #af0f50;
+  outline-offset: 3px;
+}
+
+/* ---------------------------------------------------------------------------
+   Shared layout primitives
+   These replace the ad-hoc `width: min(...)` blocks that were duplicated in
+   the admin / manager / commercial dashboards.
+   --------------------------------------------------------------------------- */
+.wwt-page {
+  width: 100%;
+  max-width: var(--dashboard-max-width);
+  margin-inline: auto;
+  padding: var(--dashboard-page-padding-block) var(--dashboard-page-padding-inline);
+}
+
+/* KPI grids: 1 column on mobile, 2 on tablet, 4 on desktop. */
+.wwt-kpi-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--dashboard-gap);
+}
+
+@media (min-width: 641px) {
+  .wwt-kpi-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+@media (min-width: 1025px) {
+  .wwt-kpi-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+}
+
+/* ---------------------------------------------------------------------------
+   Shared scroll container for wide data tables.
+   Wide tables scroll horizontally instead of being squeezed unreadably; the
+   page itself never gains a horizontal scrollbar.
+   --------------------------------------------------------------------------- */
+.wwt-table-scroll {
+  width: 100%;
+  max-width: 100%;
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: thin;
+  scrollbar-color: #b8c2c8 transparent;
+}
+
+/* ---------------------------------------------------------------------------
+   Shared status badge.
+   Text is always present so status is never communicated by colour alone, and
+   labels wrap instead of overflowing their card.
+   --------------------------------------------------------------------------- */
+.wwt-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  width: fit-content;
+  max-width: 100%;
+  min-height: 1.75rem;
+  padding: 0.3rem 0.6rem;
+  border-radius: 999px;
+  background: var(--dashboard-surface-muted);
+  color: var(--dashboard-text-muted);
+  font-size: 0.72rem;
+  font-weight: 800;
+  line-height: 1.25;
+  text-align: left;
+  overflow-wrap: anywhere;
+}
+
+.wwt-badge--success { background: var(--dashboard-success-soft); color: var(--dashboard-success); }
+.wwt-badge--warning { background: var(--dashboard-warning-soft); color: var(--dashboard-warning); }
+.wwt-badge--danger { background: var(--dashboard-danger-soft); color: var(--dashboard-danger); }
+.wwt-badge--info { background: var(--dashboard-info-soft); color: var(--dashboard-info); }
+.wwt-badge--primary { background: var(--dashboard-primary-soft); color: var(--dashboard-primary-dark); }
+
+/* ---------------------------------------------------------------------------
+   Shared button system
+   --------------------------------------------------------------------------- */
+.wwt-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  min-height: 2.6rem;
+  padding: 0.55rem 1.15rem;
+  border: 1px solid transparent;
+  border-radius: var(--dashboard-radius-sm);
+  font-family: inherit;
+  font-size: 0.85rem;
+  font-weight: 650;
+  line-height: 1.25;
+  text-decoration: none;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all var(--dashboard-transition);
+
+  &:disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+    pointer-events: none;
+  }
+
+  .material-icons {
+    font-size: 1.15rem;
+  }
+}
+
+.wwt-btn-primary {
+  background: var(--dashboard-primary);
+  border-color: var(--dashboard-primary);
+  color: #ffffff;
+  box-shadow: 0 1px 2px 0 rgba(175, 15, 80, 0.25);
+
+  &:hover:not(:disabled) {
+    background: var(--dashboard-primary-hover);
+    border-color: var(--dashboard-primary-hover);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 10px -2px rgba(175, 15, 80, 0.35);
+  }
+
+  &:active:not(:disabled) {
+    transform: translateY(0);
+  }
+}
+
+.wwt-btn-secondary {
+  background: #0f172a;
+  border-color: #0f172a;
+  color: #ffffff;
+
+  &:hover:not(:disabled) {
+    background: #1e293b;
+    border-color: #1e293b;
+    transform: translateY(-1px);
+  }
+}
+
+.wwt-btn-outline {
+  background: #ffffff;
+  border-color: var(--dashboard-border);
+  color: var(--dashboard-text);
+
+  &:hover:not(:disabled) {
+    border-color: var(--dashboard-primary);
+    color: var(--dashboard-primary);
+    background: var(--dashboard-primary-soft);
+  }
+}
+
+.wwt-btn-ghost {
+  background: transparent;
+  border-color: transparent;
+  color: var(--dashboard-text-muted);
+
+  &:hover:not(:disabled) {
+    background: var(--dashboard-surface-subtle);
+    color: var(--dashboard-text);
+  }
+}
+
+.wwt-btn-danger {
+  background: var(--dashboard-danger);
+  border-color: var(--dashboard-danger);
+  color: #ffffff;
+
+  &:hover:not(:disabled) {
+    background: #dc2626;
+    border-color: #dc2626;
+    transform: translateY(-1px);
+  }
+}
+
+.wwt-btn-sm {
+  min-height: 2.1rem;
+  padding: 0.35rem 0.75rem;
+  font-size: 0.78rem;
+  border-radius: var(--dashboard-radius-xs);
+
+  .material-icons {
+    font-size: 1rem;
+  }
+}
+
+/* ---------------------------------------------------------------------------
+   Shared form inputs
+   --------------------------------------------------------------------------- */
+.wwt-form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  margin-bottom: 1.1rem;
+}
+
+.wwt-label {
+  display: block;
+  font-size: 0.78rem;
+  font-weight: 650;
+  color: var(--dashboard-text);
+  letter-spacing: -0.01em;
+}
+
+.wwt-input,
+.wwt-select,
+.wwt-textarea {
+  width: 100%;
+  padding: 0.6rem 0.85rem;
+  font-family: inherit;
+  font-size: 0.88rem;
+  color: var(--dashboard-text);
+  background: #ffffff;
+  border: 1px solid var(--dashboard-border);
+  border-radius: var(--dashboard-radius-sm);
+  transition: border-color var(--dashboard-transition), box-shadow var(--dashboard-transition);
+
+  &::placeholder {
+    color: var(--dashboard-text-subtle);
+  }
+
+  &:focus {
+    outline: none;
+    border-color: var(--dashboard-primary);
+    box-shadow: 0 0 0 3px var(--dashboard-focus);
+  }
+
+  &:disabled {
+    background: var(--dashboard-surface-muted);
+    cursor: not-allowed;
+    color: var(--dashboard-text-subtle);
+  }
+}
+
+.wwt-textarea {
+  min-height: 90px;
+  resize: vertical;
+}
+
+/* ---------------------------------------------------------------------------
+   Shared modern card container
+   --------------------------------------------------------------------------- */
+.wwt-card {
+  background: var(--dashboard-surface);
+  border: 1px solid var(--dashboard-border);
+  border-radius: var(--dashboard-radius);
+  box-shadow: var(--dashboard-shadow-sm);
+  transition: box-shadow var(--dashboard-transition), border-color var(--dashboard-transition);
+}
+
+.wwt-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1.15rem 1.35rem;
+  border-bottom: 1px solid var(--dashboard-border);
+
+  h2, h3 {
+    margin: 0;
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: var(--dashboard-text);
+    letter-spacing: -0.01em;
+  }
+
+  p {
+    margin: 0.15rem 0 0;
+    font-size: 0.78rem;
+    color: var(--dashboard-text-muted);
+  }
+}
+
+.wwt-card-body {
+  padding: 1.35rem;
+}
+
+.wwt-card-footer {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.75rem;
+  padding: 1rem 1.35rem;
+  border-top: 1px solid var(--dashboard-border);
+  background: var(--dashboard-surface-muted);
+  border-bottom-left-radius: inherit;
+  border-bottom-right-radius: inherit;
+}
+
+/* ---------------------------------------------------------------------------
+   Shared overlay + modal shell.
+   Replaces fixed pixel widths so dialogs always fit the viewport and scroll
+   internally instead of pushing their actions off-screen.
+   --------------------------------------------------------------------------- */
+.wwt-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 80;
+  display: grid;
+  place-items: center;
+  padding: clamp(0.75rem, 2vw, 1.5rem);
+  background: rgb(26 26 24 / 48%);
+  overflow: hidden;
+}
+
+.wwt-modal {
+  width: min(720px, 100%);
+  max-width: calc(100vw - 1.5rem);
+  max-height: calc(100dvh - 1.5rem);
+  overflow: auto;
+  overscroll-behavior: contain;
+  padding: clamp(1rem, 2.5vw, 1.5rem);
+  border-radius: var(--dashboard-radius-lg);
+  background: var(--dashboard-surface);
+  box-shadow: 0 24px 60px rgb(0 0 0 / 28%);
+}
+
+.wwt-modal--sm { width: min(460px, 100%); }
+.wwt-modal--lg { width: min(960px, 100%); }
+
+/**
+ * Modal action row: right-aligned on desktop, full-width stacked buttons on
+ * mobile so the primary action is never clipped.
+ */
+.wwt-modal-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 0.6rem;
+  margin-top: 1.25rem;
+}
+
+@media (max-width: 640px) {
+  .wwt-modal-actions { flex-direction: column-reverse; align-items: stretch; }
+  .wwt-modal-actions > * { width: 100%; justify-content: center; }
+}
+
+/* ---------------------------------------------------------------------------
+   Shared empty / loading / error states.
+   `min-height` shrinks with the viewport so mobile is not left with a huge
+   blank area, but still reserves enough space to avoid layout jumps.
+   --------------------------------------------------------------------------- */
+.wwt-state {
+  display: grid;
+  place-items: center;
+  align-content: center;
+  gap: 0.75rem;
+  min-height: clamp(9rem, 22vh, 14rem);
+  padding: clamp(1.25rem, 4vw, 2.5rem);
+  border: 1px dashed var(--dashboard-border);
+  border-radius: var(--dashboard-radius);
+  background: var(--dashboard-surface-muted);
+  color: var(--dashboard-text-muted);
+  text-align: center;
+}
+
+.wwt-state--error { border-color: #efb2c9; background: #fff7fa; color: var(--dashboard-primary-dark); }
+.wwt-state strong { color: var(--dashboard-text); }
+.wwt-state p { max-width: 46ch; margin: 0; }
+
+/* ---------------------------------------------------------------------------
+   Touch targets
+   Icon-only controls must stay tappable on phones.
+   --------------------------------------------------------------------------- */
+@media (max-width: 640px) {
+  .wwt-touch { min-height: 44px; min-width: 44px; }
+}
+
+/* ---------------------------------------------------------------------------
+   Reduced motion
+   --------------------------------------------------------------------------- */
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+.dashboard-content__operations { display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr); gap: 20px; }.dashboard-content__operations--secondary { grid-template-columns: repeat(3, minmax(0, 1fr)); }.dashboard-panel--operations, .dashboard-panel--status { min-height: 260px; }.integration-label { flex: 0 0 auto; padding: 5px 8px; border: 1px solid var(--dashboard-border); border-radius: 999px; color: var(--dashboard-text-muted); font-size: .64rem; font-weight: 700; white-space: nowrap; }.panel-note { max-width: 42rem; margin: -6px 0 20px; color: var(--dashboard-text-muted); font-size: .78rem; line-height: 1.55; }.integration-row, .fleet-placeholder, .activity-placeholder { display: flex; align-items: center; gap: 12px; padding: 11px 0; border-bottom: 1px solid var(--dashboard-border); }.integration-row > span:nth-child(2), .integration-row > div, .fleet-placeholder > span:nth-child(2), .fleet-placeholder > div, .activity-placeholder > span:nth-child(2), .activity-placeholder > div { display: grid; flex: 1; gap: 3px; min-width: 0; }.integration-row .material-icons, .fleet-placeholder .material-icons, .activity-placeholder .material-icons { color: var(--dashboard-primary); font-size: 20px; }.integration-row strong, .fleet-placeholder strong, .activity-placeholder strong { color: var(--dashboard-text); font-size: .8rem; }.integration-row small, .integration-row em, .fleet-placeholder small, .activity-placeholder small { color: var(--dashboard-text-muted); font-size: .68rem; }.integration-row em { font-style: normal; }.maintenance-placeholder, .activity-placeholder { min-height: 120px; padding: 18px; border: 1px dashed var(--dashboard-border); border-radius: 12px; background: var(--dashboard-surface-muted); }.maintenance-placeholder .material-icons, .activity-placeholder .material-icons { font-size: 26px; }.maintenance-placeholder strong, .maintenance-placeholder small, .activity-placeholder strong, .activity-placeholder small { display: block; }.maintenance-placeholder small, .activity-placeholder small { margin-top: 4px; }.fleet-placeholder { border-bottom: 0; }.fleet-placeholder__icon { font-size: 28px; }.fleet-legend { display: flex; flex-wrap: wrap; gap: 12px; padding-top: 18px; border-top: 1px solid var(--dashboard-border); color: var(--dashboard-text-muted); font-size: .65rem; }.fleet-legend span { display: inline-flex; align-items: center; gap: 5px; }.fleet-legend i { width: 7px; height: 7px; border-radius: 50%; }.fleet-legend__dot--success { background: var(--dashboard-success); }.fleet-legend__dot--warning { background: var(--dashboard-warning); }.fleet-legend__dot--danger { background: var(--dashboard-danger, var(--dashboard-primary)); }.platform-status-list { display: grid; }.platform-status-list div { display: flex; justify-content: space-between; gap: 12px; padding: 10px 0; border-bottom: 1px solid var(--dashboard-border); color: var(--dashboard-text-muted); font-size: .74rem; }.platform-status-list strong { color: var(--dashboard-text-muted); font-size: .66rem; font-weight: 700; }
+
+@media (max-width: 1100px) { .dashboard-content__operations, .dashboard-content__operations--secondary { grid-template-columns: 1fr; } }
+
+@media print {
+  @page { size: A4; margin: 15mm; }
+  body:has(.commercial-document) wwt-sidebar,
+  body:has(.commercial-document) wwt-topbar,
+  body:has(.commercial-document) .dashboard-footer,
+  body:has(.commercial-document) .sidebar-backdrop { display: none !important; }
+  body:has(.commercial-document) .dashboard-workspace { width: 100% !important; margin: 0 !important; }
+  body:has(.commercial-document) .dashboard-main { min-height: 0; overflow: visible; padding: 0; }
+}

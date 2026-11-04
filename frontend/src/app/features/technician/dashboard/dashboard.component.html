@@ -1,0 +1,61 @@
+<wwt-dashboard-layout title="Dashboard technicien">
+  <wwt-page-header title="Mes interventions" subtitle="Charge de maintenance assignée à votre identité" breadcrumb="Technicien / Dashboard"></wwt-page-header>
+  <section class="dashboard-content">
+    <section class="welcome-card">
+      <div class="welcome-card__content">
+        <span class="welcome-card__eyebrow"><mat-icon>engineering</mat-icon>Espace technique WWTRADING</span>
+        <h1>Votre charge opérationnelle</h1>
+        <p>Les données affichées proviennent exclusivement de vos affectations de maintenance.</p>
+        <div class="welcome-card__actions"><a class="primary-action" routerLink="/technician/maintenance"><mat-icon>build</mat-icon>Voir mes interventions</a></div>
+      </div>
+      <mat-icon class="welcome-card__visual" aria-hidden="true">precision_manufacturing</mat-icon>
+    </section>
+
+    @if (failed().length) {
+      <div class="dashboard-error" role="alert"><mat-icon>sync_problem</mat-icon><span>Sources indisponibles : {{ failed().join(', ') }}.</span><button type="button" (click)="loadDashboard()">Réessayer</button></div>
+    }
+
+    <section class="stats-grid" aria-label="Indicateurs de mes interventions">
+      <wwt-stat-card title="Affectations actives" [value]="analytics() ? activeAssignments().toString() : '—'" icon="assignment" description="travail en cours" [loading]="loading()"></wwt-stat-card>
+      <wwt-stat-card title="Nouvelles affectations" [value]="analytics() ? count('ASSIGNED').toString() : '—'" icon="new_releases" description="à accepter" status="warning" [loading]="loading()"></wwt-stat-card>
+      <wwt-stat-card title="En intervention" [value]="analytics() ? count('IN_PROGRESS').toString() : '—'" icon="engineering" description="en cours" [loading]="loading()"></wwt-stat-card>
+      <wwt-stat-card title="Attente de pièce" [value]="analytics() ? count('WAITING_FOR_PART').toString() : '—'" icon="inventory_2" description="bloquées par une pièce" status="warning" [loading]="loading()"></wwt-stat-card>
+      <wwt-stat-card title="Terminées" [value]="analytics() ? count('COMPLETED').toString() : '—'" icon="task_alt" description="sur 30 jours" status="success" [loading]="loading()"></wwt-stat-card>
+      <wwt-stat-card title="Notifications" [value]="unreadNotifications()?.toString() ?? '—'" icon="notifications" description="non lues" [loading]="loading()"></wwt-stat-card>
+    </section>
+
+    <div class="dashboard-grid">
+      <section class="dashboard-panel" aria-labelledby="recent-title">
+        <header class="panel-header"><div><span class="panel-header__eyebrow">Affectations réelles</span><h2 id="recent-title">Interventions récentes</h2></div><a class="panel-link" routerLink="/technician/maintenance">Tout voir</a></header>
+        @if (loading()) { <div class="real-state">Chargement des affectations…</div> }
+        @else if (failed().includes('affectations')) { <div class="real-state real-state--error">Impossible de charger vos affectations.</div> }
+        @else if (recentAssignments().length === 0) { <div class="real-state">Aucune intervention assignée.</div> }
+        @else {
+          <div class="real-assignments">
+            @for (item of recentAssignments(); track item.id) {
+              <a [routerLink]="['/technician/maintenance', item.id]">
+                <span class="real-assignments__icon"><mat-icon>build_circle</mat-icon></span>
+                <span class="real-assignments__copy"><strong>{{ item.subject }}</strong><small>{{ item.productReference || item.customerReference }}</small><time>{{ item.updatedAt | date:'dd/MM/yyyy HH:mm' }}</time></span>
+                <span class="real-assignments__meta"><em [class]="priorityClass(item)">{{ priorityLabel(item) }}</em><em [class]="statusClass(item.status)">{{ statusLabel(item.status) }}</em></span>
+              </a>
+            }
+          </div>
+        }
+      </section>
+
+      <section class="dashboard-panel" aria-labelledby="distribution-title">
+        <header class="panel-header"><div><span class="panel-header__eyebrow">Répartition</span><h2 id="distribution-title">Statuts sur 30 jours</h2></div></header>
+        @if (loading()) { <div class="real-state">Chargement…</div> }
+        @else if (!analytics()) { <div class="real-state real-state--error">Répartition indisponible.</div> }
+        @else if (analytics()?.totalRequests === 0) { <div class="real-state">Aucune donnée sur cette période.</div> }
+        @else {
+          <div class="status-list">
+            @for (item of analytics()?.byStatus ?? []; track item.status) {
+              @if (item.count > 0) { <div><span>{{ statusLabel(item.status) }}</span><strong>{{ item.count }}</strong></div> }
+            }
+          </div>
+        }
+      </section>
+    </div>
+  </section>
+</wwt-dashboard-layout>

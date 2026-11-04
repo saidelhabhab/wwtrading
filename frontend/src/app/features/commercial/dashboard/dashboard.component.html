@@ -1,0 +1,67 @@
+<wwt-dashboard-layout title="Dashboard commercial">
+  <wwt-page-header title="Activité commerciale" subtitle="Votre portefeuille prospects, isolé par votre identité Keycloak" breadcrumb="Commercial / Dashboard"></wwt-page-header>
+  <section class="dashboard-content">
+    <section class="dashboard-content__welcome">
+      <div class="dashboard-content__welcome-info">
+        <span class="dashboard-content__eyebrow">Mes données</span>
+        <h1 class="dashboard-content__title">Pipeline des 30 derniers jours</h1>
+        <p class="dashboard-content__description">Les indicateurs ci-dessous concernent uniquement les prospects qui vous sont assignés.</p>
+      </div>
+      <a class="dashboard-content__welcome-action" routerLink="/commercial/analytics"><mat-icon>bar_chart</mat-icon>Rapports détaillés</a>
+    </section>
+
+    @if (failed().length) {
+      <div class="dashboard-alert" role="alert"><mat-icon>sync_problem</mat-icon><span>Sources indisponibles : {{ failed().join(', ') }}.</span><button type="button" (click)="loadDashboard()">Réessayer</button></div>
+    }
+
+    <section class="dashboard-content__stats" aria-label="Mes indicateurs commerciaux">
+      <wwt-stat-card title="Mes prospects" [value]="report()?.kpis?.prospects?.toString() ?? '—'" icon="groups" description="sur 30 jours" [loading]="loading()"></wwt-stat-card>
+      <wwt-stat-card title="Nouveaux" [value]="report() ? count('NEW').toString() : '—'" icon="person_add" description="à qualifier" [loading]="loading()"></wwt-stat-card>
+      <wwt-stat-card title="Intéressés" [value]="report() ? count('INTERESTED').toString() : '—'" icon="thumb_up" description="opportunités actives" [loading]="loading()"></wwt-stat-card>
+      <wwt-stat-card title="Devis envoyés" [value]="report() ? count('QUOTE_SENT').toString() : '—'" icon="request_quote" description="prospects au stade devis" [loading]="loading()"></wwt-stat-card>
+      <wwt-stat-card title="Gagnés" [value]="report()?.kpis?.wonProspects?.toString() ?? '—'" icon="emoji_events" description="opportunités gagnées" [loading]="loading()"></wwt-stat-card>
+      <wwt-stat-card title="Support ouvert" [value]="openSupport()?.toString() ?? '—'" icon="support_agent" description="conversations autorisées" [loading]="loading()"></wwt-stat-card>
+      <wwt-stat-card title="Notifications" [value]="unreadNotifications()?.toString() ?? '—'" icon="notifications" description="non lues" [loading]="loading()"></wwt-stat-card>
+    </section>
+
+    <div class="dashboard-content__main-grid">
+      <section class="dashboard-panel" aria-labelledby="pipeline-title">
+        <header class="dashboard-panel__header"><div><span class="dashboard-panel__eyebrow">Pipeline</span><h2 id="pipeline-title">Répartition de mes prospects</h2></div><a class="dashboard-panel__action" routerLink="/commercial/prospects">Voir les prospects</a></header>
+        @if (loading()) { <div class="real-state">Chargement du pipeline…</div> }
+        @else if (!report()) { <div class="real-state real-state--error">Pipeline indisponible.</div> }
+        @else if (report()?.kpis?.prospects === 0) { <div class="real-state">Aucun prospect pour cette période.</div> }
+        @else {
+          <div class="real-pipeline">
+            @for (item of pipeline(); track item.status) {
+              <div><span>{{ statusLabel(item.status) }}</span><span class="real-pipeline__track"><i [style.width.%]="pipelineWidth(item.count)"></i></span><strong>{{ item.count }}</strong></div>
+            }
+          </div>
+        }
+      </section>
+
+      <section class="dashboard-panel" aria-labelledby="actions-title">
+        <header class="dashboard-panel__header"><div><span class="dashboard-panel__eyebrow">Navigation</span><h2 id="actions-title">Accès rapides</h2></div></header>
+        <nav class="quick-actions" aria-label="Accès rapides commercial">
+          <a class="quick-action" routerLink="/commercial/prospects"><span class="quick-action__icon"><mat-icon>groups</mat-icon></span><span class="quick-action__content"><strong>Mes prospects</strong><small>Gérer mon portefeuille</small></span><mat-icon>chevron_right</mat-icon></a>
+          <a class="quick-action" routerLink="/commercial/devis"><span class="quick-action__icon"><mat-icon>request_quote</mat-icon></span><span class="quick-action__content"><strong>Devis</strong><small>Demandes accessibles à l’équipe</small></span><mat-icon>chevron_right</mat-icon></a>
+          <a class="quick-action" routerLink="/commercial/support"><span class="quick-action__icon"><mat-icon>support_agent</mat-icon></span><span class="quick-action__content"><strong>Support</strong><small>Conversations clients</small></span><mat-icon>chevron_right</mat-icon></a>
+          <a class="quick-action" routerLink="/commercial/analytics"><span class="quick-action__icon"><mat-icon>bar_chart</mat-icon></span><span class="quick-action__content"><strong>Rapports</strong><small>Analyse détaillée</small></span><mat-icon>chevron_right</mat-icon></a>
+        </nav>
+      </section>
+    </div>
+
+    <section class="dashboard-panel" aria-labelledby="recent-title">
+      <header class="dashboard-panel__header"><div><span class="dashboard-panel__eyebrow">Activité réelle</span><h2 id="recent-title">Prospects récemment mis à jour</h2></div></header>
+      @if (loading()) { <div class="real-state">Chargement de l’activité…</div> }
+      @else if (!report()) { <div class="real-state real-state--error">Activité indisponible.</div> }
+      @else if (report()?.recentProspects?.length === 0) { <div class="real-state">Aucune activité récente.</div> }
+      @else {
+        <div class="recent-list">
+          @for (prospect of report()?.recentProspects ?? []; track prospect.id) {
+            <a routerLink="/commercial/prospects"><span><strong>{{ prospect.companyName }}</strong><small>{{ prospect.contactName }} · {{ statusLabel(prospect.status) }}</small></span><time>{{ prospect.updatedAt | date:'dd/MM/yyyy HH:mm' }}</time></a>
+          }
+        </div>
+      }
+    </section>
+  </section>
+</wwt-dashboard-layout>

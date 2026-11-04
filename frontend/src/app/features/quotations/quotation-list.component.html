@@ -1,0 +1,109 @@
+<wwt-dashboard-layout title="Demandes de devis">
+  <wwt-page-header
+    title="Demandes de devis"
+    subtitle="Consultez, analysez et traitez les demandes de devis clients."
+    breadcrumb="Espace professionnel / Devis">
+  </wwt-page-header>
+
+  <main class="quotations-page" aria-label="Gestion des devis">
+    @if (page(); as currentPage) {
+      <div class="kpi-strip" aria-label="Indicateurs clés devis">
+        <div class="kpi-card"><span class="kpi-label">Total</span><strong class="kpi-value">{{ kpis().total }}</strong></div>
+        <div class="kpi-card kpi-card--pending"><span class="kpi-label">En attente</span><strong class="kpi-value">{{ kpis().pending }}</strong></div>
+        <div class="kpi-card kpi-card--in-review"><span class="kpi-label">En étude</span><strong class="kpi-value">{{ kpis().inReview }}</strong></div>
+        <div class="kpi-card kpi-card--quoted"><span class="kpi-label">Devis proposé</span><strong class="kpi-value">{{ kpis().quoted }}</strong></div>
+        <div class="kpi-card kpi-card--accepted"><span class="kpi-label">Acceptés</span><strong class="kpi-value">{{ kpis().accepted }}</strong></div>
+        <div class="kpi-card kpi-card--rejected"><span class="kpi-label">Refusés</span><strong class="kpi-value">{{ kpis().rejected }}</strong></div>
+        <div class="kpi-card kpi-card--cancelled"><span class="kpi-label">Annulés</span><strong class="kpi-value">{{ kpis().cancelled }}</strong></div>
+      </div>
+    }
+
+    <section class="quotations-panel" aria-labelledby="quotations-list-title">
+      <header class="panel-header">
+        <div><span class="eyebrow">Gestion commerciale</span><h1 id="quotations-list-title">Toutes les demandes de devis</h1><p>Recherchez et traitez les demandes formulées par les clients.</p></div>
+        @if (page(); as currentPage) {
+          <span class="result-count">{{ currentPage.totalElements }} demande{{ currentPage.totalElements > 1 ? 's' : '' }}</span>
+        }
+      </header>
+
+      <div class="filters-bar" aria-label="Filtres des demandes de devis">
+        <label class="search-field">
+          <span>Rechercher</span>
+          <span class="input-wrap"><span class="material-icons" aria-hidden="true">search</span><input type="search" [value]="search()" (input)="search.set($any($event.target).value)" placeholder="Nom, société, e-mail, téléphone, ville..."></span>
+        </label>
+        <label class="filter-field">
+          <span>Statut</span>
+          <select [value]="statusFilter()" (change)="onStatusFilterChange($any($event.target).value)">
+            <option value="ALL">Tous les statuts</option><option value="PENDING">En attente</option><option value="IN_REVIEW">En cours d'étude</option><option value="QUOTED">Devis proposé</option><option value="ACCEPTED">Accepté</option><option value="REJECTED">Refusé</option><option value="CANCELLED">Annulé</option>
+          </select>
+        </label>
+        @if (hasActiveFilters()) { <button class="reset-btn" type="button" (click)="resetFilters()">Réinitialiser</button> }
+      </div>
+
+      @if (loading()) {
+        <div class="table-skeleton" role="status" aria-label="Chargement des demandes de devis">
+          @for (row of skeletonRows; track row) { <span></span> }
+        </div>
+      } @else if (error()) {
+        <section class="state-card error-card" role="alert">
+          <span class="material-icons state-icon" aria-hidden="true">error_outline</span>
+          <div><h2>Chargement impossible</h2><p>{{ error() }}</p></div>
+          <button type="button" class="retry-btn" (click)="load()">Réessayer</button>
+        </section>
+      } @else if (filteredQuotations().length === 0) {
+        <section class="state-card empty-card">
+          <span class="material-icons state-icon" aria-hidden="true">description</span>
+          <div><h2>Aucune demande de devis trouvée</h2><p>Aucune demande ne correspond à vos critères de recherche ou de filtre actuels.</p></div>
+          @if (hasActiveFilters()) { <button type="button" class="retry-btn" (click)="resetFilters()">Réinitialiser les filtres</button> }
+        </section>
+      } @else {
+        <div class="table-responsive desktop-only">
+          <table class="quotations-table">
+            <thead><tr><th scope="col">Client</th><th scope="col">Service</th><th scope="col">Équipement</th><th scope="col">Qté</th><th scope="col">Ville</th><th scope="col">Montant proposé</th><th scope="col">Statut</th><th scope="col">Date</th><th scope="col" class="text-right">Action</th></tr></thead>
+            <tbody>
+              @for (item of filteredQuotations(); track item.id) {
+                <tr>
+                  <td><div class="client-cell"><strong>{{ item.fullName || item.customerReference }}</strong>@if (item.company) { <small>{{ item.company }}</small> }@if (item.phone) { <small class="text-muted">{{ item.phone }}</small> }</div></td>
+                  <td><span class="service-tag">{{ getServiceLabel(item.serviceType) }}</span></td>
+                  <td>{{ item.requestedEquipment || item.brandModel || '—' }}</td>
+                  <td><span class="qty-badge">x{{ item.quantity || 1 }}</span></td>
+                  <td>{{ item.city || '—' }}</td>
+                  <td>@if (item.proposedAmount !== null && item.proposedAmount !== undefined) { <strong class="amount-val">{{ item.proposedAmount | number:'1.2-2' }} DH</strong> } @else { <span class="text-muted">—</span> }</td>
+                  <td><span class="status-badge" [class]="getStatusBadgeClass(item.status)">{{ getStatusLabel(item.status) }}</span></td>
+                  <td><span class="date-val">{{ item.createdAt | date:'dd/MM/yyyy' }}</span></td>
+                  <td class="text-right"><a class="action-link" [routerLink]="[detailBasePath(), item.id]">Voir</a></td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+
+        <div class="cards-list mobile-only">
+          @for (item of filteredQuotations(); track item.id) {
+            <article class="quotation-card">
+              <div class="card-header"><div><strong>{{ item.fullName || item.customerReference }}</strong>@if (item.company) { <p class="card-company">{{ item.company }}</p> }</div><span class="status-badge" [class]="getStatusBadgeClass(item.status)">{{ getStatusLabel(item.status) }}</span></div>
+              <div class="card-body">
+                <div class="card-row"><span class="card-label">Service</span><span class="service-tag">{{ getServiceLabel(item.serviceType) }}</span></div>
+                @if (item.requestedEquipment) { <div class="card-row"><span class="card-label">Équipement</span><span>{{ item.requestedEquipment }} (x{{ item.quantity }})</span></div> }
+                <div class="card-row"><span class="card-label">Ville</span><span>{{ item.city || '—' }}</span></div>
+                <div class="card-row"><span class="card-label">Montant proposé</span><strong>@if (item.proposedAmount !== null && item.proposedAmount !== undefined) { {{ item.proposedAmount | number:'1.2-2' }} DH } @else { — }</strong></div>
+                <div class="card-row"><span class="card-label">Date</span><span>{{ item.createdAt | date:'dd/MM/yyyy' }}</span></div>
+              </div>
+              <div class="card-footer"><a class="action-btn" [routerLink]="[detailBasePath(), item.id]">Voir le détail</a></div>
+            </article>
+          }
+        </div>
+
+        @if (page(); as currentPage) {
+          @if (currentPage.totalPages > 1) {
+            <nav class="pagination" aria-label="Pagination des devis">
+              <button type="button" [disabled]="currentPage.first || loading()" (click)="load(currentPage.number - 1)">← Précédent</button>
+              <span class="page-info">Page {{ currentPage.number + 1 }} sur {{ currentPage.totalPages }}</span>
+              <button type="button" [disabled]="currentPage.last || loading()" (click)="load(currentPage.number + 1)">Suivant →</button>
+            </nav>
+          }
+        }
+      }
+    </section>
+  </main>
+</wwt-dashboard-layout>

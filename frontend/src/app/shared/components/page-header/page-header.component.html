@@ -1,0 +1,20 @@
+<section class="page-header">
+  @if (breadcrumb) {
+    <nav class="page-header__breadcrumb" aria-label="Fil d'Ariane">
+      <p>{{ breadcrumb }}</p>
+    </nav>
+  }
+
+  <div class="page-header__content">
+    @if (headingLevel === 1) {
+      <h1 class="page-header__title" [id]="headingId">{{ title }}</h1>
+    } @else {
+      <h2 class="page-header__title" [id]="headingId">{{ title }}</h2>
+    }
+    @if (subtitle) { <p class="page-header__subtitle">{{ subtitle }}</p> }
+  </div>
+
+  <div class="page-header__actions">
+    <ng-content select="[header-actions]" />
+  </div>
+</section>

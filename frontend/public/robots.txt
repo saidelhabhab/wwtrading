@@ -1,0 +1,21 @@
+User-agent: *
+Allow: /
+Disallow: /admin/
+Disallow: /manager/
+Disallow: /commercial/
+Disallow: /technician/
+Disallow: /client/
+Disallow: /account/
+Disallow: /notifications
+Disallow: /orders
+Disallow: /cart
+Disallow: /wishlist
+Disallow: /checkout
+Disallow: /addresses
+Disallow: /login
+Disallow: /register
+Disallow: /forgot-password
+Disallow: /access-denied
+Disallow: /devis/mes-demandes
+
+Sitemap: https://wwtrading.ma/sitemap.xml

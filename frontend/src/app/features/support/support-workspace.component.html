@@ -1,0 +1,200 @@
+<wwt-dashboard-layout [title]="pageTitle()">
+  <wwt-page-header
+    [title]="pageTitle()"
+    [subtitle]="pageSubtitle()"
+    [breadcrumb]="breadcrumb()">
+  </wwt-page-header>
+
+  <main class="support-page" aria-label="Messagerie Support WWTRADING">
+    <section class="support-workspace">
+      <aside class="conversation-list" [class.conversation-list--hidden-mobile]="selectedConversation()">
+        <header class="list-header">
+          <div><span class="eyebrow">Messagerie</span><h2>Conversations</h2></div>
+          @if (!isAgent()) {
+            <button type="button" class="icon-button icon-button--accent" (click)="openCreateDialog()"
+                    aria-label="Nouvelle conversation">
+              <span class="material-icons" aria-hidden="true">add</span>
+            </button>
+          }
+        </header>
+
+        @if (conversationsLoading()) {
+          <div class="list-state" role="status"><span class="material-icons spin" aria-hidden="true">sync</span>Chargement…</div>
+        } @else if (conversationsError()) {
+          <div class="list-state list-state--error" role="alert">
+            <span class="material-icons" aria-hidden="true">error_outline</span>
+            <p>{{ conversationsError() }}</p>
+            <button type="button" (click)="loadConversations()">Réessayer</button>
+          </div>
+        } @else if (conversations().length === 0) {
+          <div class="list-state list-state--empty" role="status">
+            <span class="material-icons" aria-hidden="true">forum</span>
+            <strong>{{ isAgent() ? 'Aucune conversation assignée' : 'Aucune conversation' }}</strong>
+            <p>{{ isAgent() ? 'Les conversations accessibles apparaîtront ici.' : 'Contactez notre équipe pour obtenir de l’aide.' }}</p>
+            @if (!isAgent()) { <button type="button" (click)="openCreateDialog()">Nouvelle conversation</button> }
+          </div>
+        } @else {
+          <div class="conversation-items">
+            @for (conversation of conversations(); track conversation.id) {
+              <button
+                type="button"
+                class="conversation-item"
+                [class.conversation-item--active]="selectedConversation()?.id === conversation.id"
+                (click)="selectConversation(conversation)">
+                <span class="conversation-icon material-icons" aria-hidden="true">chat_bubble_outline</span>
+                <span class="conversation-copy">
+                  <strong>{{ conversation.subject }}</strong>
+                  <small>Mis à jour le {{ conversation.updatedAt | date:'dd/MM/yyyy à HH:mm' }}</small>
+                  @if (isAgent()) {
+                    <small>Client {{ shortIdentity(conversation.clientKeycloakSubject) }}</small>
+                  } @else if (conversation.assignedAgentKeycloakSubject) {
+                    <small>Agent {{ shortIdentity(conversation.assignedAgentKeycloakSubject) }}</small>
+                  }
+                </span>
+                <span class="status status--{{ conversation.status.toLowerCase() }}">{{ statusLabel(conversation.status) }}</span>
+              </button>
+            }
+          </div>
+        }
+      </aside>
+
+      <section class="chat" [class.chat--visible-mobile]="selectedConversation()" aria-label="Conversation sélectionnée">
+        @if (selectedConversation(); as conversation) {
+          <header class="chat-header">
+            <button type="button" class="icon-button mobile-back" (click)="closeConversation()" aria-label="Retour aux conversations">
+              <span class="material-icons" aria-hidden="true">arrow_back</span>
+            </button>
+            <div class="chat-heading">
+              <h2>{{ conversation.subject }}</h2>
+              <p>
+                @if (isAgent()) { Client {{ shortIdentity(conversation.clientKeycloakSubject) }} }
+                @else { Agent {{ shortIdentity(conversation.assignedAgentKeycloakSubject) }} }
+                · Actualisée le {{ conversation.updatedAt | date:'dd/MM/yyyy à HH:mm' }}
+              </p>
+            </div>
+            <span class="status status--{{ conversation.status.toLowerCase() }}">{{ statusLabel(conversation.status) }}</span>
+          </header>
+
+          <div class="message-area">
+            @if (messagesLoading()) {
+              <div class="chat-state" role="status"><span class="material-icons spin" aria-hidden="true">sync</span>Chargement des messages…</div>
+            } @else if (messagesError()) {
+              <div class="chat-state chat-state--error" role="alert">
+                <span class="material-icons" aria-hidden="true">error_outline</span>
+                <p>{{ messagesError() }}</p>
+                <button type="button" (click)="selectConversation(conversation)">Réessayer</button>
+              </div>
+            } @else if (messages().length === 0) {
+              <div class="chat-state"><span class="material-icons" aria-hidden="true">mark_chat_unread</span>Aucun message.</div>
+            } @else {
+              <div class="message-timeline" aria-live="polite">
+                @for (message of messages(); track message.id) {
+                  <article class="message" [class.message--own]="isOwnMessage(message)">
+                    <div class="message-meta">
+                      <strong>{{ senderLabel(message) }}</strong>
+                      <time [attr.datetime]="message.createdAt">{{ message.createdAt | date:'dd/MM/yyyy à HH:mm' }}</time>
+                    </div>
+                    <p>{{ message.content }}</p>
+                    @if (message.attachments.length > 0) {
+                      <div class="attachments">
+                        @for (attachment of message.attachments; track attachment.id) {
+                          @if (attachmentView(attachment.id); as view) {
+                            @if (view.image && view.blobUrl && !view.failed) {
+                              <figure class="image-attachment">
+                                <button type="button" (click)="openPreview(view)" [attr.aria-label]="'Agrandir ' + attachment.originalFilename">
+                                  <img [src]="view.blobUrl" [alt]="attachment.originalFilename" loading="lazy">
+                                </button>
+                                <figcaption><span>{{ attachment.originalFilename }}</span><small>{{ fileSize(attachment.size) }}</small></figcaption>
+                              </figure>
+                            } @else {
+                              <div class="file-attachment" [class.file-attachment--failed]="view.failed">
+                                <span class="material-icons" aria-hidden="true">{{ attachment.contentType === 'application/pdf' ? 'picture_as_pdf' : 'insert_drive_file' }}</span>
+                                <span><strong>{{ attachment.originalFilename }}</strong><small>{{ fileSize(attachment.size) }}</small></span>
+                                @if (view.blobUrl) {
+                                  <a [href]="view.blobUrl" [download]="attachment.originalFilename" target="_blank" rel="noopener"
+                                     [attr.aria-label]="'Ouvrir ou télécharger ' + attachment.originalFilename">
+                                    <span class="material-icons" aria-hidden="true">download</span>
+                                  </a>
+                                } @else { <small>Aperçu indisponible</small> }
+                              </div>
+                            }
+                          }
+                        }
+                      </div>
+                    }
+                  </article>
+                }
+              </div>
+            }
+          </div>
+
+          <footer class="composer">
+            @if (conversation.status === 'CLOSED') {
+              <div class="closed-notice"><span class="material-icons" aria-hidden="true">lock</span>Cette conversation est fermée.</div>
+            } @else {
+              @if (sendError()) { <p class="composer-error" role="alert">{{ sendError() }}</p> }
+              @if (selectedFiles().length > 0) {
+                <div class="selected-files">
+                  @for (file of selectedFiles(); track file.name; let index = $index) {
+                    <span><span class="material-icons" aria-hidden="true">attach_file</span>{{ file.name }}
+                      <button type="button" (click)="removeFile(index)" [attr.aria-label]="'Retirer ' + file.name">×</button>
+                    </span>
+                  }
+                </div>
+              }
+              <div class="composer-row">
+                <label class="attach-button" [class.attach-button--disabled]="sending()">
+                  <span class="material-icons" aria-hidden="true">attach_file</span>
+                  <span class="sr-only">Ajouter une pièce jointe</span>
+                  <input type="file" multiple accept="image/jpeg,image/png,image/webp,application/pdf"
+                         [disabled]="sending()" (change)="chooseFiles($event)">
+                </label>
+                <label class="message-field">
+                  <span class="sr-only">Votre message</span>
+                  <textarea [(ngModel)]="messageDraft" rows="2" maxlength="10000"
+                            [disabled]="sending()" placeholder="Écrivez votre message…"></textarea>
+                </label>
+                <button type="button" class="send-button" [disabled]="sending() || !messageDraft.trim()" (click)="sendMessage()">
+                  <span>{{ sending() ? 'Envoi…' : 'Envoyer' }}</span>
+                  <span class="material-icons" aria-hidden="true">send</span>
+                </button>
+              </div>
+              <small class="upload-help">JPEG, PNG, WEBP ou PDF · 10 Mo maximum par fichier</small>
+            }
+          </footer>
+        } @else {
+          <div class="welcome-state">
+            <span class="welcome-icon material-icons" aria-hidden="true">support_agent</span>
+            <h2>Support WWTRADING</h2>
+            <p>{{ isAgent() ? 'Sélectionnez une conversation pour accompagner le client.' : 'Sélectionnez une conversation ou démarrez un nouvel échange avec notre équipe.' }}</p>
+            @if (!isAgent()) { <button type="button" (click)="openCreateDialog()">Nouvelle conversation</button> }
+          </div>
+        }
+      </section>
+    </section>
+  </main>
+</wwt-dashboard-layout>
+
+@if (createDialogOpen()) {
+  <div class="dialog-backdrop" role="presentation" (click)="closeCreateDialog()">
+    <section class="create-dialog" role="dialog" aria-modal="true" aria-labelledby="create-title" (click)="$event.stopPropagation()">
+      <header><div><span class="eyebrow">Support WWTRADING</span><h2 id="create-title">Nouvelle conversation</h2></div>
+        <button type="button" class="icon-button" (click)="closeCreateDialog()" aria-label="Fermer"><span class="material-icons" aria-hidden="true">close</span></button>
+      </header>
+      @if (createError()) { <p class="dialog-error" role="alert">{{ createError() }}</p> }
+      <label>Sujet<input [(ngModel)]="newSubject" maxlength="200" [disabled]="creating()" placeholder="Ex. Assistance pour mon imprimante"></label>
+      <label>Premier message<textarea [(ngModel)]="newMessage" rows="6" maxlength="10000" [disabled]="creating()" placeholder="Décrivez votre demande…"></textarea></label>
+      <footer><button type="button" class="secondary" [disabled]="creating()" (click)="closeCreateDialog()">Annuler</button>
+        <button type="button" class="primary" [disabled]="creating() || !newSubject.trim() || !newMessage.trim()" (click)="createConversation()">{{ creating() ? 'Création…' : 'Démarrer la conversation' }}</button></footer>
+    </section>
+  </div>
+}
+
+@if (selectedPreview(); as preview) {
+  <div class="lightbox" role="dialog" aria-modal="true" [attr.aria-label]="'Aperçu ' + preview.attachment.originalFilename" (click)="closePreview()">
+    <div class="lightbox-panel" (click)="$event.stopPropagation()">
+      <header><strong>{{ preview.attachment.originalFilename }}</strong><a [href]="preview.blobUrl" [download]="preview.attachment.originalFilename"><span class="material-icons" aria-hidden="true">download</span>Télécharger</a><button type="button" (click)="closePreview()" aria-label="Fermer"><span class="material-icons" aria-hidden="true">close</span></button></header>
+      <img [src]="preview.blobUrl" [alt]="preview.attachment.originalFilename">
+    </div>
+  </div>
+}

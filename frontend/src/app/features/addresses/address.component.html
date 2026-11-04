@@ -1,0 +1,60 @@
+<main class="page" aria-labelledby="address-title">
+  @if (returnToCheckout) { <a class="return-link" routerLink="/checkout">← Retour au checkout</a> }
+  <header>
+    <div><p class="eyebrow">Livraison</p><h1 id="address-title">Mes adresses</h1><p>Gérez vos adresses de livraison.</p></div>
+    <button class="primary" type="button" [disabled]="saving() || pendingId() !== null" (click)="openCreate()">Ajouter une adresse</button>
+  </header>
+
+  @if (success()) { <p class="feedback success" role="status">{{ success() }}</p> }
+  @if (error()) { <p class="feedback" role="alert">{{ error() }}</p> }
+
+  @if (formOpen()) {
+    <section class="form-panel" aria-labelledby="form-title">
+      <h2 id="form-title">{{ editingId() ? 'Modifier l’adresse' : 'Nouvelle adresse' }}</h2>
+      <form [formGroup]="form" (ngSubmit)="submit()" novalidate>
+        <div class="form-grid">
+          <div class="field"><label for="first-name">Prénom *</label><input id="first-name" formControlName="firstName" maxlength="100" autocomplete="given-name">@if (showError('firstName')) { <p class="field-error">Ce champ est obligatoire (100 caractères maximum).</p> }</div>
+          <div class="field"><label for="last-name">Nom *</label><input id="last-name" formControlName="lastName" maxlength="100" autocomplete="family-name">@if (showError('lastName')) { <p class="field-error">Ce champ est obligatoire (100 caractères maximum).</p> }</div>
+          <div class="field"><label for="company">Société</label><input id="company" formControlName="company" maxlength="200" autocomplete="organization">@if (showError('company')) { <p class="field-error">La valeur est trop longue.</p> }</div>
+          <div class="field"><label for="phone">Téléphone</label><input id="phone" type="tel" formControlName="phone" maxlength="32" autocomplete="tel">@if (showError('phone')) { <p class="field-error">La valeur est trop longue.</p> }</div>
+          <div class="field full"><label for="line-1">Adresse *</label><input id="line-1" formControlName="addressLine1" maxlength="255" autocomplete="address-line1">@if (showError('addressLine1')) { <p class="field-error">Ce champ est obligatoire (255 caractères maximum).</p> }</div>
+          <div class="field full"><label for="line-2">Complément</label><input id="line-2" formControlName="addressLine2" maxlength="255" autocomplete="address-line2">@if (showError('addressLine2')) { <p class="field-error">La valeur est trop longue.</p> }</div>
+          <div class="field"><label for="city">Ville *</label><input id="city" formControlName="city" maxlength="120" autocomplete="address-level2">@if (showError('city')) { <p class="field-error">Ce champ est obligatoire (120 caractères maximum).</p> }</div>
+          <div class="field"><label for="postal-code">Code postal</label><input id="postal-code" formControlName="postalCode" maxlength="32" autocomplete="postal-code">@if (showError('postalCode')) { <p class="field-error">La valeur est trop longue.</p> }</div>
+          <div class="field full"><label for="country">Pays *</label><input id="country" formControlName="country" maxlength="100" autocomplete="country-name">@if (showError('country')) { <p class="field-error">Ce champ est obligatoire (100 caractères maximum).</p> }</div>
+        </div>
+        <div class="form-actions"><button type="button" [disabled]="saving()" (click)="cancelForm()">Annuler</button><button class="primary" type="submit" [disabled]="form.invalid || saving()">{{ saving() ? 'Enregistrement…' : 'Enregistrer' }}</button></div>
+      </form>
+    </section>
+  }
+
+  @if (loading()) {
+    <section class="skeleton" role="status" aria-label="Chargement des adresses"><span></span><span></span></section>
+  } @else if (error() && addresses().length === 0) {
+    <section class="state"><h2>Chargement impossible</h2><p>Vos adresses ne sont pas disponibles actuellement.</p><button type="button" (click)="load()">Réessayer</button></section>
+  } @else if (addresses().length === 0) {
+    <section class="state"><h2>Aucune adresse enregistrée</h2><p>Ajoutez une adresse pour faciliter vos prochaines commandes.</p><button class="primary" type="button" (click)="openCreate()">Ajouter une adresse</button></section>
+  } @else {
+    <section class="cards" aria-label="Adresses enregistrées">
+      @for (address of addresses(); track address.id) {
+        <article class="card" [class.default]="address.defaultAddress">
+          @if (address.defaultAddress) { <span class="badge">Adresse par défaut</span> }
+          <h2>{{ address.firstName }} {{ address.lastName }}</h2>
+          <address>
+            @if (address.company) { <div>{{ address.company }}</div> }
+            @if (address.phone) { <div>{{ address.phone }}</div> }
+            <div>{{ address.addressLine1 }}</div>
+            @if (address.addressLine2) { <div>{{ address.addressLine2 }}</div> }
+            <div>{{ address.postalCode }} {{ address.city }}</div>
+            <div>{{ address.country }}</div>
+          </address>
+          <div class="card-actions">
+            @if (!address.defaultAddress) { <button type="button" [disabled]="pendingId() !== null || saving()" (click)="makeDefault(address)">Définir par défaut</button> }
+            <button type="button" [disabled]="pendingId() !== null || saving()" (click)="openEdit(address)">Modifier</button>
+            <button type="button" [disabled]="pendingId() !== null || saving()" (click)="deleteAddress(address)">{{ pendingId() === address.id ? 'Suppression…' : 'Supprimer' }}</button>
+          </div>
+        </article>
+      }
+    </section>
+  }
+</main>

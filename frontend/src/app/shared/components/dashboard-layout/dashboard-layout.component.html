@@ -1,0 +1,15 @@
+<div class="dashboard-shell" [class.sidebar-open]="sidebarOpen">
+	<wwt-sidebar (navigationSelected)="closeSidebar()" />
+	<button class="sidebar-backdrop" type="button" aria-label="Fermer la navigation" (click)="closeSidebar()"></button>
+	<div class="dashboard-workspace">
+		<wwt-topbar [title]="title" (menuToggled)="toggleSidebar()" />
+		<main class="dashboard-main" id="dashboard-content" tabindex="-1">
+			<ng-content />
+			<router-outlet />
+		</main>
+		<footer class="dashboard-footer">
+			<span><strong>WWTRADING</strong> · Espace professionnel</span>
+			<span>Expertise Konica Minolta &amp; Develop · Kénitra, Maroc</span>
+		</footer>
+	</div>
+</div>

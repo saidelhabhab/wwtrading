@@ -1,0 +1,126 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="utf-8">
+    <title>WWTRADING | Expertise Konica Minolta & Develop</title>
+    <base href="/">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="referrer" content="strict-origin-when-cross-origin">
+    <meta name="description" content="WWTRADING accompagne les entreprises au Maroc pour leurs imprimantes professionnelles, location, maintenance, toners, consommables et pièces.">
+    <meta name="robots" content="index,follow">
+    <meta name="theme-color" content="#1a1a18">
+    <meta property="og:site_name" content="WWTRADING">
+    <meta property="og:locale" content="fr_MA">
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="WWTRADING | Solutions d’impression professionnelles au Maroc">
+    <meta property="og:description" content="WWTRADING accompagne les entreprises au Maroc pour leurs imprimantes professionnelles, location, maintenance, toners, consommables et pièces.">
+    <meta property="og:image" content="/assets/wwtrading-logo.png">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="WWTRADING | Solutions d’impression professionnelles au Maroc">
+    <meta name="twitter:description" content="Solutions professionnelles d’impression, location, maintenance et consommables au Maroc.">
+    <meta name="twitter:image" content="/assets/wwtrading-logo.png">
+    <link rel="icon" type="image/png" href="/assets/wwtrading-logo.png">
+    <link rel="manifest" href="/manifest.webmanifest">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <style>
+      .wwt-boot {
+        position: fixed;
+        inset: 0;
+        z-index: 9999;
+        display: grid;
+        place-items: center;
+        overflow: hidden;
+        color: #f8f5f6;
+        background: radial-gradient(circle at 50% 42%, #3f1027 0, #171315 38%, #090809 100%);
+        font-family: Inter, ui-sans-serif, system-ui, sans-serif;
+      }
+      .wwt-boot__content { display: grid; justify-items: center; gap: 1.4rem; }
+      .wwt-boot__mark { position: relative; width: 11rem; height: 11rem; }
+      .wwt-boot__globe {
+        position: absolute;
+        inset: 1.7rem;
+        border: 1px solid rgb(255 255 255 / 35%);
+        border-radius: 50%;
+        box-shadow: inset 1.5rem 0 2rem rgb(175 15 80 / 20%);
+      }
+      .wwt-boot__globe::before,
+      .wwt-boot__globe::after {
+        position: absolute;
+        inset: 12% 36%;
+        border: 1px solid rgb(255 255 255 / 24%);
+        border-radius: 50%;
+        content: '';
+      }
+      .wwt-boot__globe::after { inset: 36% 7%; }
+      .wwt-boot__orbit {
+        position: absolute;
+        inset: 0.8rem;
+        border: 2px solid transparent;
+        border-top-color: #d92b71;
+        border-right-color: rgb(217 43 113 / 35%);
+        border-radius: 50%;
+        animation: wwt-orbit 2.4s linear infinite;
+      }
+      .wwt-boot__orbit--two {
+        inset: 1.25rem 0.2rem;
+        transform: rotate(58deg);
+        animation-duration: 3.1s;
+        animation-direction: reverse;
+      }
+      .wwt-boot__node {
+        position: absolute;
+        top: 0.45rem;
+        left: 50%;
+        width: 0.7rem;
+        height: 0.7rem;
+        border-radius: 50%;
+        background: #e43a7d;
+        box-shadow: 0 0 1.4rem #e43a7d;
+      }
+      .wwt-boot__logo {
+        width: 12rem;
+        height: 4.5rem;
+        padding: 0.35rem 0.7rem;
+        border-radius: 0.75rem;
+        object-fit: contain;
+        background: rgb(255 255 255 / 94%);
+        animation: wwt-reveal 900ms ease both;
+      }
+      .wwt-boot__label { margin: 0; color: #d6ced2; font-size: 0.78rem; letter-spacing: 0.14em; text-transform: uppercase; }
+      .wwt-boot__progress { width: min(15rem, 70vw); height: 2px; overflow: hidden; background: rgb(255 255 255 / 14%); }
+      .wwt-boot__progress::after {
+        display: block;
+        width: 45%;
+        height: 100%;
+        background: #d92b71;
+        content: '';
+        animation: wwt-progress 1.35s ease-in-out infinite;
+      }
+      @keyframes wwt-orbit { to { transform: rotate(360deg); } }
+      @keyframes wwt-progress { from { transform: translateX(-120%); } to { transform: translateX(280%); } }
+      @keyframes wwt-reveal { from { opacity: 0; transform: translateY(0.5rem); } to { opacity: 1; transform: none; } }
+      @media (prefers-reduced-motion: reduce) {
+        .wwt-boot__orbit, .wwt-boot__progress::after, .wwt-boot__logo { animation: none; }
+        .wwt-boot__progress::after { width: 65%; }
+      }
+    </style>
+  </head>
+  <body>
+    <wwt-root>
+      <div class="wwt-boot" role="status" aria-live="polite" aria-label="Chargement de WWTRADING">
+        <div class="wwt-boot__content">
+          <div class="wwt-boot__mark" aria-hidden="true">
+            <span class="wwt-boot__globe"></span>
+            <span class="wwt-boot__orbit"><span class="wwt-boot__node"></span></span>
+            <span class="wwt-boot__orbit wwt-boot__orbit--two"></span>
+          </div>
+          <img class="wwt-boot__logo" src="/assets/wwtrading-logo.png" alt="">
+          <p class="wwt-boot__label">Préparation de votre espace</p>
+          <span class="wwt-boot__progress" aria-hidden="true"></span>
+        </div>
+      </div>
+    </wwt-root>
+  </body>
+</html>

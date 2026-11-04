@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 170 50" width="170" height="50">
+  <rect width="170" height="50" rx="8" fill="#ffffff"/>
+  <!-- Banque Populaire Horse Emblem -->
+  <g transform="translate(10, 10)">
+    <circle cx="15" cy="15" r="14" fill="#e65100"/>
+    <path d="M11 20 Q12 11 18 10 Q21 14 17 17 Q20 18 19 22 Z" fill="#ffffff"/>
+  </g>
+  <text x="46" y="24" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif" font-weight="900" font-size="12" fill="#222222" letter-spacing="0.3">BANQUE POPULAIRE</text>
+  <text x="47" y="37" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif" font-weight="700" font-size="8.5" fill="#e65100" letter-spacing="1">GROUPE BCP</text>
+</svg>
+

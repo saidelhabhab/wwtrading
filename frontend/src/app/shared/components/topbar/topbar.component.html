@@ -1,0 +1,81 @@
+<header class="dashboard-topbar">
+	<div class="topbar-context">
+		<button class="menu-button" type="button" aria-label="Ouvrir la navigation" (click)="menuToggled.emit()"><span aria-hidden="true">☰</span></button>
+		<div><span class="topbar-kicker">WWTRADING / ESPACE PRO</span><h1>{{ title }}</h1></div>
+	</div>
+	<div class="topbar-search">
+		<span class="material-icons" aria-hidden="true">search</span>
+		<input type="search" aria-label="Rechercher dans WWTRADING" [placeholder]="searchPlaceholder()">
+	</div>
+	<div class="topbar-actions">
+		<a class="topbar-home-link" routerLink="/" aria-label="Retour au site public" title="Retour au site public WWTRADING">
+			<span class="material-icons" aria-hidden="true">home</span>
+			<span class="topbar-action-label">Site public</span>
+		</a>
+		<div class="notification-wrap">
+			<button class="notification-link" type="button" aria-label="Voir les notifications" [attr.aria-expanded]="notificationsOpen" (click)="toggleNotifications()">
+				<span class="material-icons" aria-hidden="true">notifications</span>
+				@if (badgeLabel(); as badge) {
+					<span class="notification-badge">{{ badge }}</span>
+				}
+			</button>
+			@if (notificationsOpen) {
+				<dialog class="notification-menu" open aria-label="Aperçu des notifications">
+					<div class="notification-menu__header">
+						<strong>Notifications</strong>
+						<button type="button" class="mark-all-btn" [disabled]="markingAll || unreadCount() === 0" (click)="markAllAsRead()">Tout marquer comme lu</button>
+					</div>
+					<div class="notification-menu__body">
+						@if (previewLoading) {
+							<div class="notification-menu__empty"><span class="material-icons">hourglass_empty</span><p>Chargement...</p></div>
+						} @else if (previewItems.length === 0) {
+							<div class="notification-menu__empty"><span class="material-icons">notifications_off</span><p>Aucune notification</p></div>
+						} @else {
+							@for (item of previewItems; track item.id) {
+								<div
+									class="notification-item"
+									[class.notification-item--unread]="!item.readAt"
+									tabindex="0"
+									role="button"
+									[attr.aria-label]="item.title + ' - ' + (item.readAt ? 'Lu' : 'Non lu')"
+									(click)="onNotificationClick(item)"
+									(keydown.enter)="onNotificationClick(item)"
+									(keydown.space)="onNotificationClick(item); $event.preventDefault()">
+									<span class="material-icons notification-item__icon" aria-hidden="true">{{ typeIcons[item.type] || 'notifications' }}</span>
+									<span class="notification-item__content">
+										<strong>{{ item.title }}</strong>
+										<small>{{ item.message }}</small>
+									</span>
+									@if (!item.readAt) {
+										<span class="notification-item__unread-dot" title="Non lu"></span>
+									}
+								</div>
+							}
+						}
+					</div>
+					<div class="notification-menu__footer">
+						<a routerLink="/notifications" (click)="closeNotifications()">Voir toutes les notifications</a>
+					</div>
+				</dialog>
+			}
+		</div>
+		@if (auth.user(); as user) {
+			<button class="user-button" type="button" aria-haspopup="menu" [attr.aria-expanded]="userMenuOpen" (click)="toggleUserMenu()">
+				<span class="avatar" aria-hidden="true">{{ user.displayName.charAt(0).toUpperCase() }}</span>
+				<span class="user-copy"><strong>{{ user.displayName }}</strong><small>{{ user.roles[0] === 'ADMIN' ? 'Administrateur' : 'Utilisateur' }}</small></span><span class="material-icons user-chevron" aria-hidden="true">expand_more</span>
+			</button>
+			@if (userMenuOpen) {
+				<div class="user-menu" role="menu">
+					<a routerLink="/" role="menuitem" (click)="closeUserMenu()"><span class="material-icons" aria-hidden="true">home</span> Site public</a>
+					<a [routerLink]="accountRoute() || dashboardRoute() || '/'" role="menuitem" (click)="closeUserMenu()"><span class="material-icons" aria-hidden="true">account_circle</span> Profil</a>
+					<a [routerLink]="accountRoute() || dashboardRoute() || '/'" role="menuitem" (click)="closeUserMenu()"><span class="material-icons" aria-hidden="true">settings</span> Paramètres</a>
+					<button type="button" role="menuitem" (click)="logout()"><span class="material-icons" aria-hidden="true">logout</span> Déconnexion</button>
+				</div>
+			}
+			<button class="topbar-logout-btn" type="button" aria-label="Déconnexion" title="Déconnexion" (click)="logout()">
+				<span class="material-icons" aria-hidden="true">logout</span>
+				<span class="topbar-action-label">Déconnexion</span>
+			</button>
+		}
+	</div>
+</header>

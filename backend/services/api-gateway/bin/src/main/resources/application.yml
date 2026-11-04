@@ -1,0 +1,29 @@
+server:
+  port: ${SERVER_PORT:8080}
+  max-http-request-header-size: 16KB
+
+spring:
+  application:
+    name: api-gateway
+  config:
+    import: optional:configserver:${CONFIG_SERVER_URL:http://localhost:8888}
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: ${JWT_ISSUER_URI:http://localhost:8180/realms/wwtrading}
+          jwk-set-uri: ${JWT_JWK_SET_URI:http://localhost:8180/realms/wwtrading/protocol/openid-connect/certs}
+  http:
+    codecs:
+      max-in-memory-size: 2MB
+
+wwtrading:
+  security:
+    issuer-uri: ${JWT_ISSUER_URI:http://localhost:8180/realms/wwtrading}
+    jwk-set-uri: ${JWT_JWK_SET_URI:http://localhost:8180/realms/wwtrading/protocol/openid-connect/certs}
+    audience: ${JWT_AUDIENCE:wwtrading-api}
+
+eureka:
+  client:
+    service-url:
+      defaultZone: ${EUREKA_URL:http://localhost:8761/eureka/}

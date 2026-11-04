@@ -1,0 +1,22 @@
+<div class="empty-state">
+  <div class="empty-state__icon-wrap">
+    <span class="material-icons empty-state__icon" aria-hidden="true">{{ icon }}</span>
+  </div>
+  <h3 class="empty-state__title">{{ title }}</h3>
+  @if (description) {
+    <p class="empty-state__desc">{{ description }}</p>
+  }
+  @if (actionText) {
+    <div class="empty-state__action">
+      @if (actionRoute) {
+        <a class="wwt-btn wwt-btn-primary wwt-btn-sm" [routerLink]="actionRoute">
+          <span>{{ actionText }}</span>
+        </a>
+      } @else {
+        <button type="button" class="wwt-btn wwt-btn-primary wwt-btn-sm" (click)="onAction()">
+          <span>{{ actionText }}</span>
+        </button>
+      }
+    </div>
+  }
+</div>

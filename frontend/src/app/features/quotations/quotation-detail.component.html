@@ -1,0 +1,249 @@
+<wwt-dashboard-layout title="Détail du devis">
+  <wwt-page-header
+    title="Détail du devis"
+    subtitle="Consultez les informations de la demande et gérez le traitement commercial."
+    breadcrumb="Espace professionnel / Devis / Détail">
+  </wwt-page-header>
+
+  <main class="quotation-detail-page" aria-labelledby="quotation-detail-title">
+    <a class="back-link" [routerLink]="backPath()">
+      <span class="material-icons" aria-hidden="true">arrow_back</span>
+      <span>Retour aux devis</span>
+    </a>
+
+    @if (loading()) {
+      <div class="state-card loading-card" role="status">
+        <span class="material-icons spin-icon" aria-hidden="true">sync</span>
+        <span>Chargement de la demande de devis…</span>
+      </div>
+    } @else if (error()) {
+      <section class="state-card error-card" role="alert">
+        <span class="material-icons state-icon" aria-hidden="true">error_outline</span>
+        <div><h2>Impossible d'accéder au devis</h2><p>{{ error() }}</p></div>
+        <a class="retry-link" [routerLink]="backPath()">Retour à la liste</a>
+      </section>
+    } @else {
+      @if (quotation(); as q) {
+        <header class="detail-header">
+          <div class="header-main">
+            <span class="eyebrow">Espace commercial · Demande de devis</span>
+            <h1 id="quotation-detail-title">Devis <span class="ref-code">{{ q.id }}</span></h1>
+            <div class="header-meta">
+              <span class="meta-chip">
+                <span class="material-icons" aria-hidden="true">calendar_today</span>
+                Créée le {{ q.createdAt | date:'dd/MM/yyyy à HH:mm' }}
+              </span>
+              <span class="meta-chip">
+                <span class="material-icons" aria-hidden="true">person</span>
+                {{ q.fullName || q.customerReference }}
+              </span>
+            </div>
+          </div>
+          <div class="header-side">
+            <span class="status-badge status-badge--lg" [class]="getStatusBadgeClass(q.status)">{{ getStatusLabel(q.status) }}</span>
+            @if (q.status === 'QUOTED' || q.status === 'ACCEPTED' || q.status === 'REJECTED') {
+              <button type="button" class="button secondary" [disabled]="pdfDownloading()" (click)="downloadPdf()">
+                <span class="material-icons" aria-hidden="true">picture_as_pdf</span>
+                {{ pdfDownloading() ? 'Téléchargement…' : 'Télécharger le PDF' }}
+              </button>
+            }
+          </div>
+        </header>
+        @if (pdfError()) { <p class="alert-box alert-error" role="alert">{{ pdfError() }}</p> }
+
+        <div class="detail-grid">
+          <section class="info-card" aria-labelledby="client-info-title">
+            <h2 id="client-info-title"><span class="material-icons" aria-hidden="true">person</span><span>Informations client</span></h2>
+            <dl class="info-list">
+              <div><dt>Nom complet</dt><dd><strong>{{ q.fullName || q.customerReference }}</strong></dd></div>
+              <div><dt>Société</dt><dd>{{ q.company || '—' }}</dd></div>
+              <div><dt>E-mail</dt><dd><a [href]="'mailto:' + q.email">{{ q.email || '—' }}</a></dd></div>
+              <div><dt>Téléphone</dt><dd><a [href]="'tel:' + q.phone">{{ q.phone || '—' }}</a></dd></div>
+              <div><dt>Ville</dt><dd>{{ q.city || '—' }}</dd></div>
+            </dl>
+          </section>
+
+          <section class="info-card request-card" aria-labelledby="request-info-title">
+            <h2 id="request-info-title"><span class="material-icons" aria-hidden="true">inventory_2</span><span>Produits du devis</span></h2>
+            @if (q.lines?.length) {
+              <p class="card-subtitle">Produits et prix proposés</p>
+              <div class="quotation-products" role="list">
+                @for (line of q.lines; track line.productId) {
+                  <div class="product-row" role="listitem">
+                    <div class="product-row-main">
+                      <strong class="product-name">{{ line.productName }}</strong>
+                      @if (line.productReference) {
+                        <span class="product-ref">Réf. {{ line.productReference }}</span>
+                      }
+                    </div>
+                    <div class="product-row-facts">
+                      <div class="fact"><span class="fact-label">Quantité</span><strong class="fact-value">x{{ line.requestedQuantity }}</strong></div>
+                      <div class="fact"><span class="fact-label">Prix catalogue</span><strong class="fact-value">{{ line.catalogUnitPrice | number:'1.2-2' }} DH</strong></div>
+                    </div>
+                  </div>
+                }
+              </div>
+              @if (q.additionalMessage) { <p class="text-block"><strong>Demande complémentaire :</strong> {{ q.additionalMessage }}</p> }
+            } @else {
+              <p class="empty-state">
+                <span class="material-icons" aria-hidden="true">inventory_2</span>
+                Aucun produit dans ce devis
+              </p>
+            <dl class="info-list">
+              <div><dt>Service demandé</dt><dd><span class="service-tag">{{ getServiceLabel(q.serviceType) }}</span></dd></div>
+              <div><dt>Équipement souhaité</dt><dd>{{ q.requestedEquipment || '—' }}</dd></div>
+              <div><dt>Marque / modèle</dt><dd>{{ q.brandModel || '—' }}</dd></div>
+              <div><dt>Quantité</dt><dd><strong>x{{ q.quantity || 1 }}</strong></dd></div>
+              <div class="full-row"><dt>Description du besoin</dt><dd class="text-block">{{ q.description || '—' }}</dd></div>
+              <div><dt>Délai souhaité</dt><dd>{{ getTimelineLabel(q.desiredTimeline) }}</dd></div>
+              <div>
+                <dt>Budget estimatif</dt>
+                <dd>
+                  @if (q.estimatedBudget !== null && q.estimatedBudget !== undefined) {
+                    {{ q.estimatedBudget | number:'1.2-2' }} DH
+                  } @else { — }
+                </dd>
+              </div>
+              @if (q.additionalMessage) {
+                <div class="full-row"><dt>Message complémentaire</dt><dd class="text-block">{{ q.additionalMessage }}</dd></div>
+              }
+            </dl>
+            }
+          </section>
+
+          <aside class="side-column" aria-label="Synthèse commerciale">
+            <section class="info-card summary-card" aria-labelledby="commercial-info-title">
+              <h2 id="commercial-info-title"><span class="material-icons" aria-hidden="true">payments</span><span>Synthèse</span></h2>
+              <dl class="summary-list">
+                <div><dt>Montant proposé</dt>
+                  <dd>
+                    @if (q.proposedAmount !== null && q.proposedAmount !== undefined) {
+                      <strong class="proposed-amount-val">{{ q.proposedAmount | number:'1.2-2' }} DH</strong>
+                    } @else { <span class="text-muted">—</span> }
+                  </dd>
+                </div>
+                <div><dt>Dernière mise à jour</dt><dd>{{ q.updatedAt | date:'dd/MM/yyyy HH:mm' }}</dd></div>
+                @if (q.commercialNotes) {
+                  <div class="full-row"><dt>Notes commerciales</dt><dd class="text-block">{{ q.commercialNotes }}</dd></div>
+                }
+              </dl>
+            </section>
+          </aside>
+
+          <section class="info-card treatment-card" aria-labelledby="treatment-title">
+            <h2 id="treatment-title"><span class="material-icons" aria-hidden="true">build_circle</span><span>Traitement commercial</span></h2>
+            <p class="card-subtitle">Décision et prix proposés au client</p>
+
+            @if (updateError()) {
+              <div class="alert-box alert-error" role="alert"><span class="material-icons" aria-hidden="true">error</span><span>{{ updateError() }}</span></div>
+            }
+
+            @if (q.status === 'PENDING') {
+              <div class="action-prompt">
+                <p>Cette demande de devis est actuellement en attente de prise en charge par l'équipe commerciale.</p>
+                <button type="button" class="button primary" [disabled]="updatingStatus()" (click)="takeOverInReview()">
+                  {{ updatingStatus() ? 'Prise en charge…' : 'Prendre en charge la demande' }}
+                </button>
+              </div>
+            } @else if (q.status === 'IN_REVIEW' || (q.status === 'QUOTED' && !q.lines?.length)) {
+              <form [formGroup]="statusForm" (ngSubmit)="promptConfirmation()" novalidate>
+                <div class="form-group">
+                  <label for="targetStatus">Changer le statut</label>
+                  <div class="status-options">
+                    <button type="button" class="option-btn" [class.active]="statusForm.controls.targetStatus.value === 'QUOTED'" (click)="onSelectTargetStatus('QUOTED')">Devis proposé (QUOTED)</button>
+                    <button type="button" class="option-btn option-btn--danger" [class.active]="statusForm.controls.targetStatus.value === 'REJECTED'" (click)="onSelectTargetStatus('REJECTED')">Refuser (REJECTED)</button>
+                  </div>
+                </div>
+
+                @if (statusForm.controls.targetStatus.value === 'QUOTED') {
+                  @if (q.lines?.length) {
+                    <div class="proposal-lines" role="group" aria-label="Prix proposés par produit">
+                      @for (line of q.lines; track line.productId) {
+                        <div class="proposal-line">
+                          <div class="proposal-line-main">
+                            <strong class="product-name">{{ line.productName }}</strong>
+                            @if (line.productReference) { <span class="product-ref">Réf. {{ line.productReference }}</span> }
+                            <span class="catalog-price">Prix catalogue : {{ line.catalogUnitPrice | number:'1.2-2' }} DH</span>
+                          </div>
+                          <div class="proposal-line-inputs">
+                            <label class="field-compact">
+                              <span>Quantité</span>
+                              <input class="input-qty" type="number" min="1" step="1" [value]="proposalLines()[$index].quantity"
+                                (input)="setProposalQuantity(line.productId, $any($event.target).value)" aria-label="Quantité">
+                            </label>
+                            <label class="field-compact field-price">
+                              <span>Prix unitaire proposé (DH)</span>
+                              <input class="input-price" type="number" min="0" step="0.01"
+                                [value]="proposalLines()[$index].proposedUnitPrice"
+                                (input)="setProposalUnitPrice(line.productId, $any($event.target).value)" aria-label="Prix unitaire proposé en dirhams">
+                            </label>
+                          </div>
+                        </div>
+                      }
+                    </div>
+                    <div class="form-grid">
+                      <div class="form-group"><label for="discount">Remise (DH)</label>
+                        <input id="discount" type="number" min="0" step="0.01" formControlName="discount"></div>
+                      <div class="form-group"><label for="deliveryFee">Frais de livraison (DH)</label>
+                        <input id="deliveryFee" type="number" min="0" step="0.01" formControlName="deliveryFee"></div>
+                      <div class="form-group"><label for="validUntil">Validité jusqu'au *</label>
+                        <input id="validUntil" type="date" formControlName="validUntil"></div>
+                    </div>
+                    <p class="form-hint"><span class="material-icons" aria-hidden="true">info</span>Le sous-total et le total final seront calculés par le serveur.</p>
+                  } @else {
+                  <div class="form-group">
+                    <label for="proposedAmount">Montant proposé (DH) <span class="required">*</span></label>
+                    <input id="proposedAmount" type="number" step="0.01" formControlName="proposedAmount" placeholder="Ex. 25000">
+                    @if (statusForm.controls.proposedAmount.touched && statusForm.controls.proposedAmount.invalid) {
+                      <span class="field-error" role="alert">
+                        @if (statusForm.controls.proposedAmount.errors?.['required']) { Le montant proposé est obligatoire. }
+                        @else if (statusForm.controls.proposedAmount.errors?.['min']) { Le montant doit être supérieur à 0. }
+                      </span>
+                    }
+                  </div>
+                  }
+                }
+
+                <div class="form-group">
+                  <label for="commercialNotes">Notes commerciales (internes ou destinées au client)</label>
+                  <textarea id="commercialNotes" formControlName="commercialNotes" rows="3" placeholder="Précisions sur l'offre, conditions particulières..."></textarea>
+                </div>
+                <div class="form-actions"><button type="submit" class="button primary" [disabled]="updatingStatus()">
+                  <span class="material-icons" aria-hidden="true">save</span>
+                  Enregistrer la décision commerciale</button></div>
+              </form>
+            } @else if (q.status === 'QUOTED') {
+              <div class="status-banner banner-success"><strong>Proposition envoyée au client</strong><p>En attente de sa décision.</p></div>
+            } @else if (q.status === 'ACCEPTED') {
+              <div class="status-banner banner-success"><span class="material-icons" aria-hidden="true">check_circle</span><div><strong>Devis accepté par le client</strong><p>Ce devis a été validé. Aucune modification supplémentaire n'est requise.</p></div></div>
+            } @else if (q.status === 'REJECTED') {
+              <div class="status-banner banner-danger"><span class="material-icons" aria-hidden="true">cancel</span><div><strong>Demande refusée</strong><p>Cette demande de devis a été classée comme refusée.</p></div></div>
+            } @else if (q.status === 'CANCELLED') {
+              <div class="status-banner banner-muted"><span class="material-icons" aria-hidden="true">block</span><div><strong>Demande annulée</strong><p>Cette demande a été annulée par le client avant son traitement.</p></div></div>
+            }
+          </section>
+        </div>
+      }
+    }
+
+    @if (showConfirmModal()) {
+      <div class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+        <div class="modal-card">
+          <h2 id="modal-title">Confirmer l'action commerciale</h2>
+          <p>Vous êtes sur le point de passer la demande au statut <strong>{{ getStatusLabel(statusForm.controls.targetStatus.value) }}</strong>.</p>
+          @if (statusForm.controls.targetStatus.value === 'QUOTED') {
+            @if (quotation()?.lines?.length) {
+              <p>Les montants du devis seront calculés par le serveur à partir des lignes proposées.</p>
+            } @else {
+            <p>Montant proposé : <strong>{{ statusForm.controls.proposedAmount.value | number:'1.2-2' }} DH</strong></p>
+            }
+          }
+          <div class="modal-actions">
+            <button type="button" class="button secondary" (click)="cancelConfirmation()">Annuler</button>
+            <button type="button" class="button primary" (click)="executeStatusUpdate()">Confirmer</button>
+          </div>
+        </div>
+      </div>
+    }
+  </main>
+</wwt-dashboard-layout>

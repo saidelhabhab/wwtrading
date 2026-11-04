@@ -1,0 +1,32 @@
+<aside class="dashboard-sidebar" aria-label="Navigation du tableau de bord">
+	<div class="sidebar-brand">
+		<img src="/assets/wwtrading-logo.png" alt="WWTRADING">
+		<div><strong>{{ dashboardRole() || 'ESPACE PRO' }} CENTER</strong><span>Expertise impression professionnelle</span></div>
+	</div>
+	<nav>
+		@for (item of navItems(); track item.label) {
+			@if (item.available) {
+				<a class="sidebar-link" [routerLink]="item.route || dashboardRoute()" routerLinkActive="active" [routerLinkActiveOptions]="item.route === '' ? { exact: true } : { exact: false }" (click)="selectNavigation()">
+					<span class="sidebar-icon material-icons" aria-hidden="true">{{ item.icon }}</span>
+					<span class="sidebar-link-copy"><strong>{{ item.label }}</strong><small>{{ item.description }}</small></span>
+				</a>
+			} @else {
+				<button class="sidebar-link sidebar-link--disabled" type="button" disabled [attr.aria-label]="item.label + ', bientôt disponible'">
+					<span class="sidebar-icon material-icons" aria-hidden="true">{{ item.icon }}</span>
+					<span class="sidebar-link-copy"><strong>{{ item.label }}</strong><small>{{ item.description }}</small></span>
+					<span class="sidebar-soon">Bientôt</span>
+				</button>
+			}
+		}
+	</nav>
+	<div class="sidebar-footer-actions">
+		<a class="sidebar-link" routerLink="/" (click)="selectNavigation()">
+			<span class="sidebar-icon material-icons" aria-hidden="true">home</span>
+			<span class="sidebar-link-copy"><strong>Site public</strong><small>Retour à l’accueil</small></span>
+		</a>
+		<button class="sidebar-link sidebar-logout-btn" type="button" (click)="logout()">
+			<span class="sidebar-icon material-icons" aria-hidden="true">logout</span>
+			<span class="sidebar-link-copy"><strong>Déconnexion</strong><small>Quitter la session</small></span>
+		</button>
+	</div>
+</aside>

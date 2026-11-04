@@ -1,0 +1,17 @@
+spring:
+  datasource:
+    url: ${USER_DB_URL:jdbc:postgresql://localhost:5433/wwtrading_users}
+    username: ${USER_DB_USERNAME:wwtrading_users}
+    password: ${USER_DB_PASSWORD}
+
+eureka:
+  client:
+    service-url:
+      defaultZone: ${EUREKA_URL:http://localhost:8761/eureka/}
+
+wwtrading:
+  security:
+    issuer-uri: ${JWT_ISSUER_URI:http://localhost:8180/realms/wwtrading}
+    jwk-set-uri: ${JWT_JWK_SET_URI:http://localhost:8180/realms/wwtrading/protocol/openid-connect/certs}
+  keycloak:
+    server-url: ${KEYCLOAK_SERVER_URL:http://localhost:8180}

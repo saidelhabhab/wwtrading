@@ -1,0 +1,39 @@
+spring:
+  datasource:
+    url: ${QUOTATION_DB_URL:jdbc:postgresql://quotation-db:5432/wwtrading_quotations}
+    username: ${QUOTATION_DB_USERNAME:wwtrading_quotations}
+    password: ${QUOTATION_DB_PASSWORD:}
+  mail:
+    host: ${MAIL_HOST:localhost}
+    port: ${MAIL_PORT:1025}
+    properties:
+      mail:
+        smtp:
+          connectiontimeout: ${MAIL_CONNECTION_TIMEOUT:3000}
+          timeout: ${MAIL_TIMEOUT:5000}
+          writetimeout: ${MAIL_WRITE_TIMEOUT:5000}
+  jpa:
+    open-in-view: false
+    hibernate:
+      ddl-auto: validate
+    properties:
+      hibernate:
+        jdbc:
+          time_zone: UTC
+  flyway:
+    enabled: true
+    connect-retries: 30
+    connect-retries-interval: 2
+  kafka:
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+
+wwtrading:
+  notifications:
+    quotation:
+      from: ${QUOTATION_MAIL_FROM:wwtrading.morocco@gmail.com}
+  security:
+    issuer-uri: ${JWT_ISSUER_URI:http://localhost:8180/realms/wwtrading}
+    jwk-set-uri: ${JWT_JWK_SET_URI:http://keycloak:8080/realms/wwtrading/protocol/openid-connect/certs}
+    audience: ${JWT_AUDIENCE:wwtrading-api}

@@ -1,0 +1,340 @@
+<section class="service-hero" aria-labelledby="hero-title">
+  <div class="hero-container">
+    <div class="hero-content">
+      <div class="hero-badge">
+        <span class="badge-dot"></span>
+        <span>Cotation Professionnelle &amp; Chiffrage Express</span>
+      </div>
+      <h1 id="hero-title">Demandez votre devis personnalisé en ligne</h1>
+      <p class="lead">
+        Composez votre configuration bureautique ou d'imprimerie en sélectionnant vos équipements Konica Minolta &amp; Develop directement dans notre catalogue.
+      </p>
+      <p class="hero-intro">
+        Indiquez vos coordonnées et options souhaitées. Nos ingénieurs commerciaux vous transmettront une offre chiffrée claire et transparente sous 24h ouvrées.
+      </p>
+    </div>
+      
+    <div class="hero-stats-panel">
+      <div class="stat-card">
+        <span class="stat-value">24h</span>
+        <span class="stat-label">Délai moyen de chiffrage par nos équipes</span>
+      </div>
+      <div class="stat-card">
+        <span class="stat-value">0 DH</span>
+        <span class="stat-label">Étude technique et devis 100% gratuits</span>
+      </div>
+      <div class="stat-card">
+        <span class="stat-value">B2B</span>
+        <span class="stat-label">Tarifs dégressifs &amp; remises sur volume</span>
+      </div>
+      <div class="stat-card">
+        <span class="stat-value">Sur mesure</span>
+        <span class="stat-label">Achat, leasing ou location financière</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+@if (!isSubmitted()) {
+  <section class="section form-section" aria-labelledby="form-title">
+    <div class="form-container">
+      <header class="form-header">
+        <span class="section-tag">Formulaire Commercial</span>
+        <h2 id="form-title">Votre demande de cotation sur mesure</h2>
+        <p class="form-desc">Complétez les 3 étapes ci-dessous pour recevoir une proposition commerciale adaptée à vos volumes et contraintes métiers.</p>
+        @if (draftRestored()) {
+          <div class="draft-notice" role="status">
+            <span>✓ Vos informations de devis précédemment saisies ont été automatiquement restaurées.</span>
+          </div>
+        }
+      </header>
+
+      <form [formGroup]="devisForm" (ngSubmit)="submitQuoteRequest()" novalidate>
+        <!-- Étape 1 : Produits demandés -->
+        <fieldset class="form-fieldset">
+          <legend>
+            <span class="step-num">1</span>
+            <span>Sélection des équipements &amp; consommables</span>
+          </legend>
+
+          <div class="form-group full-width search-bar-container">
+            <label for="product-search">Rechercher dans tout le catalogue WWTRADING</label>
+            <div class="search-input-wrapper">
+              <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <circle cx="11" cy="11" r="8"/>
+                <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+              </svg>
+              <input
+                id="product-search"
+                type="search"
+                [value]="searchTerm()"
+                (input)="onSearchInput($any($event.target).value)"
+                placeholder="Ex. bizhub C250i, ineo+, tambour, toner TN-328..."
+                aria-describedby="search-hint"
+              />
+              @if (searchTerm()) {
+                <button type="button" class="btn-clear-search" (click)="clearSearch()" aria-label="Effacer la recherche">
+                  ✕
+                </button>
+              }
+            </div>
+            <small id="search-hint" class="input-hint">
+              Recherche serveur en temps réel sur les références, modèles et désignations du catalogue.
+            </small>
+          </div>
+
+          @if (productsLoading()) {
+            <div class="loading-catalog" role="status">
+              <span class="loading-spinner"></span>
+              <p>Recherche des produits en cours…</p>
+            </div>
+          }
+
+          @if (productsError()) {
+            <div class="catalog-error" role="alert">
+              <p>{{ productsError() }}</p>
+              <button type="button" class="btn-retry" (click)="loadProducts(productPage())">Réessayer</button>
+            </div>
+          }
+
+          @if (!productsLoading() && !productsError()) {
+            <div class="catalog-grid">
+              @for (product of products(); track product.id) {
+                <article class="catalog-choice" [class.selected]="isSelected(product.id)">
+                  <div class="choice-thumb">
+                    @if (product.images?.[0]; as image) {
+                      <img [src]="productApi.resolveImageUrl(image.imageUrl)" [alt]="product.name" loading="lazy" />
+                    } @else {
+                      <div class="placeholder-img" aria-hidden="true">
+                        <span>{{ product.brand || 'WWT' }}</span>
+                      </div>
+                    }
+                  </div>
+                  <div class="choice-info">
+                    <strong>{{ product.brand }} {{ product.model || product.name }}</strong>
+                    <small>Réf : {{ product.reference }}</small>
+                  </div>
+                  <button
+                    type="button"
+                    class="btn-add-product"
+                    [class.btn-added]="isSelected(product.id)"
+                    [disabled]="isSelected(product.id)"
+                    (click)="addProduct(product)"
+                    [attr.aria-label]="'Ajouter ' + product.name + ' au devis'"
+                  >
+                    {{ isSelected(product.id) ? '✓ Ajouté' : '+ Ajouter au devis' }}
+                  </button>
+                </article>
+              } @empty {
+                <div class="empty-catalog-message">
+                  <p>Aucun équipement disponible ne correspond à votre recherche « <strong>{{ searchTerm() }}</strong> ».</p>
+                  @if (searchTerm()) {
+                    <button type="button" class="btn-reset-search" (click)="clearSearch()">Voir tous les produits</button>
+                  }
+                </div>
+              }
+            </div>
+
+            @if (totalPages() > 1) {
+              <div class="catalog-pagination">
+                <button
+                  type="button"
+                  class="btn-page"
+                  [disabled]="productPage() === 0"
+                  (click)="loadProducts(productPage() - 1)"
+                >
+                  ← Précédent
+                </button>
+                <span class="page-indicator">
+                  Page {{ productPage() + 1 }} sur {{ totalPages() }} ({{ totalProducts() }} équipements)
+                </span>
+                <button
+                  type="button"
+                  class="btn-page"
+                  [disabled]="productPage() + 1 >= totalPages()"
+                  (click)="loadProducts(productPage() + 1)"
+                >
+                  Suivant →
+                </button>
+              </div>
+            }
+          }
+
+          <!-- Sélection en cours -->
+          <div class="selection-summary">
+            <div class="selection-header">
+              <h3>Votre sélection pour le devis</h3>
+              <span class="selection-counter">{{ selectedProducts().length }} article(s)</span>
+            </div>
+
+            @for (line of selectedProducts(); track line.product.id) {
+              <div class="selected-line">
+                <div class="selected-meta">
+                  <strong>{{ line.product.name }}</strong>
+                  <small>{{ line.product.brand }} &bull; Réf : {{ line.product.reference }}</small>
+                </div>
+                <div class="quantity-controls">
+                  <div class="qty-stepper">
+                    <button
+                      type="button"
+                      class="btn-qty"
+                      [disabled]="line.quantity <= 1"
+                      (click)="changeQuantity(line.product.id, -1)"
+                      [attr.aria-label]="'Diminuer la quantité de ' + line.product.name"
+                    >
+                      −
+                    </button>
+                    <output class="qty-display" [attr.aria-label]="'Quantité demandée : ' + line.quantity">
+                      {{ line.quantity }}
+                    </output>
+                    <button
+                      type="button"
+                      class="btn-qty"
+                      (click)="changeQuantity(line.product.id, 1)"
+                      [attr.aria-label]="'Augmenter la quantité de ' + line.product.name"
+                    >
+                      +
+                    </button>
+                  </div>
+                  <button
+                    type="button"
+                    class="btn-remove-line"
+                    (click)="removeProduct(line.product.id)"
+                    [attr.aria-label]="'Retirer ' + line.product.name"
+                  >
+                    Retirer
+                  </button>
+                </div>
+              </div>
+            } @empty {
+              <div class="empty-selection-box">
+                <p class="empty-selection-hint">
+                  Veuillez ajouter un ou plusieurs équipements ou consommables ci-dessus pour composer votre devis.
+                </p>
+              </div>
+            }
+          </div>
+        </fieldset>
+
+        <!-- Étape 2 : Coordonnées -->
+        <fieldset class="form-fieldset">
+          <legend>
+            <span class="step-num">2</span>
+            <span>Vos coordonnées professionnelles</span>
+          </legend>
+
+          <div class="form-row">
+            <div class="form-group" [class.has-error]="devisForm.controls.fullName.touched && devisForm.controls.fullName.invalid">
+              <label for="fullName">Nom complet *</label>
+              <input id="fullName" formControlName="fullName" placeholder="Ex. Mohammed Bennani" required />
+              @if (devisForm.controls.fullName.touched && devisForm.controls.fullName.invalid) {
+                <small class="error-hint">Le nom complet est requis (au moins 2 caractères).</small>
+              }
+            </div>
+            <div class="form-group">
+              <label for="company">Société / Établissement</label>
+              <input id="company" formControlName="company" placeholder="Ex. Groupe Atlas SARL" />
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group" [class.has-error]="devisForm.controls.phone.touched && devisForm.controls.phone.invalid">
+              <label for="phone">Téléphone direct *</label>
+              <input id="phone" type="tel" formControlName="phone" placeholder="Ex. 06 61 00 00 00" required />
+              @if (devisForm.controls.phone.touched && devisForm.controls.phone.invalid) {
+                <small class="error-hint">Numéro de téléphone valide requis.</small>
+              }
+            </div>
+            <div class="form-group" [class.has-error]="devisForm.controls.email.touched && devisForm.controls.email.invalid">
+              <label for="email">Adresse e-mail professionnelle *</label>
+              <input id="email" type="email" formControlName="email" placeholder="Ex. contact@societe.ma" required />
+              @if (devisForm.controls.email.touched && devisForm.controls.email.invalid) {
+                <small class="error-hint">Adresse email valide requise pour recevoir la proposition.</small>
+              }
+            </div>
+          </div>
+
+          <div class="form-group full-width" [class.has-error]="devisForm.controls.city.touched && devisForm.controls.city.invalid">
+            <label for="city">Ville d'installation &bull; Maroc *</label>
+            <input id="city" formControlName="city" placeholder="Ex. Casablanca, Rabat, Tanger, Marrakech..." required />
+            @if (devisForm.controls.city.touched && devisForm.controls.city.invalid) {
+              <small class="error-hint">La ville d'installation est requise pour calculer les frais de mise en service.</small>
+            }
+          </div>
+        </fieldset>
+
+        <!-- Étape 3 : Message complémentaire -->
+        <fieldset class="form-fieldset">
+          <legend>
+            <span class="step-num">3</span>
+            <span>Précisions &amp; besoins complémentaires</span>
+          </legend>
+
+          <div class="form-group full-width">
+            <label for="additionalMessage">Précisions (volume estimé de copies/mois, modules de finition, contrat souhaité...)</label>
+            <textarea
+              id="additionalMessage"
+              formControlName="additionalMessage"
+              rows="4"
+              maxlength="4000"
+              placeholder="Indiquez ici vos contraintes techniques, vos options souhaitées (trieuse agrafeuse, bac haute capacité...) ou toute information utile pour l'établissement de l'offre."
+            ></textarea>
+          </div>
+        </fieldset>
+
+        @if (submissionError()) {
+          <div class="submission-error-banner" role="alert">
+            <span class="error-icon" aria-hidden="true">⚠️</span>
+            <p>{{ submissionError() }}</p>
+          </div>
+        }
+
+        <div class="form-submit-row">
+          <button
+            class="button primary btn-submit"
+            type="submit"
+            [disabled]="submitting() || selectedProducts().length === 0"
+          >
+            @if (submitting()) {
+              <span class="btn-spinner" aria-hidden="true"></span>
+              <span>Transmission de votre demande en cours…</span>
+            } @else {
+              <span>Transmettre ma demande de devis</span>
+            }
+          </button>
+        </div>
+      </form>
+
+      @if (canViewMyQuotations()) {
+        <div class="auth-tracking-link">
+          <a class="text-link" routerLink="/devis/mes-demandes">
+            Consulter l'historique et le suivi de mes devis en cours &rarr;
+          </a>
+        </div>
+      }
+    </div>
+  </section>
+} @else {
+  <!-- Écran de confirmation succès -->
+  <section class="section success-section" aria-labelledby="success-title">
+    <div class="success-card">
+      <div class="success-icon-badge" aria-hidden="true">✓</div>
+      <h2 id="success-title">Votre demande de devis a été enregistrée avec succès.</h2>
+      @if (createdQuotation(); as quote) {
+        <p class="success-ref">
+          Référence de dossier : <strong>{{ quote.id }}</strong>
+        </p>
+      }
+      <p class="success-sub">
+        Un récapitulatif détaillé a été transmis par email. Notre équipe commerciale étudie vos équipements demandés et vous contactera sous 24h ouvrées avec une proposition chiffrée.
+      </p>
+
+      <div class="success-actions">
+        <button class="button primary" type="button" (click)="resetForm()">Faire une nouvelle demande</button>
+        @if (canViewMyQuotations()) {
+          <a class="button secondary" routerLink="/devis/mes-demandes">Suivre mes devis</a>
+        }
+      </div>
+    </div>
+  </section>
+}

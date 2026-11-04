@@ -1,0 +1,184 @@
+<a class="skip-link" href="#main-content">Aller au contenu principal</a>
+
+@if (!isDashboardWorkspace()) {
+<div class="public-header">
+  <div class="top-bar">
+    <div class="header-container top-bar__content">
+      <a href="https://wa.me/212776886836?text=Bonjour%20WWTRADING" target="_blank" rel="noopener noreferrer" class="whatsapp-top-link" aria-label="Contact WhatsApp WWTRADING">
+        <span class="material-icons" aria-hidden="true">chat</span>
+        <span>WhatsApp</span>
+      </a>
+      <a href="tel:+212776886836">
+        <span class="material-icons" aria-hidden="true">call</span>
+        <span>+212776886836</span>
+      </a>
+      <a href="mailto:wwtrading.morocco@gmail.com">
+        <span class="material-icons" aria-hidden="true">mail_outline</span>
+        <span>wwtrading.morocco&#64;gmail.com</span>
+      </a>
+    </div>
+  </div>
+
+  <header class="main-header">
+    <div class="header-container main-header__content">
+      <a class="brand" routerLink="/" (click)="closeMenu()" aria-label="WWTRADING — Accueil">
+        <img src="/assets/wwtrading-logo.png" alt="WWTRADING">
+      </a>
+
+      <a class="catalog-search" routerLink="/products" aria-label="Rechercher dans le catalogue de produits">
+        <span class="material-icons" aria-hidden="true">search</span>
+        <span>Rechercher dans le catalogue</span>
+      </a>
+
+      <div class="header-actions" aria-label="Accès rapides">
+        <a class="header-action" routerLink="/wishlist" aria-label="Souhaits">
+          <span class="material-icons" aria-hidden="true">favorite_border</span>
+          <span class="action-label">Souhaits</span>
+        </a>
+        <a class="header-action cart-link" routerLink="/cart">
+          <span class="material-icons" aria-hidden="true">shopping_cart</span>
+          <span class="action-label">Panier</span>
+          @if (cartItemCount() > 0) {
+            <span class="cart-badge" [attr.aria-label]="cartItemCount() + ' article(s) dans le panier'">{{ cartItemCount() }}</span>
+          }
+        </a>
+
+        @if (auth.authenticated() && canAccessAccount()) {
+          @if (auth.roles(); as roles) {
+            @if (roles.includes('ADMIN') || roles.includes('MANAGER') || roles.includes('COMMERCIAL') || roles.includes('CLIENT')) {
+            }
+          }
+
+          <details class="account-menu" #accountMenu>
+            <summary class="header-action" aria-label="Ouvrir le menu du compte">
+              <span class="material-icons" aria-hidden="true">account_circle</span>
+              <span class="action-label">Compte</span>
+              <span class="material-icons account-chevron" aria-hidden="true">expand_more</span>
+            </summary>
+            <div class="account-dropdown">
+              @if (dashboardRoute(); as route) {
+                <a [routerLink]="route" (click)="accountMenu.removeAttribute('open')">Tableau de bord</a>
+              }
+              <a [routerLink]="accountRoute() || dashboardRoute() || '/'" (click)="accountMenu.removeAttribute('open')">Mon compte</a>
+              <a routerLink="/addresses" (click)="accountMenu.removeAttribute('open')">Adresses</a>
+              <button type="button" [disabled]="authActionPending()" (click)="logout()">
+                {{ authActionPending() ? 'Déconnexion…' : 'Déconnexion' }}
+              </button>
+            </div>
+          </details>
+        } @else {
+          <button class="header-action account-login" type="button" [disabled]="authActionPending()" (click)="login()" aria-label="Se connecter">
+            <span class="material-icons" aria-hidden="true">account_circle</span>
+            <span class="action-label">Connexion</span>
+          </button>
+        }
+      </div>
+    </div>
+
+    @if (authActionFailed()) {
+      <span class="auth-error" role="alert">Action impossible. Veuillez réessayer.</span>
+    }
+  </header>
+</div>
+
+<div class="navigation-bar" [class.navigation-bar--scrolled]="scrolled()">
+  <div class="header-container navigation-bar__content">
+    <a class="sticky-brand" routerLink="/" (click)="closeMenu()" aria-label="WWTRADING — Accueil">
+      <img src="/assets/wwtrading-logo.png" alt="WWTRADING">
+    </a>
+
+    <button
+      class="menu-toggle"
+      type="button"
+      aria-label="Ouvrir ou fermer la navigation"
+      aria-controls="main-navigation"
+      [attr.aria-expanded]="menuOpen()"
+      (click)="toggleMenu()"
+    >
+      <span></span><span></span><span></span>
+    </button>
+
+    <nav id="main-navigation" class="main-navigation" [class.open]="menuOpen()" aria-label="Navigation principale">
+      <a routerLink="/" (click)="closeMenu()">Accueil</a>
+      <details class="products-menu" #productsMenu (toggle)="onProductMenuToggle()">
+        <summary>Produits <span class="material-icons" aria-hidden="true">expand_more</span></summary>
+        <div class="products-dropdown">
+          @for (column of productMenuColumns; track column.heading) {
+            <div class="products-column">
+              <p class="products-column__heading">{{ column.heading }}</p>
+              @for (product of column.links; track product.label) {
+                <a [routerLink]="'/products'" [queryParams]="product.queryParams" (click)="closeProductMenu(productsMenu)"><strong>{{ product.label }}</strong><span>{{ product.description }}</span></a>
+              }
+            </div>
+          }
+        </div>
+      </details>
+      <details class="services-menu" #servicesMenu (toggle)="onServicesMenuToggle()">
+        <summary>Services <span class="material-icons" aria-hidden="true">expand_more</span></summary>
+        <div class="services-dropdown">
+          <a routerLink="/services/vente-machines" (click)="closeServicesMenu(servicesMenu)"><strong>Vente de machines</strong><span>Solutions d’impression professionnelles</span></a>
+          <a routerLink="/services/location" (click)="closeServicesMenu(servicesMenu)"><strong>Location</strong><span>Équipements adaptés à votre activité</span></a>
+          <a routerLink="/services/maintenance" (click)="closeServicesMenu(servicesMenu)"><strong>Maintenance</strong><span>Contrats et interventions techniques</span></a>
+          <a routerLink="/services/toners-consommables" (click)="closeServicesMenu(servicesMenu)"><strong>Toners & consommables</strong><span>Fournitures pour vos systèmes d’impression</span></a>
+          <a routerLink="/services/pieces-rechange" (click)="closeServicesMenu(servicesMenu)"><strong>Pièces de rechange</strong><span>Pièces pour entretenir vos équipements</span></a>
+          <a routerLink="/services/support-technique" (click)="closeServicesMenu(servicesMenu)"><strong>Support technique</strong><span>Assistance et télémaintenance</span></a>
+          <a routerLink="/devis" (click)="closeServicesMenu(servicesMenu)"><strong>Devis personnalisé</strong><span>Une réponse adaptée à votre besoin</span></a>
+        </div>
+      </details>
+      <a routerLink="/contact" routerLinkActive="active" (click)="closeMenu()">Contact</a>
+      <a [routerLink]="orderTrackingRoute()" routerLinkActive="active" class="tracking-link" (click)="closeMenu()">
+        <span class="material-icons" aria-hidden="true">local_shipping</span>Suivi de commande
+      </a>
+    </nav>
+  </div>
+</div>
+
+@if (scrolled()) {
+  <button class="back-to-top" type="button" aria-label="Retour en haut de la page" (click)="scrollToTop()">
+    <span class="material-icons" aria-hidden="true">keyboard_arrow_up</span>
+  </button>
+}
+}
+
+<main id="main-content">
+  <router-outlet />
+</main>
+
+@if (!isDashboardWorkspace()) {
+<footer class="site-footer" >
+  <div class="footer-brand">
+    <img src="/assets/wwtrading-logo.png" alt="WWTRADING">
+    <p>Expertise Konica Minolta & Develop</p>
+    <span>Solutions professionnelles d’impression à Kénitra, Maroc.</span>
+  </div>
+
+  <div>
+    <h2>Navigation</h2>
+    <a routerLink="/">Accueil</a>
+    <a routerLink="/products">Produits</a>
+    <a href="/#services">Services</a>
+    <a href="/#about">À propos</a>
+    <a routerLink="/contact">Contact</a>
+    <a [routerLink]="orderTrackingRoute()">Suivi de commande</a>
+  </div>
+
+  <div>
+    <h2>Services</h2>
+    <span>Vente & location</span>
+    <span>Maintenance & SAV</span>
+    <span>Toners & consommables</span>
+    <span>Pièces de rechange</span>
+  </div>
+
+  <div>
+    <h2>Contact</h2>
+    <a href="https://wa.me/212776886836?text=Bonjour%20WWTRADING" target="_blank" rel="noopener noreferrer">WhatsApp : 0776886836</a>
+    <a href="tel:+212776886836">0776886836</a>
+    <a href="tel:+212603566841">0603566841</a>
+    <a href="mailto:wwtrading.morocco@gmail.com">wwtrading.morocco&#64;gmail.com</a>
+    <a class="footer-cta" routerLink="/devis">Demander un devis</a>
+  </div>
+
+  <p class="copyright">© {{ currentYear }} WWTRADING · Kénitra, Maroc</p>
+</footer>
+}

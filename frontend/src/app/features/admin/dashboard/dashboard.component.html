@@ -1,0 +1,210 @@
+<wwt-dashboard-layout>
+  <wwt-page-header
+    title="Dashboard Admin"
+    subtitle="Vue globale de l’activité de WWTRADING"
+    breadcrumb="Administration / Dashboard">
+  </wwt-page-header>
+
+  <section class="dashboard-content" aria-labelledby="admin-dashboard-title">
+    <header class="dashboard-content__welcome">
+      <div class="dashboard-content__welcome-info">
+        <span class="dashboard-content__eyebrow">Vue d’ensemble</span>
+        <h1 id="admin-dashboard-title" class="dashboard-content__title">Pilotage de la plateforme</h1>
+        <p class="dashboard-content__description">
+          Suivez les commandes, devis, produits et demandes de maintenance depuis leurs services WWTRADING.
+        </p>
+        <span class="dashboard-content__status" [class.dashboard-content__status--warning]="failedSources().length > 0">
+          <span class="dashboard-content__status-dot" aria-hidden="true"></span>
+          {{ loading() ? 'Synchronisation en cours' : availableSources() + '/8 sources disponibles' }}
+        </span>
+      </div>
+      <div class="dashboard-content__welcome-icon" aria-hidden="true"><mat-icon>dashboard</mat-icon></div>
+    </header>
+
+    @if (failedSources().length > 0 && !loading()) {
+      <div class="dashboard-alert" role="alert">
+        <mat-icon aria-hidden="true">sync_problem</mat-icon>
+        <div>
+          <strong>Certaines données sont momentanément indisponibles.</strong>
+          <span>Les autres indicateurs restent affichés avec leurs données réelles.</span>
+        </div>
+        <button type="button" (click)="loadDashboard()">Réessayer</button>
+      </div>
+    }
+
+    <div class="dashboard-content__stats" aria-label="Indicateurs principaux">
+      <wwt-stat-card
+        title="Commandes"
+        [value]="orders()?.totalElements?.toString() ?? '—'"
+        icon="shopping_cart"
+        description="toutes les commandes"
+        [loading]="loading()">
+      </wwt-stat-card>
+      <wwt-stat-card
+        title="Demandes de devis"
+        [value]="quotations()?.totalElements?.toString() ?? '—'"
+        icon="description"
+        description="demandes enregistrées"
+        [loading]="loading()">
+      </wwt-stat-card>
+      <wwt-stat-card
+        title="Produits"
+        [value]="products()?.totalElements?.toString() ?? '—'"
+        icon="inventory_2"
+        description="références catalogue"
+        [loading]="loading()">
+      </wwt-stat-card>
+      <wwt-stat-card title="Clients actifs" [value]="clientAnalytics()?.activeClients?.toString() ?? '—'" icon="business" description="comptes clients actifs" [loading]="loading()"></wwt-stat-card>
+      <wwt-stat-card title="Maintenance" [value]="maintenanceAnalytics()?.totalRequests?.toString() ?? '—'" icon="engineering" description="demandes ce mois" [loading]="loading()"></wwt-stat-card>
+      <wwt-stat-card title="Support ouvert" [value]="openSupport()?.toString() ?? '—'" icon="support_agent" description="conversations ouvertes" [loading]="loading()"></wwt-stat-card>
+      <wwt-stat-card title="Notifications" [value]="unreadNotifications()?.toString() ?? '—'" icon="notifications" description="non lues" [loading]="loading()"></wwt-stat-card>
+    </div>
+
+    <wwt-financial-overview
+      [data]="analytics()"
+      [loading]="analyticsLoading()"
+      [rangeLabel]="analyticsRange">
+    </wwt-financial-overview>
+
+    <div class="dashboard-content__grid">
+      <article class="dashboard-panel dashboard-panel--large" aria-labelledby="quotation-chart-title">
+        <div class="dashboard-panel__header">
+          <div>
+            <span class="dashboard-panel__eyebrow">Pipeline commercial</span>
+            <h2 id="quotation-chart-title" class="dashboard-panel__title">Répartition des devis</h2>
+          </div>
+          <a class="dashboard-panel__action" routerLink="/admin/devis" aria-label="Voir tous les devis">
+            <mat-icon>arrow_forward</mat-icon>
+          </a>
+        </div>
+
+        @if (loading()) {
+          <div class="panel-state" role="status"><span class="panel-loader" aria-hidden="true"></span>Chargement des devis…</div>
+        } @else if (!quotations()) {
+          <div class="panel-state panel-state--error">Les statistiques de devis sont indisponibles.</div>
+        } @else if (quotations()?.totalElements === 0) {
+          <div class="panel-state">Aucune demande de devis enregistrée.</div>
+        } @else {
+          <div class="pipeline" aria-label="Répartition des devis par statut">
+            @for (status of quotationPipeline; track status) {
+              <div class="pipeline__row">
+                <span>{{ quotationLabel(status) }}</span>
+                <span class="pipeline__track" aria-hidden="true">
+                  <span [style.width.%]="quotationPercent(status)"></span>
+                </span>
+                <strong>{{ quotationCount(status) ?? '—' }}</strong>
+              </div>
+            }
+          </div>
+        }
+      </article>
+
+      <article class="dashboard-panel dashboard-panel--actions" aria-labelledby="quick-actions-title">
+        <div class="dashboard-panel__header">
+          <div>
+            <span class="dashboard-panel__eyebrow">Administration</span>
+            <h2 id="quick-actions-title" class="dashboard-panel__title">Actions rapides</h2>
+          </div>
+        </div>
+        <nav class="quick-actions" aria-label="Actions administrateur">
+          <a class="quick-action" routerLink="/admin/products/new">
+            <span class="quick-action__icon"><mat-icon>add_box</mat-icon></span>
+            <span class="quick-action__content"><strong>Ajouter un produit</strong><small>Créer une référence catalogue</small></span>
+            <mat-icon class="quick-action__arrow">chevron_right</mat-icon>
+          </a>
+          <a class="quick-action" routerLink="/admin/products">
+            <span class="quick-action__icon"><mat-icon>inventory_2</mat-icon></span>
+            <span class="quick-action__content"><strong>Produits</strong><small>Gérer le catalogue</small></span>
+            <mat-icon class="quick-action__arrow">chevron_right</mat-icon>
+          </a>
+          <a class="quick-action" routerLink="/admin/stock">
+            <span class="quick-action__icon"><mat-icon>warehouse</mat-icon></span>
+            <span class="quick-action__content"><strong>Stock</strong><small>Disponibilités et mouvements</small></span>
+            <mat-icon class="quick-action__arrow">chevron_right</mat-icon>
+          </a>
+          <a class="quick-action" routerLink="/admin/orders">
+            <span class="quick-action__icon"><mat-icon>shopping_cart</mat-icon></span>
+            <span class="quick-action__content"><strong>Voir les commandes</strong><small>Traitement et paiement</small></span>
+            <mat-icon class="quick-action__arrow">chevron_right</mat-icon>
+          </a>
+          <a class="quick-action" routerLink="/admin/devis">
+            <span class="quick-action__icon"><mat-icon>description</mat-icon></span>
+            <span class="quick-action__content"><strong>Voir les devis</strong><small>Demandes commerciales</small></span>
+            <mat-icon class="quick-action__arrow">chevron_right</mat-icon>
+          </a>
+          <a class="quick-action" routerLink="/admin/analytics">
+            <span class="quick-action__icon"><mat-icon>analytics</mat-icon></span>
+            <span class="quick-action__content"><strong>Analytics globales</strong><small>Commandes, devis et maintenance</small></span>
+            <mat-icon class="quick-action__arrow">chevron_right</mat-icon>
+          </a>
+          <a class="quick-action" routerLink="/admin/clients">
+            <span class="quick-action__icon"><mat-icon>business</mat-icon></span>
+            <span class="quick-action__content"><strong>Annuaire clients</strong><small>Comptes clients professionnels</small></span>
+            <mat-icon class="quick-action__arrow">chevron_right</mat-icon>
+          </a>
+          <a class="quick-action" routerLink="/admin/payment-banks">
+            <span class="quick-action__icon"><mat-icon>account_balance</mat-icon></span>
+            <span class="quick-action__content"><strong>Banques de virement</strong><small>Gérer les coordonnées bancaires</small></span>
+            <mat-icon class="quick-action__arrow">chevron_right</mat-icon>
+          </a>
+        </nav>
+      </article>
+    </div>
+
+    <div class="dashboard-content__bottom">
+      <article class="dashboard-panel dashboard-panel--table" aria-labelledby="activity-title">
+        <div class="dashboard-panel__header">
+          <div>
+            <span class="dashboard-panel__eyebrow">Dernières activités</span>
+            <h2 id="activity-title" class="dashboard-panel__title">Activité opérationnelle</h2>
+          </div>
+        </div>
+        @if (loading()) {
+          <div class="panel-state" role="status"><span class="panel-loader" aria-hidden="true"></span>Chargement de l’activité…</div>
+        } @else if (recentActivity().length === 0) {
+          <div class="panel-state">Aucune activité récente disponible.</div>
+        } @else {
+          <div class="activity-list">
+            @for (activity of recentActivity(); track activity.id) {
+              @if (activity.route; as route) {
+                <a class="activity-item" [routerLink]="route">
+                  <span class="activity-item__icon"><mat-icon>{{ activity.icon }}</mat-icon></span>
+                  <span class="activity-item__copy"><small>{{ activity.kind }}</small><strong>{{ activity.title }}</strong><span>{{ activity.detail }}</span></span>
+                  <time [attr.datetime]="activity.date">{{ activity.date | date:'dd/MM/yyyy HH:mm' }}</time>
+                </a>
+              } @else {
+                <div class="activity-item">
+                  <span class="activity-item__icon"><mat-icon>{{ activity.icon }}</mat-icon></span>
+                  <span class="activity-item__copy"><small>{{ activity.kind }}</small><strong>{{ activity.title }}</strong><span>{{ activity.detail }}</span></span>
+                  <time [attr.datetime]="activity.date">{{ activity.date | date:'dd/MM/yyyy HH:mm' }}</time>
+                </div>
+              }
+            }
+          </div>
+        }
+      </article>
+
+      <div class="dashboard-side-stack">
+        <article class="dashboard-panel" aria-labelledby="products-title">
+          <div class="dashboard-panel__header">
+            <div><span class="dashboard-panel__eyebrow">Catalogue</span><h2 id="products-title" class="dashboard-panel__title">Produits récents</h2></div>
+            <a class="dashboard-panel__action" routerLink="/admin/products" aria-label="Gérer les produits"><mat-icon>arrow_forward</mat-icon></a>
+          </div>
+          @if (!loading() && recentProducts().length === 0) {
+            <div class="panel-state panel-state--compact">Aucun produit disponible.</div>
+          } @else {
+            <div class="compact-list">
+              @for (product of recentProducts(); track product.id) {
+                <a [routerLink]="['/products', product.id]">
+                  <span><strong>{{ productName(product) }}</strong><small>{{ product.reference }}</small></span>
+                  <em [class.is-inactive]="!product.active">{{ product.active ? 'Actif' : 'Inactif' }}</em>
+                </a>
+              }
+            </div>
+          }
+        </article>
+
+      </div>
+    </div>
+  </section>
+</wwt-dashboard-layout>

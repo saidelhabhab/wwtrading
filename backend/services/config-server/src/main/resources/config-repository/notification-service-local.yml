@@ -1,0 +1,15 @@
+spring:
+  datasource:
+    url: ${NOTIFICATION_DB_URL:jdbc:postgresql://localhost:5441/wwtrading_notifications}
+    username: ${NOTIFICATION_DB_USERNAME:wwtrading_notifications}
+    password: ${NOTIFICATION_DB_PASSWORD}
+
+eureka:
+  client:
+    service-url:
+      defaultZone: ${EUREKA_URL:http://localhost:8761/eureka/}
+
+wwtrading:
+  security:
+    issuer-uri: ${JWT_ISSUER_URI:http://localhost:8180/realms/wwtrading}
+    jwk-set-uri: ${JWT_JWK_SET_URI:http://localhost:8180/realms/wwtrading/protocol/openid-connect/certs}

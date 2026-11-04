@@ -1,0 +1,40 @@
+server:
+  port: ${SERVER_PORT:8083}
+
+spring:
+  application:
+    name: order-service
+  servlet:
+    multipart:
+      max-file-size: ${ORDER_TRANSFER_PROOF_MAX_SIZE:5MB}
+      max-request-size: ${ORDER_TRANSFER_PROOF_MAX_SIZE:5MB}
+  config:
+    import: optional:configserver:${CONFIG_SERVER_URL:http://localhost:8888}
+  security:
+    oauth2:
+      client:
+        registration:
+          user-service:
+            provider: user-service
+            authorization-grant-type: client_credentials
+            client-id: ${ORDER_SERVICE_OAUTH2_CLIENT_ID}
+            client-secret: ${ORDER_SERVICE_OAUTH2_CLIENT_SECRET}
+        provider:
+          user-service:
+            token-uri: ${ORDER_SERVICE_OAUTH2_TOKEN_URI}
+
+wwtrading:
+  delivery:
+    fees-enabled: ${DELIVERY_FEES_ENABLED:true}
+    free-delivery-threshold: ${DELIVERY_FREE_THRESHOLD:20000.00}
+    fees:
+      Kenitra: ${DELIVERY_FEE_KENITRA:300.00}
+      Casablanca: ${DELIVERY_FEE_CASABLANCA:300.00}
+      External: ${DELIVERY_FEE_EXTERNAL:400.00}
+  payment:
+    banks: []
+
+eureka:
+  client:
+    service-url:
+      defaultZone: ${EUREKA_URL:http://localhost:8761/eureka/}

@@ -1,0 +1,15 @@
+spring:
+  datasource:
+    url: ${MAINTENANCE_DB_URL:jdbc:postgresql://maintenance-db:5432/wwtrading_maintenance}
+    username: ${MAINTENANCE_DB_USERNAME:wwtrading_maintenance}
+    password: ${MAINTENANCE_DB_PASSWORD}
+
+eureka:
+  client:
+    service-url:
+      defaultZone: ${EUREKA_URL:http://discovery-server:8761/eureka/}
+
+wwtrading:
+  security:
+    issuer-uri: ${JWT_ISSUER_URI:http://localhost:8180/realms/wwtrading}
+    jwk-set-uri: ${JWT_JWK_SET_URI:http://keycloak:8080/realms/wwtrading/protocol/openid-connect/certs}

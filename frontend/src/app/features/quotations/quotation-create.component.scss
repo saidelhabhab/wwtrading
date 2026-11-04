@@ -1,0 +1,90 @@
+.quotation-create {
+  min-height: 65vh;
+  padding: clamp(3.5rem, 8vw, 7rem) clamp(1rem, 7vw, 8rem);
+  background: linear-gradient(145deg, #fff 15%, #f7edf1 100%);
+  color: #1b1b1b;
+}
+
+header,
+form,
+.message { max-width: 760px; }
+
+.eyebrow {
+  margin: 0 0 0.75rem;
+  color: #af0f50;
+  font-size: 0.78rem;
+  font-weight: 800;
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+}
+
+h1 {
+  margin: 0;
+  font-size: clamp(2.8rem, 6vw, 5.5rem);
+  line-height: 1;
+  letter-spacing: -0.05em;
+}
+
+header > p:last-child { color: #625a5d; }
+
+form {
+  display: grid;
+  gap: 1.3rem;
+  margin-top: 2.5rem;
+  padding: clamp(1.2rem, 4vw, 2.5rem);
+  border: 1px solid #ded2d7;
+  border-radius: 1rem;
+  background: rgb(255 255 255 / 90%);
+  box-shadow: 0 1rem 3rem rgb(58 16 33 / 8%);
+}
+
+.field { display: grid; gap: 0.45rem; }
+label { font-weight: 800; }
+label span { color: #756b6f; font-size: 0.85rem; font-weight: 600; }
+
+input,
+textarea {
+  width: 100%;
+  box-sizing: border-box;
+  border: 1px solid #bdb1b6;
+  border-radius: 0.65rem;
+  padding: 0.8rem 0.9rem;
+  background: #fff;
+  color: #1b1b1b;
+  font: inherit;
+}
+
+textarea { resize: vertical; }
+input:focus-visible,
+textarea:focus-visible { outline: 3px solid #e5a8c0; border-color: #af0f50; }
+[aria-invalid='true'] { border-color: #a00036; }
+
+.validation { margin: 0; color: #a00036; font-size: 0.85rem; }
+.message { padding: 0.9rem 1rem; border-radius: 0.65rem; }
+.error { background: #f9e2e8; color: #8d002f; }
+.success { background: #e3f4e8; color: #175c2b; }
+
+.actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 1rem;
+}
+
+.actions a { color: #5e5558; font-weight: 750; }
+button {
+  border: 0;
+  border-radius: 0.65rem;
+  padding: 0.8rem 1.15rem;
+  background: #af0f50;
+  color: #fff;
+  font: inherit;
+  font-weight: 800;
+  cursor: pointer;
+}
+button:disabled { cursor: wait; opacity: 0.65; }
+button:focus-visible { outline: 3px solid #e5a8c0; outline-offset: 3px; }
+
+@media (max-width: 520px) {
+  .actions { align-items: stretch; flex-direction: column-reverse; text-align: center; }
+}

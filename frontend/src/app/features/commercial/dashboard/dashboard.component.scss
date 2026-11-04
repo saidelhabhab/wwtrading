@@ -1,0 +1,663 @@
+
+:host {
+  display: block;
+  min-height: 100%;
+}
+
+.dashboard-content {
+  display: flex;
+  flex-direction: column;
+  gap: var(--dashboard-gap);
+  width: 100%;
+  max-width: var(--dashboard-max-width);
+  margin: 0 auto;
+  padding-block: var(--dashboard-page-padding-block);
+  padding-inline: var(--dashboard-page-padding-inline);
+
+  &__welcome {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 24px;
+    padding: 28px 32px;
+    border: 1px solid var(--dashboard-border);
+    border-radius: 20px;
+    background:
+      linear-gradient(
+        135deg,
+        var(--dashboard-surface) 0%,
+        var(--dashboard-surface-muted) 100%
+      );
+    box-shadow: var(--dashboard-shadow);
+  }
+
+  &__welcome-info {
+    min-width: 0;
+  }
+
+  &__eyebrow {
+    display: block;
+    margin-bottom: 8px;
+    color: var(--dashboard-primary);
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  &__title {
+    margin: 0;
+    color: var(--dashboard-text);
+    font-size: clamp(1.5rem, 2vw, 2rem);
+    font-weight: 800;
+    line-height: 1.2;
+  }
+
+  &__description {
+    max-width: 680px;
+    margin: 10px 0 0;
+    color: var(--dashboard-text-muted);
+    font-size: 0.95rem;
+    line-height: 1.6;
+  }
+
+  &__welcome-icon {
+    display: grid;
+    width: 64px;
+    height: 64px;
+    flex: 0 0 64px;
+    place-items: center;
+    border-radius: 18px;
+    background: var(--dashboard-primary);
+    color: var(--dashboard-primary-contrast);
+
+    mat-icon {
+      width: 30px;
+      height: 30px;
+      font-size: 30px;
+    }
+  }
+
+  &__stats {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 20px;
+  }
+
+  &__grid {
+    display: grid;
+    grid-template-columns: minmax(0, 2fr) minmax(320px, 1fr);
+    gap: 20px;
+  }
+
+  &__bottom {
+    display: grid;
+    grid-template-columns: minmax(0, 2fr) minmax(320px, 1fr);
+    gap: 20px;
+  }
+}
+
+.dashboard-alert { display: flex; align-items: center; gap: .75rem; padding: 1rem; border: 1px solid #e9c2cf; border-radius: 12px; background: #fff7fa; color: #7f123d; }
+.dashboard-alert span { flex: 1; }
+.dashboard-alert button { min-height: 44px; padding: .55rem .9rem; border: 1px solid #af0f50; border-radius: 999px; background: #fff; color: #8f123f; font: inherit; font-weight: 750; }
+.real-state { display: grid; min-height: 10rem; place-items: center; color: #625f5c; text-align: center; }
+.real-state--error { color: #9d294d; }
+.real-pipeline { display: grid; gap: .9rem; }
+.real-pipeline > div { display: grid; grid-template-columns: minmax(7rem,.8fr) minmax(8rem,2fr) 2.5rem; align-items: center; gap: .75rem; font-size: .82rem; }
+.real-pipeline__track { height: .55rem; overflow: hidden; border-radius: 999px; background: #eee9e7; }
+.real-pipeline__track i { display: block; height: 100%; border-radius: inherit; background: #af0f50; }
+.recent-list { display: grid; }
+.recent-list a { display: flex; min-height: 62px; align-items: center; justify-content: space-between; gap: 1rem; padding: .7rem 0; border-bottom: 1px solid #eee9e7; color: #1a1a18; text-decoration: none; }
+.recent-list a:last-child { border-bottom: 0; }
+.recent-list a:hover strong { color: #af0f50; }
+.recent-list span { display: grid; gap: .2rem; min-width: 0; }
+.recent-list small, .recent-list time { color: #625f5c; font-size: .75rem; }
+
+@media (max-width: 640px) {
+  .dashboard-alert { align-items: flex-start; flex-wrap: wrap; }
+  .dashboard-alert button { width: 100%; }
+  .real-pipeline > div { grid-template-columns: minmax(0,1fr) 2rem; }
+  .real-pipeline__track { grid-column: 1 / -1; }
+  .recent-list a { align-items: flex-start; flex-direction: column; }
+}
+
+/* =========================================================
+   Panels
+========================================================= */
+
+.dashboard-panel {
+  min-width: 0;
+  padding: 24px;
+  overflow: hidden;
+  border: 1px solid var(--dashboard-border);
+  border-radius: 18px;
+  background: var(--dashboard-surface);
+  box-shadow: var(--dashboard-shadow);
+
+  &--large {
+    min-height: 360px;
+  }
+
+  &--table,
+  &--actions {
+    min-height: 340px;
+  }
+
+  &__header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 16px;
+    margin-bottom: 24px;
+  }
+
+  &__eyebrow {
+    display: block;
+    margin-bottom: 5px;
+    color: var(--dashboard-text-muted);
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  &__title {
+    margin: 0;
+    color: var(--dashboard-text);
+    font-size: 1.05rem;
+    font-weight: 750;
+  }
+
+  &__action {
+    display: grid;
+    width: 38px;
+    height: 38px;
+    flex: 0 0 38px;
+    place-items: center;
+    border: 1px solid var(--dashboard-border);
+    border-radius: 10px;
+    background: transparent;
+    color: var(--dashboard-text-muted);
+    cursor: pointer;
+    transition:
+      background-color 160ms ease,
+      color 160ms ease,
+      border-color 160ms ease;
+
+    &:hover {
+      border-color: var(--dashboard-primary);
+      background: var(--dashboard-surface-muted);
+      color: var(--dashboard-primary);
+    }
+
+    &:focus-visible {
+      outline: 3px solid var(--dashboard-focus);
+      outline-offset: 2px;
+    }
+  }
+
+  &__link {
+    padding: 0;
+    border: 0;
+    background: transparent;
+    color: var(--dashboard-primary);
+    font-size: 0.82rem;
+    font-weight: 700;
+    cursor: pointer;
+
+    &:focus-visible {
+      outline: 3px solid var(--dashboard-focus);
+      outline-offset: 3px;
+      border-radius: 4px;
+    }
+  }
+}
+
+/* =========================================================
+   Sales Summary
+========================================================= */
+
+.sales-summary {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 18px;
+
+  &__main {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+
+    span {
+      color: var(--dashboard-text-muted);
+      font-size: 0.78rem;
+    }
+
+    strong {
+      color: var(--dashboard-text);
+      font-size: clamp(1.7rem, 3vw, 2.3rem);
+      font-weight: 800;
+      letter-spacing: -0.03em;
+    }
+  }
+
+  &__trend {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 6px 10px;
+    border-radius: 999px;
+    background: var(--dashboard-success-soft);
+    color: var(--dashboard-success);
+    font-size: 0.75rem;
+    font-weight: 700;
+
+    mat-icon {
+      width: 16px;
+      height: 16px;
+      font-size: 16px;
+    }
+  }
+}
+
+/* =========================================================
+   Sales Chart
+========================================================= */
+
+.sales-chart {
+  position: relative;
+  min-height: 190px;
+  padding-top: 15px;
+  border-top: 1px solid var(--dashboard-border);
+
+  &__grid {
+    position: absolute;
+    inset: 20px 0 35px;
+    background-image:
+      linear-gradient(
+        to bottom,
+        var(--dashboard-border) 1px,
+        transparent 1px
+      );
+    background-size: 100% 25%;
+    opacity: 0.55;
+  }
+
+  &__line {
+    position: absolute;
+    top: 70px;
+    left: 4%;
+    width: 92%;
+    height: 85px;
+    border-top: 3px solid var(--dashboard-primary);
+    border-radius: 50%;
+    transform: rotate(-2deg);
+
+    &::after {
+      content: '';
+      position: absolute;
+      top: -6px;
+      right: 0;
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: var(--dashboard-primary);
+      box-shadow:
+        -80px 18px 0 -1px var(--dashboard-primary),
+        -170px -14px 0 -1px var(--dashboard-primary),
+        -260px 25px 0 -1px var(--dashboard-primary),
+        -350px -8px 0 -1px var(--dashboard-primary);
+    }
+  }
+
+  &__labels {
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    display: flex;
+    justify-content: space-between;
+    color: var(--dashboard-text-muted);
+    font-size: 0.7rem;
+  }
+}
+
+/* =========================================================
+   Sales Funnel
+========================================================= */
+
+.sales-funnel {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+
+  &__item {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  &__info {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    span {
+      color: var(--dashboard-text-muted);
+      font-size: 0.8rem;
+    }
+
+    strong {
+      color: var(--dashboard-text);
+      font-size: 0.9rem;
+    }
+  }
+
+  &__progress {
+    width: 100%;
+    height: 7px;
+    overflow: hidden;
+    border-radius: 999px;
+    background: var(--dashboard-surface-muted);
+
+    span {
+      display: block;
+      height: 100%;
+      border-radius: inherit;
+      background: var(--dashboard-primary);
+    }
+  }
+}
+
+/* =========================================================
+   Quotation Table
+========================================================= */
+
+.quotation-table {
+  width: 100%;
+  overflow-x: auto;
+
+  &__row {
+    display: grid;
+    grid-template-columns: 1fr 1.5fr 1fr 0.9fr;
+    align-items: center;
+    gap: 16px;
+    min-width: 650px;
+    padding: 15px 4px;
+    border-bottom: 1px solid var(--dashboard-border);
+    color: var(--dashboard-text-muted);
+    font-size: 0.82rem;
+
+    &:last-child {
+      border-bottom: 0;
+    }
+
+    strong {
+      color: var(--dashboard-text);
+    }
+
+    &--header {
+      padding-top: 0;
+      color: var(--dashboard-text-muted);
+      font-size: 0.68rem;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+    }
+  }
+
+  &__reference {
+    color: var(--dashboard-primary);
+    font-weight: 700;
+  }
+}
+
+/* =========================================================
+   Status
+========================================================= */
+
+.status {
+  display: inline-flex;
+  width: fit-content;
+  align-items: center;
+  padding: 5px 9px;
+  border-radius: 999px;
+  font-size: 0.68rem;
+  font-weight: 700;
+  white-space: nowrap;
+
+  &--success {
+    background: var(--dashboard-success-soft);
+    color: var(--dashboard-success);
+  }
+
+  &--warning {
+    background: var(--dashboard-warning-soft);
+    color: var(--dashboard-warning);
+  }
+
+  &--info {
+    background: var(--dashboard-info-soft);
+    color: var(--dashboard-info);
+  }
+}
+
+/* =========================================================
+   Quick Actions
+========================================================= */
+
+.quick-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.quick-action {
+  display: flex;
+  width: 100%;
+  align-items: center;
+  gap: 12px;
+  padding: 11px;
+  border: 1px solid transparent;
+  border-radius: 12px;
+  background: transparent;
+  text-align: left;
+  cursor: pointer;
+  transition:
+    background-color 160ms ease,
+    border-color 160ms ease;
+
+  &:hover {
+    border-color: var(--dashboard-border);
+    background: var(--dashboard-surface-muted);
+  }
+
+  &:focus-visible {
+    outline: 3px solid var(--dashboard-focus);
+    outline-offset: 2px;
+  }
+
+  &__icon {
+    display: grid;
+    width: 40px;
+    height: 40px;
+    flex: 0 0 40px;
+    place-items: center;
+    border-radius: 10px;
+    background: var(--dashboard-primary-soft);
+    color: var(--dashboard-primary);
+
+    mat-icon {
+      font-size: 20px;
+    }
+  }
+
+  &__content {
+    display: flex;
+    min-width: 0;
+    flex: 1;
+    flex-direction: column;
+    gap: 3px;
+
+    strong {
+      overflow: hidden;
+      color: var(--dashboard-text);
+      font-size: 0.82rem;
+      font-weight: 700;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    small {
+      color: var(--dashboard-text-muted);
+      font-size: 0.7rem;
+    }
+  }
+
+  &__arrow {
+    flex: 0 0 auto;
+    color: var(--dashboard-text-muted);
+  }
+}
+
+/* =========================================================
+   Tablet
+========================================================= */
+
+@media (max-width: 1100px) {
+  .dashboard-content {
+    &__stats {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    &__grid,
+    &__bottom {
+      grid-template-columns: 1fr;
+    }
+  }
+}
+
+/* =========================================================
+   Mobile
+========================================================= */
+
+@media (max-width: 700px) {
+  .dashboard-content {
+    gap: 16px;
+
+    &__welcome {
+      align-items: flex-start;
+      padding: 20px;
+    }
+
+    &__welcome-icon {
+      width: 48px;
+      height: 48px;
+      flex-basis: 48px;
+      border-radius: 14px;
+
+      mat-icon {
+        width: 24px;
+        height: 24px;
+        font-size: 24px;
+      }
+    }
+
+    &__stats {
+      grid-template-columns: 1fr;
+      gap: 12px;
+    }
+  }
+
+  .dashboard-panel {
+    padding: 18px;
+    border-radius: 15px;
+
+    &--large,
+    &--table,
+    &--actions {
+      min-height: auto;
+    }
+  }
+
+  .sales-summary {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  /* Panel headings wrap instead of pushing their action out of the card. */
+  .dashboard-panel__header { flex-wrap: wrap; }
+
+  /* Long business values wrap rather than being clipped. */
+  .dashboard-panel__content strong,
+  .quick-action__content strong {
+    white-space: normal;
+  }
+}
+
+/*
+ * Tablet portrait: two KPI columns instead of a squeezed four, and a little
+ * more padding so touch targets stay comfortable.
+ */
+@media (min-width: 641px) and (max-width: 1100px) {
+  .dashboard-content {
+    &__stats {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+
+  .dashboard-panel { padding: 20px; }
+}
+
+/*
+ * Large desktop / TV: panels keep a two-column arrangement and gain extra
+ * padding, so nothing ends up as a tiny card in a huge empty area.
+ */
+@media (min-width: 1921px) {
+  .dashboard-panel { padding: 28px; }
+
+  .dashboard-content {
+    gap: 28px;
+
+    &__grid,
+    &__bottom {
+      grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
+    }
+  }
+}
+
+/* =========================================================
+   Small Mobile
+========================================================= */
+
+@media (max-width: 480px) {
+  .dashboard-content {
+    &__welcome {
+      padding: 18px;
+    }
+
+    &__welcome-icon {
+      display: none;
+    }
+
+    &__description {
+      font-size: 0.85rem;
+    }
+  }
+
+  .dashboard-panel {
+    padding: 16px;
+  }
+}
+
+/* =========================================================
+   Reduced Motion
+========================================================= */
+
+@media (prefers-reduced-motion: reduce) {
+  .dashboard-panel__action,
+  .quick-action {
+    transition: none;
+  }
+}

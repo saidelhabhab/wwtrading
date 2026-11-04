@@ -1,0 +1,455 @@
+<wwt-dashboard-layout title="Gestion des utilisateurs">
+  <wwt-page-header
+    [headingLevel]="1"
+    headingId="staff-user-title"
+    title="Gestion des utilisateurs"
+    subtitle="Créez et gérez les comptes professionnels autorisés pour votre rôle."
+    [breadcrumb]="breadcrumb()">
+  </wwt-page-header>
+
+  <main class="users-page" aria-labelledby="staff-user-title">
+    @if (success(); as created) {
+      <section class="feedback feedback--success" role="status" aria-live="polite">
+        <mat-icon aria-hidden="true">check_circle</mat-icon>
+        <div>
+          <strong>Utilisateur créé avec succès.</strong>
+          <span>{{ created.firstName }} {{ created.lastName }} · {{ created.email }}</span>
+          <span>Rôle : {{ roleLabel(created.role) }}</span>
+        </div>
+        <button type="button" aria-label="Masquer la confirmation" (click)="success.set(null)">
+          <mat-icon aria-hidden="true">close</mat-icon>
+        </button>
+      </section>
+    }
+
+    @if (submitError(); as message) {
+      <section class="feedback feedback--error" role="alert">
+        <mat-icon aria-hidden="true">error_outline</mat-icon>
+        <div><strong>Création impossible</strong><span>{{ message }}</span></div>
+      </section>
+    }
+
+    <div class="users-grid">
+      <!-- Left Card: Add Staff User -->
+      <section class="form-card" aria-labelledby="create-user-title">
+        <header class="card-header">
+          <div>
+            <span class="eyebrow">Nouvel accès</span>
+            <h2 id="create-user-title">Ajouter un utilisateur</h2>
+          </div>
+          <div class="card-header__icon">
+            <mat-icon aria-hidden="true">person_add</mat-icon>
+          </div>
+        </header>
+
+        <form [formGroup]="form" (ngSubmit)="submit()" novalidate>
+          <div class="form-grid">
+            <div class="field">
+              <label for="staff-first-name">Prénom <span aria-hidden="true">*</span></label>
+              <input id="staff-first-name" type="text" formControlName="firstName" autocomplete="given-name" maxlength="100" placeholder="ex: Karim">
+              @if (showError('firstName')) { <small class="field-error">Saisissez un prénom valide.</small> }
+            </div>
+
+            <div class="field">
+              <label for="staff-last-name">Nom <span aria-hidden="true">*</span></label>
+              <input id="staff-last-name" type="text" formControlName="lastName" autocomplete="family-name" maxlength="100" placeholder="ex: El Amrani">
+              @if (showError('lastName')) { <small class="field-error">Saisissez un nom valide.</small> }
+            </div>
+
+            <div class="field field--full">
+              <label for="staff-email">Email professionnel <span aria-hidden="true">*</span></label>
+              <input id="staff-email" type="email" formControlName="email" autocomplete="email" maxlength="320" placeholder="karim.elamrani@wwtrading.ma">
+              @if (showError('email')) { <small class="field-error">Saisissez une adresse email valide.</small> }
+            </div>
+
+            <div class="field field--full">
+              <label for="staff-phone">Téléphone</label>
+              <input id="staff-phone" type="tel" formControlName="phone" autocomplete="tel" maxlength="32" placeholder="+212612345678">
+              @if (showError('phone')) { <small class="field-error">Saisissez un numéro de téléphone valide (ex: +212612345678).</small> }
+            </div>
+
+            <div class="field field--full">
+              <label for="staff-password">Mot de passe temporaire <span aria-hidden="true">*</span></label>
+              <div class="password-field">
+                <input
+                  id="staff-password"
+                  [type]="passwordVisible() ? 'text' : 'password'"
+                  formControlName="password"
+                  autocomplete="new-password"
+                  maxlength="128"
+                  placeholder="••••••••••••"
+                  aria-describedby="staff-password-help">
+                <button
+                  type="button"
+                  [attr.aria-label]="passwordVisible() ? 'Masquer le mot de passe' : 'Afficher le mot de passe'"
+                  (click)="togglePasswordVisibility()">
+                  <mat-icon aria-hidden="true">{{ passwordVisible() ? 'visibility_off' : 'visibility' }}</mat-icon>
+                </button>
+              </div>
+              <small id="staff-password-help" class="field-help">12 caractères min. avec majuscule, minuscule, chiffre et symbole.</small>
+              @if (showError('password')) { <small class="field-error">Le mot de passe ne respecte pas les exigences de sécurité.</small> }
+            </div>
+
+            <fieldset class="field field--full role-field">
+              <legend>Rôle attribué <span aria-hidden="true">*</span></legend>
+              <div class="role-options">
+                @for (option of roleOptions(); track option.value) {
+                  <label class="role-option" [class.role-option--selected]="form.controls.role.value === option.value">
+                    <input type="radio" formControlName="role" [value]="option.value">
+                    <span class="role-option__icon material-icons" aria-hidden="true">{{ roleIcon(option.value) }}</span>
+                    <span class="role-option__body">
+                      <strong>{{ option.label }}</strong>
+                      <small>{{ option.description }}</small>
+                    </span>
+                  </label>
+                }
+              </div>
+              @if (showError('role')) { <small class="field-error">Sélectionnez un rôle autorisé.</small> }
+            </fieldset>
+          </div>
+
+          <footer class="form-actions">
+            <p><mat-icon aria-hidden="true">lock</mat-icon> Les autorisations sont également contrôlées par le serveur Keycloak.</p>
+            <button class="submit-button" type="submit" [disabled]="form.invalid || submitting()">
+              @if (submitting()) { <span class="spinner" aria-hidden="true"></span> Création en cours… }
+              @else { <mat-icon aria-hidden="true">person_add</mat-icon> Créer l’utilisateur }
+            </button>
+          </footer>
+        </form>
+      </section>
+
+      <!-- Right Card: Directory Table -->
+      <section class="directory-card" aria-labelledby="directory-title">
+        <header class="card-header directory-header">
+          <div>
+            <span class="eyebrow">Annuaire actif</span>
+            <h2 id="directory-title">Collaborateurs</h2>
+          </div>
+          <div class="directory-header__actions">
+            @if (users().length > 0) {
+              <span class="result-badge">{{ users().length }} utilisateur{{ users().length > 1 ? 's' : '' }}</span>
+            }
+            <button type="button" class="btn-refresh" [disabled]="listLoading()" aria-label="Actualiser la liste" title="Actualiser" (click)="loadUsers()">
+              <mat-icon aria-hidden="true">refresh</mat-icon>
+            </button>
+          </div>
+        </header>
+
+        @if (listLoading()) {
+          <div class="list-state" role="status" aria-live="polite">
+            <span class="spinner spinner--dark" aria-hidden="true"></span>
+            <span>Chargement des utilisateurs…</span>
+          </div>
+        } @else if (listError()) {
+          <div class="list-state list-state--error" role="alert">
+            <mat-icon aria-hidden="true">sync_problem</mat-icon>
+            <strong>Liste indisponible</strong>
+            <span>{{ listError() }}</span>
+            <button type="button" class="btn-retry" (click)="loadUsers()">Réessayer</button>
+          </div>
+        } @else if (users().length === 0) {
+          <div class="list-state">
+            <mat-icon aria-hidden="true">group_off</mat-icon>
+            <strong>Aucun utilisateur du personnel trouvé.</strong>
+          </div>
+        } @else {
+          <div class="staff-table-wrap">
+            <table class="staff-table">
+              <caption class="visually-hidden">Liste des utilisateurs du personnel</caption>
+              <thead>
+                <tr>
+                  <th>Nom &amp; Prénom</th>
+                  <th>Email</th>
+                  <th>Téléphone</th>
+                  <th>Rôle</th>
+                  <th>Statut</th>
+                  @if (isAdmin()) {
+                    <th class="text-right">Actions</th>
+                  }
+                </tr>
+              </thead>
+
+              <tbody>
+                @for (user of users(); track user.id) {
+                  <tr>
+                    <td data-label="Collaborateur">
+                      <div class="user-cell">
+                        <div class="user-avatar" aria-hidden="true">
+                          {{ user.firstName ? user.firstName.charAt(0).toUpperCase() : (user.lastName ? user.lastName.charAt(0).toUpperCase() : 'U') }}
+                        </div>
+                        <div class="user-names">
+                          <strong>{{ user.lastName }}</strong>
+                          <span>{{ user.firstName }}</span>
+                        </div>
+                      </div>
+                    </td>
+
+                    <td data-label="Email">
+                      <a [href]="'mailto:' + user.email" class="email-value" [title]="user.email">{{ user.email }}</a>
+                    </td>
+
+                    <td data-label="Téléphone">
+                      <span class="phone-value">{{ user.phone || '—' }}</span>
+                    </td>
+
+                    <td data-label="Rôle">
+                      <span class="role-badge role-badge--{{ user.role.toLowerCase() }}">
+                        {{ roleLabel(user.role) }}
+                      </span>
+                    </td>
+
+                    <td data-label="Statut">
+                      <span
+                        class="status-badge"
+                        [class.status-badge--disabled]="!user.enabled">
+                        {{ user.enabled ? 'Actif' : 'Désactivé' }}
+                      </span>
+                    </td>
+
+                    @if (isAdmin()) {
+                      <td data-label="Actions" class="text-right">
+                        <button
+                          type="button"
+                          class="table-action-btn"
+                          title="Réinitialiser le mot de passe"
+                          aria-label="Réinitialiser le mot de passe"
+                          (click)="openResetModal(user)">
+                          <mat-icon aria-hidden="true">lock_reset</mat-icon>
+                          <span>Mot de passe</span>
+                        </button>
+                      </td>
+                    }
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        }
+      </section>
+    </div>
+  </main>
+
+  <!-- Professional Modal: Password Reset -->
+  @if (resetModalOpen() && selectedUser(); as user) {
+    <div class="modal-backdrop" (click)="closeResetModal()" role="presentation">
+      <div
+        class="modal-dialog"
+        role="dialog"
+        aria-labelledby="modal-reset-title"
+        aria-modal="true"
+        (click)="$event.stopPropagation()">
+
+        <!-- Modal Header -->
+        <header class="modal-header">
+          <div class="modal-header__icon">
+            <mat-icon aria-hidden="true">lock_reset</mat-icon>
+          </div>
+          <div class="modal-header__titles">
+            <span class="modal-header__eyebrow">Sécurité du compte</span>
+            <h2 id="modal-reset-title">Réinitialiser le mot de passe</h2>
+          </div>
+          <button
+            type="button"
+            class="modal-close-btn"
+            aria-label="Fermer la modale"
+            [disabled]="resetSubmitting()"
+            (click)="closeResetModal()">
+            <mat-icon aria-hidden="true">close</mat-icon>
+          </button>
+        </header>
+
+        <!-- User Information Card -->
+        <div class="user-summary-card">
+          <div class="user-summary-avatar" aria-hidden="true">
+            {{ user.firstName ? user.firstName.charAt(0).toUpperCase() : 'U' }}
+          </div>
+          <div class="user-summary-info">
+            <div class="user-summary-name">
+              <strong>{{ user.firstName }} {{ user.lastName }}</strong>
+              <span class="role-badge">{{ roleLabel(user.role) }}</span>
+            </div>
+            <div class="user-summary-meta">
+              <span class="meta-item"><mat-icon aria-hidden="true">email</mat-icon> {{ user.email }}</span>
+              <span class="meta-item meta-id" title="Identifiant interne Keycloak"><mat-icon aria-hidden="true">badge</mat-icon> ID: {{ user.id }}</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Mode Selector Switch -->
+        <div class="mode-tabs" role="tablist" aria-label="Mode de réinitialisation">
+          <button
+            type="button"
+            role="tab"
+            class="mode-tab"
+            [class.mode-tab--active]="resetMode() === 'DIRECT'"
+            [attr.aria-selected]="resetMode() === 'DIRECT'"
+            (click)="setResetMode('DIRECT')">
+            <mat-icon aria-hidden="true">password</mat-icon>
+            <span>Définir directement</span>
+          </button>
+          <button
+            type="button"
+            role="tab"
+            class="mode-tab"
+            [class.mode-tab--active]="resetMode() === 'EMAIL'"
+            [attr.aria-selected]="resetMode() === 'EMAIL'"
+            (click)="setResetMode('EMAIL')">
+            <mat-icon aria-hidden="true">send_to_mobile</mat-icon>
+            <span>Envoyer un lien par email</span>
+          </button>
+        </div>
+
+        <!-- Success Alert -->
+        @if (resetSuccess(); as successMsg) {
+          <div class="modal-alert modal-alert--success" role="status">
+            <mat-icon aria-hidden="true">check_circle</mat-icon>
+            <div>
+              <strong>Succès</strong>
+              <p>{{ successMsg }}</p>
+            </div>
+          </div>
+        }
+
+        <!-- Error Alert -->
+        @if (resetError(); as errorMsg) {
+          <div class="modal-alert modal-alert--error" role="alert">
+            <mat-icon aria-hidden="true">error_outline</mat-icon>
+            <div>
+              <strong>Erreur</strong>
+              <p>{{ errorMsg }}</p>
+            </div>
+          </div>
+        }
+
+        <!-- Mode 1: Direct Password Form -->
+        @if (resetMode() === 'DIRECT') {
+          <form [formGroup]="resetForm" class="modal-form" (ngSubmit)="submitResetPassword()" novalidate>
+            <div class="modal-field">
+              <label for="new-password">Nouveau mot de passe <span aria-hidden="true">*</span></label>
+              <div class="password-field">
+                <input
+                  id="new-password"
+                  [type]="resetPasswordVisible() ? 'text' : 'password'"
+                  formControlName="newPassword"
+                  autocomplete="new-password"
+                  placeholder="••••••••••••"
+                  maxlength="128">
+                <button
+                  type="button"
+                  [attr.aria-label]="resetPasswordVisible() ? 'Masquer le mot de passe' : 'Afficher le mot de passe'"
+                  (click)="toggleResetPasswordVisibility()">
+                  <mat-icon aria-hidden="true">{{ resetPasswordVisible() ? 'visibility_off' : 'visibility' }}</mat-icon>
+                </button>
+              </div>
+              @if (showResetError('newPassword')) {
+                <small class="field-error">Le mot de passe ne respecte pas les critères de sécurité.</small>
+              }
+            </div>
+
+            <!-- Password Requirements Live Checklist -->
+            <div class="pwd-criteria-grid">
+              <div class="criterion" [class.criterion--valid]="pwdHasMinLength()">
+                <mat-icon aria-hidden="true">{{ pwdHasMinLength() ? 'check_circle' : 'radio_button_unchecked' }}</mat-icon>
+                <span>Au moins 12 caractères</span>
+              </div>
+              <div class="criterion" [class.criterion--valid]="pwdHasUpper()">
+                <mat-icon aria-hidden="true">{{ pwdHasUpper() ? 'check_circle' : 'radio_button_unchecked' }}</mat-icon>
+                <span>1 majuscule (A-Z)</span>
+              </div>
+              <div class="criterion" [class.criterion--valid]="pwdHasLower()">
+                <mat-icon aria-hidden="true">{{ pwdHasLower() ? 'check_circle' : 'radio_button_unchecked' }}</mat-icon>
+                <span>1 minuscule (a-z)</span>
+              </div>
+              <div class="criterion" [class.criterion--valid]="pwdHasNumber()">
+                <mat-icon aria-hidden="true">{{ pwdHasNumber() ? 'check_circle' : 'radio_button_unchecked' }}</mat-icon>
+                <span>1 chiffre (0-9)</span>
+              </div>
+              <div class="criterion" [class.criterion--valid]="pwdHasSpecial()">
+                <mat-icon aria-hidden="true">{{ pwdHasSpecial() ? 'check_circle' : 'radio_button_unchecked' }}</mat-icon>
+                <span>1 caractère spécial (&#64;$!%*?&amp;...)</span>
+              </div>
+            </div>
+
+            <div class="modal-field">
+              <label for="confirm-password">Confirmer le nouveau mot de passe <span aria-hidden="true">*</span></label>
+              <div class="password-field">
+                <input
+                  id="confirm-password"
+                  [type]="resetConfirmPasswordVisible() ? 'text' : 'password'"
+                  formControlName="confirmPassword"
+                  autocomplete="new-password"
+                  placeholder="••••••••••••"
+                  maxlength="128">
+                <button
+                  type="button"
+                  [attr.aria-label]="resetConfirmPasswordVisible() ? 'Masquer le mot de passe' : 'Afficher le mot de passe'"
+                  (click)="toggleResetConfirmPasswordVisibility()">
+                  <mat-icon aria-hidden="true">{{ resetConfirmPasswordVisible() ? 'visibility_off' : 'visibility' }}</mat-icon>
+                </button>
+              </div>
+              @if (showResetMismatchError()) {
+                <small class="field-error">Les mots de passe ne correspondent pas.</small>
+              }
+            </div>
+          </form>
+        }
+
+        <!-- Mode 2: Email Reset Link Panel -->
+        @if (resetMode() === 'EMAIL') {
+          <div class="email-info-card">
+            <mat-icon class="email-info-icon" aria-hidden="true">mark_email_read</mat-icon>
+            <div class="email-info-content">
+              <strong>Lien sécurisé à usage unique</strong>
+              <p>
+                Un email contenant un lien temporaire sécurisé Keycloak va être envoyé à l’adresse :
+                <br>
+                <span class="email-target">{{ user.email }}</span>
+              </p>
+              <small>L’utilisateur pourra choisir et confirmer lui-même son nouveau mot de passe lors de sa prochaine connexion.</small>
+            </div>
+          </div>
+        }
+
+        <!-- Explicit Confirmation Checkbox -->
+        <div class="confirmation-box">
+          <label class="confirmation-label">
+            <input
+              type="checkbox"
+              [checked]="resetConfirmed()"
+              [disabled]="resetSubmitting()"
+              (change)="toggleResetConfirmed()">
+            <span>
+              Je confirme vouloir réinitialiser le mot de passe pour <strong>{{ user.firstName }} {{ user.lastName }}</strong>.
+              Cette opération sera immédiatement effective dans Keycloak.
+            </span>
+          </label>
+        </div>
+
+        <!-- Modal Actions Footer -->
+        <footer class="modal-footer">
+          <button
+            type="button"
+            class="btn-cancel"
+            [disabled]="resetSubmitting()"
+            (click)="closeResetModal()">
+            Annuler
+          </button>
+          <button
+            type="button"
+            class="btn-confirm"
+            [disabled]="isResetFormInvalid() || resetSubmitting()"
+            (click)="submitResetPassword()">
+            @if (resetSubmitting()) {
+              <span class="spinner" aria-hidden="true"></span>
+              <span>Traitement…</span>
+            } @else {
+              <mat-icon aria-hidden="true">{{ resetMode() === 'DIRECT' ? 'check' : 'send' }}</mat-icon>
+              <span>{{ resetMode() === 'DIRECT' ? 'Confirmer la modification' : 'Envoyer le lien par email' }}</span>
+            }
+          </button>
+        </footer>
+      </div>
+    </div>
+  }
+</wwt-dashboard-layout>
+

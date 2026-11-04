@@ -1,0 +1,381 @@
+<main class="service-page consommables-page">
+  <!-- ── 1. HERO SECTION ── -->
+  <section class="service-hero" aria-labelledby="hero-title">
+    <div class="hero-bg-ambient" aria-hidden="true"></div>
+    <div class="hero-container">
+      <div class="hero-copy">
+        <div class="hero-badge">
+          <span class="badge-dot" aria-hidden="true"></span>
+          <span>Consommables Certifiés &bull; Konica Minolta &amp; Develop</span>
+        </div>
+        <h1 id="hero-title" class="hero-title">
+          Toners &amp; Consommables d'Origine
+        </h1>
+        <p class="hero-lead">
+          Alimentez votre parc avec des toners polymérisés Simitri HD, unités tambour (drums), courroies de transfert et bacs de récupération certifiés. Rendements garantis et livraison express partout au Maroc.
+        </p>
+
+        <div class="hero-actions">
+          <a class="btn btn-primary" routerLink="/devis">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+              <polyline points="14 2 14 8 20 8"></polyline>
+              <line x1="16" y1="13" x2="8" y2="13"></line>
+              <line x1="16" y1="17" x2="8" y2="17"></line>
+              <polyline points="10 9 9 9 8 9"></polyline>
+            </svg>
+            <span>Demander les consommables adaptés</span>
+          </a>
+
+          <a class="btn btn-outline" routerLink="/products" [queryParams]="{ type: 'CONSUMABLE' }">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path>
+              <line x1="3" y1="6" x2="21" y2="6"></line>
+              <path d="M16 10a4 4 0 0 1-8 0"></path>
+            </svg>
+            <span>Voir les consommables au catalogue</span>
+          </a>
+
+          <a class="btn btn-whatsapp" [href]="whatsappUrl" target="_blank" rel="noopener noreferrer">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+              <path d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.582 2.128 2.182-.573c.978.58 1.911.928 3.145.929 3.178 0 5.767-2.587 5.768-5.766.001-3.187-2.575-5.77-5.764-5.771zm3.392 8.244c-.144.405-.837.774-1.17.824-.312.045-.634.044-1.01-.069-.242-.073-.557-.19-1.023-.393-1.927-.837-3.179-2.775-3.275-2.903-.097-.128-.779-1.036-.779-1.975 0-.939.492-1.401.667-1.594.175-.193.382-.242.509-.242.128 0 .256.002.368.007.119.006.278-.045.435.334.162.39.553 1.349.601 1.448.049.098.082.213.016.342-.065.13-.098.212-.195.326-.098.115-.205.257-.294.346-.101.102-.206.213-.09.412.116.199.516.852 1.109 1.381.764.682 1.409.893 1.609.993.2.099.317.087.435-.049.118-.135.508-.59.643-.794.136-.204.271-.17.457-.101.186.069 1.183.558 1.387.66.204.102.339.153.39.237.05.085.05.49-.094.895z"/>
+            </svg>
+            <span>Commande WhatsApp directe</span>
+          </a>
+        </div>
+
+        <div class="hero-indicators">
+          <div class="indicator-item">
+            <strong>100%</strong>
+            <span>Authenticité constructeur vérifiée</span>
+          </div>
+          <div class="indicator-sep" aria-hidden="true"></div>
+          <div class="indicator-item">
+            <strong>Stock réel</strong>
+            <span>Disponible pour départ immédiat</span>
+          </div>
+          <div class="indicator-sep" aria-hidden="true"></div>
+          <div class="indicator-item">
+            <strong>24h / 48h</strong>
+            <span>Livraison rapide partout au Maroc</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="hero-visual">
+        <div class="visual-card">
+          <div class="visual-card-header">
+            <span class="status-indicator"></span>
+            <span>Garantie Qualité &amp; Rendement</span>
+          </div>
+          <div class="visual-body">
+            <div class="metric-highlight">
+              <span class="metric-num">0 encrassement</span>
+              <span class="metric-lbl">Poudre de toner polymérisée ultra-fine</span>
+            </div>
+            <div class="visual-tags">
+              <span class="v-tag">Toners TN-328 / TN-626</span>
+              <span class="v-tag">Tambours DR-316 / DR-512</span>
+              <span class="v-tag">Unités de transfert</span>
+              <span class="v-tag">Bacs résidus WX-107</span>
+            </div>
+          </div>
+          <div class="visual-footer">
+            <div class="sla-badge">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <polyline points="20 6 9 17 4 12"></polyline>
+              </svg>
+              <span>Cartouches scellées d'usine avec traçabilité</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── 2. VALUE PROPOSITION ── -->
+  <section class="section presentation-section" aria-labelledby="pres-title">
+    <div class="content-wrapper">
+      <header class="section-heading">
+        <p class="eyebrow">La sécurité de vos équipements</p>
+        <h2 id="pres-title">Un toner contrefait coûte toujours plus cher qu'un toner d'origine.</h2>
+        <p class="section-lead">
+          Plus de 65% des pannes de tambour, fuites de poudre et blocages de four sont provoqués par des encres génériques de mauvaise granulométrie. Les consommables distribués par WWTRADING protègent vos machines et garantissent un rendement exact au nombre de pages annoncé.
+        </p>
+      </header>
+    </div>
+  </section>
+
+  <!-- ── 3. FOUR CORE BENEFITS ── -->
+  <section class="section benefits-section" aria-labelledby="benefits-title">
+    <div class="content-wrapper">
+      <div class="section-heading centered">
+        <p class="eyebrow">Les bénéfices concrets</p>
+        <h2 id="benefits-title">Pourquoi commander vos consommables chez WWTRADING</h2>
+        <p class="section-lead">Une chaîne d'approvisionnement fiable pour éviter toute rupture d'activité.</p>
+      </div>
+
+      <div class="benefits-grid">
+        <article class="benefit-card">
+          <div class="card-icon-box">
+            <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <circle cx="12" cy="12" r="10"></circle>
+              <polyline points="12 6 12 12 14 14"></polyline>
+            </svg>
+          </div>
+          <h3>Rendement en pages certifié</h3>
+          <p>Conforme aux normes internationales ISO/IEC 19752 et 19798. Vous imprimez le nombre exact de pages garanti par cartouche, sans baisse prématurée de densité.</p>
+        </article>
+
+        <article class="benefit-card">
+          <div class="card-icon-box">
+            <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+            </svg>
+          </div>
+          <h3>Protection du matériel</h3>
+          <p>La cire encapsulée du toner Simitri HD protège les rouleaux chauffants du four et évite l'abrasion prématurée de la couche photosensible du tambour.</p>
+        </article>
+
+        <article class="benefit-card">
+          <div class="card-icon-box">
+            <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect>
+              <line x1="8" y1="21" x2="16" y2="21"></line>
+              <line x1="12" y1="17" x2="12" y2="21"></line>
+            </svg>
+          </div>
+          <h3>Fidélité des couleurs</h3>
+          <p>Gradations douces, aplats réguliers et textes noirs d'une grande netteté. Idéal pour vos présentations commerciales, rapports financiers et plans d'architecte.</p>
+        </article>
+
+        <article class="benefit-card">
+          <div class="card-icon-box">
+            <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <rect x="1" y="3" width="15" height="13"></rect>
+              <polygon points="16 8 20 8 23 11 23 16 16 16 16 8"></polygon>
+              <circle cx="5.5" cy="18.5" r="2.5"></circle>
+              <circle cx="18.5" cy="18.5" r="2.5"></circle>
+            </svg>
+          </div>
+          <h3>Livraison nationale rapide</h3>
+          <p>Stock tampon permanent dans nos dépôts. Expédition sous 24h ouvrées sur l'axe Casablanca-Rabat et sous 48h sur le reste du Maroc.</p>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── 4. CATEGORIZED CONSUMABLES ── -->
+  <section class="section catalog-categories-section" aria-labelledby="cat-cons-title">
+    <div class="content-wrapper">
+      <div class="section-heading centered">
+        <p class="eyebrow">Les familles de produits</p>
+        <h2 id="cat-cons-title">Tous les consommables indispensables à votre parc</h2>
+        <p class="section-lead">Des références scellées d'origine pour l'ensemble des gammes Konica Minolta bizhub et Develop ineo.</p>
+      </div>
+
+      <div class="categories-grid">
+        <article class="category-card">
+          <div class="card-tag">TONER</div>
+          <h3>Cartouches de Toner</h3>
+          <p>Noir, Cyan, Magenta et Yellow. Cartouches grande autonomie pour systèmes de bureau A4/A3 et presses professionnelles.</p>
+          <ul class="cat-bullets">
+            <li>Autonomie jusqu'à 28 000+ pages</li>
+            <li>Reconnaissance automatique par puce intégrée</li>
+          </ul>
+        </article>
+
+        <article class="category-card">
+          <div class="card-tag">TAMBOUR</div>
+          <h3>Unités d'imagerie (Drums)</h3>
+          <p>Tambours photosensibles d'origine assurant le transfert électrostatique parfait de l'image laser vers le papier.</p>
+          <ul class="cat-bullets">
+            <li>Durée de vie jusqu'à 120 000+ pages</li>
+            <li>Qualité optique sans rayures ni voile gris</li>
+          </ul>
+        </article>
+
+        <article class="category-card">
+          <div class="card-tag">TRANSFERT</div>
+          <h3>Unités &amp; Courroies de Transfert</h3>
+          <p>Courroies intermédiaires de transfert (ITB) et rouleaux de transfert pour synchroniser la superposition des 4 couleurs.</p>
+          <ul class="cat-bullets">
+            <li>Résistance thermique et mécanique accrue</li>
+            <li>Nettoyage automatique des résidus</li>
+          </ul>
+        </article>
+
+        <article class="category-card">
+          <div class="card-tag">FUSION</div>
+          <h3>Fours &amp; Unités de Fixation</h3>
+          <p>Blocs thermiques assurant la cuisson et la fixation durable du toner sur les fibres du papier.</p>
+          <ul class="cat-bullets">
+            <li>Montée en température ultra-rapide</li>
+            <li>Finie la bavure lors de l'archivage</li>
+          </ul>
+        </article>
+
+        <article class="category-card">
+          <div class="card-tag">DÉCHET</div>
+          <h3>Bacs de Récupération Toner</h3>
+          <p>Réservoirs hermétiques pour collecter la poudre non transférée et préserver la propreté interne du photocopieur.</p>
+          <ul class="cat-bullets">
+            <li>Remplacement propre sans dispersion de poussière</li>
+            <li>Capteur de trop-plein intégré</li>
+          </ul>
+        </article>
+
+        <article class="category-card">
+          <div class="card-tag">FINITION</div>
+          <h3>Agrafes &amp; Accessoires</h3>
+          <p>Cartouches d'agrafes pour modules de finition agrafeuse, plieuse et perforeuse en ligne.</p>
+          <ul class="cat-bullets">
+            <li>Agrafage propre jusqu'à 50-100 feuilles</li>
+            <li>Pas d'enrayement dans le finisseur</li>
+          </ul>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── 5. COMPATIBILITY MATRIX ── -->
+  <section class="section compat-section" aria-labelledby="compat-title">
+    <div class="content-wrapper">
+      <div class="compat-box">
+        <header class="section-heading centered">
+          <p class="eyebrow">Matrice de compatibilité</p>
+          <h2 id="compat-title">Disponibilité garantie sur les gammes phares</h2>
+          <p class="section-lead">Nous fournissons les consommables pour les matériels récents comme pour les parcs installés de longue date.</p>
+        </header>
+
+        <div class="compat-grid">
+          <div class="compat-column">
+            <h3>Konica Minolta bizhub</h3>
+            <ul class="models-list">
+              <li><strong>Série C I-Series :</strong> C250i, C300i, C360i, C450i, C550i, C650i</li>
+              <li><strong>Série C classique :</strong> C224e, C284e, C364e, C258, C308, C368</li>
+              <li><strong>Monochrome A3 :</strong> 226i, 266i, 300i, 360i, 450i, 550i</li>
+              <li><strong>Monochrome A4 :</strong> 3602P, 4000i, 4050i, 4700i, 4750i</li>
+              <li><strong>Production :</strong> AccurioPrint C4065, AccurioPress C3070 / C7090</li>
+            </ul>
+          </div>
+
+          <div class="compat-column">
+            <h3>Develop ineo</h3>
+            <ul class="models-list">
+              <li><strong>Série Couleur + :</strong> ineo+ 250i, 300i, 360i, 450i, 550i, 650i</li>
+              <li><strong>Série Monochrome :</strong> ineo 300i, 360i, 450i, 550i</li>
+              <li><strong>Gamme A4 compacte :</strong> ineo 3320, ineo 4020i, ineo+ 3350i</li>
+              <li><strong>Production légère :</strong> ineo+ 6100, ineo+ 7090</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── 6. PROCESSUS DE COMMANDE (4 ÉTAPES) ── -->
+  <section class="section process-section" aria-labelledby="proc-cons-title">
+    <div class="content-wrapper">
+      <div class="section-heading centered">
+        <p class="eyebrow">Comment commander</p>
+        <h2 id="proc-cons-title">Votre réapprovisionnement en quatre clics</h2>
+        <p class="section-lead">Une logistique fluide pour ne jamais vous retrouver à court d'encre.</p>
+      </div>
+
+      <div class="steps-flow">
+        <div class="step-card">
+          <div class="step-badge">01</div>
+          <h3>Indiquez vos références</h3>
+          <p>Renseignez votre modèle de machine ou la référence de la cartouche sur notre formulaire ou par message WhatsApp.</p>
+        </div>
+
+        <div class="step-card">
+          <div class="step-badge">02</div>
+          <h3>Devis &amp; Tarification dégressive</h3>
+          <p>Nous vous transmettons un devis avec remises sur quantité (lots multi-cartouches ou approvisionnement trimestriel).</p>
+        </div>
+
+        <div class="step-card">
+          <div class="step-badge">03</div>
+          <h3>Préparation &amp; Emballage protecteur</h3>
+          <p>Cartons scellés sous atmosphère contrôlée pour préserver la poudre de toute trace d'humidité pendant le transport.</p>
+        </div>
+
+        <div class="step-card">
+          <div class="step-badge">04</div>
+          <h3>Livraison sur votre site</h3>
+          <p>Réception directement dans vos locaux avec bordereau de livraison et facture officielle déductible.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── 7. FAQ ── -->
+  <section class="section faq-section" aria-labelledby="faq-title">
+    <div class="content-wrapper">
+      <div class="section-heading centered">
+        <p class="eyebrow">Foire aux questions</p>
+        <h2 id="faq-title">Vos questions sur les toners &amp; consommables</h2>
+        <p class="section-lead">Conseils de stockage, d'utilisation et de garantie.</p>
+      </div>
+
+      <div class="faq-list">
+        <details class="faq-item">
+          <summary>Comment reconnaître une cartouche de toner authentique Konica Minolta ?</summary>
+          <div class="faq-answer">
+            <p>Les consommables d'origine portent un hologramme officiel de sécurité sur l'emballage carton, un scellé intact et un code barre de traçabilité constructeur. WWTRADING ne commercialise aucun consommable reconditionné ou contrefait sans l'annoncer clairement.</p>
+          </div>
+        </details>
+
+        <details class="faq-item">
+          <summary>Combien de temps peut-on stocker une cartouche de toner d'avance ?</summary>
+          <div class="faq-answer">
+            <p>Dans son emballage scellé d'origine, à température ambiante normale (entre 15°C et 25°C) et à l'abri de l'humidité directe, un toner polymérisé se conserve parfaitement pendant 24 à 36 mois sans dégradation de ses propriétés électrostatiques.</p>
+          </div>
+        </details>
+
+        <details class="faq-item">
+          <summary>Proposez-vous des tarifs dégressifs pour les commandes en volume ?</summary>
+          <div class="faq-answer">
+            <p>Oui. Pour les parcs de plusieurs machines ou pour les entreprises commandant des packs complets 4 couleurs (Cyan, Magenta, Yellow, Black) ou des cartons par lots, nous appliquons une grille tarifaire préférentielle dès la première commande groupée.</p>
+          </div>
+        </details>
+
+        <details class="faq-item">
+          <summary>Que faire lorsque le message « Remplacer le bac récupérateur de toner » s'affiche ?</summary>
+          <div class="faq-answer">
+            <p>Le bac de récupération est plein. Il est impératif de ne pas secouer le bac pour éviter que de la poudre fine n'encrasse les circuits électroniques. Nous vous expédions un bac neuf de remplacement sous 24h.</p>
+          </div>
+        </details>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── 8. BANNIÈRE CTA CONVERSION ── -->
+  <section class="section cta-section" aria-labelledby="cta-title">
+    <div class="content-wrapper">
+      <div class="cta-banner">
+        <div class="cta-copy">
+          <p class="eyebrow-light">Besoin urgent de cartouches ?</p>
+          <h2 id="cta-title">Commandez vos consommables en toute simplicité</h2>
+          <p>
+            Évitez la panne sèche. Demandez votre devis immédiat ou commandez par WhatsApp pour une expédition express dans votre ville.
+          </p>
+        </div>
+        <div class="cta-buttons">
+          <a class="btn btn-cta-primary" routerLink="/devis">
+            <span>Demander un devis consommables</span>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <line x1="5" y1="12" x2="19" y2="12"></line>
+              <polyline points="12 5 19 12 12 19"></polyline>
+            </svg>
+          </a>
+          <a class="btn btn-cta-secondary" [href]="whatsappUrl" target="_blank" rel="noopener noreferrer">
+            <span>Commander par WhatsApp</span>
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>

@@ -1,0 +1,857 @@
+<main class="home">
+  <!-- ══════════════════════════════════════════════════════════ -->
+  <!-- 01. EXECUTIVE INDUSTRIAL HERO                              -->
+  <!-- ══════════════════════════════════════════════════════════ -->
+  <section
+    class="hero"
+    aria-labelledby="hero-title"
+    (mousemove)="onHeroMouseMove($event)"
+    (mouseleave)="onHeroMouseLeave()"
+  >
+    <div class="hero-bg-ambient" aria-hidden="true"></div>
+    <div class="hero-grid-pattern" aria-hidden="true"></div>
+
+    <div class="hero-container">
+      <div class="hero-copy">
+        <div class="hero-badge hero-fade-in hero-delay-1">
+          <span class="badge-dot" aria-hidden="true"></span>
+          <span>Expertise Konica Minolta &amp; Develop au Maroc</span>
+        </div>
+
+        <h1 id="hero-title" class="hero-title hero-fade-in hero-delay-2">
+          Solutions d'impression professionnelles
+          <em>&amp; presses numériques</em>
+        </h1>
+
+        <p class="hero-lead hero-fade-in hero-delay-3">
+          Vente, location longue durée et maintenance spécialisée pour entreprises,
+          ateliers graphiques et centres de reprographie. Matériel haute précision,
+          toners d'origine et assistance technique réactive sur tout le Maroc.
+        </p>
+
+        <div class="hero-actions hero-fade-in hero-delay-4">
+          <a class="btn btn-primary" routerLink="/products">
+            <span>Explorer le catalogue</span>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <line x1="7" y1="17" x2="17" y2="7"></line>
+              <polyline points="7 7 17 7 17 17"></polyline>
+            </svg>
+          </a>
+
+          <a class="btn btn-outline" routerLink="/devis">
+            <span>Demander un devis</span>
+          </a>
+
+          <a
+            class="btn btn-whatsapp"
+            [href]="whatsappUrl"
+            target="_blank"
+            rel="noopener noreferrer"
+            title="Échanger directement sur WhatsApp avec nos conseillers"
+          >
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+              <path d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.582 2.128 2.182-.573c.978.58 1.911.928 3.145.929 3.178 0 5.767-2.587 5.768-5.766.001-3.187-2.575-5.77-5.764-5.771zm3.392 8.244c-.144.405-.837.774-1.17.824-.312.045-.634.044-1.01-.069-.242-.073-.557-.19-1.023-.393-1.927-.837-3.179-2.775-3.275-2.903-.097-.128-.779-1.036-.779-1.975 0-.939.492-1.401.667-1.594.175-.193.382-.242.509-.242.128 0 .256.002.368.007.119.006.278-.045.435.334.162.39.553 1.349.601 1.448.049.098.082.213.016.342-.065.13-.098.212-.195.326-.098.115-.205.257-.294.346-.101.102-.206.213-.09.412.116.199.516.852 1.109 1.381.764.682 1.409.893 1.609.993.2.099.317.087.435-.049.118-.135.508-.59.643-.794.136-.204.271-.17.457-.101.186.069 1.183.558 1.387.66.204.102.339.153.39.237.05.085.05.49-.094.895z"/>
+            </svg>
+            <span>WhatsApp direct</span>
+          </a>
+        </div>
+
+        <nav class="hero-cat-bar hero-fade-in hero-delay-4" aria-label="Accès direct aux gammes clés">
+          <span class="cat-bar-label">Sélections prioritaires :</span>
+          <div class="cat-bar-pills">
+            <a class="hero-pill" routerLink="/products" [queryParams]="{ type: 'PRINTER', machineCategory: 'DIGITAL_PRESS' }">
+              <span class="pill-dot" aria-hidden="true"></span>
+              Presses numériques
+            </a>
+            <a class="hero-pill" routerLink="/products" [queryParams]="{ type: 'PRINTER', machineCategory: 'GRAND_FORMAT_ECOSOLVENT' }">
+              <span class="pill-dot" aria-hidden="true"></span>
+              Grand format écosolvant
+            </a>
+            <a class="hero-pill" routerLink="/products" [queryParams]="{ type: 'PRINTER', machineCategory: 'FINISHING_MACHINE' }">
+              <span class="pill-dot" aria-hidden="true"></span>
+              Finition &amp; façonnage
+            </a>
+            <a class="hero-pill" routerLink="/products" [queryParams]="{ type: 'TONER' }">
+              <span class="pill-dot" aria-hidden="true"></span>
+              Toners d'origine
+            </a>
+          </div>
+        </nav>
+      </div>
+
+      <!-- SHOWCASE STAGE (REAL PRODUCT OR HERO VISUAL) -->
+      <div class="hero-stage-wrapper hero-fade-in hero-delay-3" [style.transform]="parallaxTransform()">
+        <div class="stage-frame">
+          <div class="stage-ambient-light" aria-hidden="true"></div>
+
+          @if (activeHeroProduct(); as item) {
+            <a class="stage-product-card" [routerLink]="['/products', item.product.id]">
+              <div class="stage-tag-group">
+                <span class="stage-badge-status">
+                  <span class="status-pulse" aria-hidden="true"></span>
+                  Équipement certifié
+                </span>
+                <span class="stage-badge-brand">{{ item.product.brand || 'Konica Minolta / Develop' }}</span>
+              </div>
+
+              <div class="stage-image-scene">
+                @if (item.imageUrl) {
+                  <img
+                    class="stage-machine-photo"
+                    [src]="item.imageUrl"
+                    [alt]="productName(item.product)"
+                    loading="eager"
+                    fetchpriority="high"
+                    decoding="async"
+                  />
+                } @else {
+                  <div class="stage-placeholder" aria-hidden="true">
+                    <div class="stage-placeholder__icon">
+                      <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                        <polyline points="6 9 6 2 18 2 18 9"></polyline>
+                        <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path>
+                        <rect x="6" y="14" width="12" height="8"></rect>
+                      </svg>
+                    </div>
+                    <span>Système d'impression professionnel</span>
+                  </div>
+                }
+
+                <div class="stage-pedestal" aria-hidden="true">
+                  <span class="pedestal-core"></span>
+                  <span class="pedestal-reflection"></span>
+                </div>
+              </div>
+
+              <div class="stage-meta-panel">
+                <div class="stage-meta-text">
+                  <span class="stage-meta-category">{{ productTypeLabel[item.product.type] }}</span>
+                  <strong class="stage-meta-name">{{ productName(item.product) }}</strong>
+                </div>
+
+                <div class="stage-meta-action">
+                  <span class="btn-micro">
+                    Fiche détaillée <b aria-hidden="true">→</b>
+                  </span>
+                </div>
+              </div>
+            </a>
+          } @else {
+            <div class="stage-brand-fallback">
+              <div class="fallback-content">
+                <img src="/assets/wwtrading-logo.png" alt="WWTRADING" class="fallback-logo" />
+                <div class="fallback-badge">Équipements &amp; Systèmes Professionnels</div>
+                <p>Distributeur &amp; Partenaire Technique Konica Minolta &amp; Develop</p>
+                <a class="btn btn-outline btn-sm" routerLink="/products">Consulter l'inventaire</a>
+              </div>
+              <div class="stage-pedestal" aria-hidden="true">
+                <span class="pedestal-core"></span>
+              </div>
+            </div>
+          }
+
+          @if (hasMultipleProducts()) {
+            <div class="stage-switcher" aria-label="Machines en vitrine">
+              @for (item of featuredProducts(); track item.product.id; let idx = $index) {
+                <button
+                  type="button"
+                  class="switcher-tab"
+                  [class.active]="activeProductIndex() === idx"
+                  [attr.aria-pressed]="activeProductIndex() === idx"
+                  (click)="selectHeroProduct(idx)"
+                >
+                  <span class="tab-index">0{{ idx + 1 }}</span>
+                  <span class="tab-name">{{ item.product.model || item.product.brand || 'Machine' }}</span>
+                </button>
+              }
+            </div>
+          }
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══════════════════════════════════════════════════════════ -->
+  <!-- 02. REASSURANCE TRUST BAR                                  -->
+  <!-- ══════════════════════════════════════════════════════════ -->
+  <section class="trust-bar" aria-label="Engagements et garanties WWTRADING">
+    <div class="trust-container" data-reveal>
+      <div class="trust-card">
+        <div class="trust-icon" aria-hidden="true">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+          </svg>
+        </div>
+        <div class="trust-content">
+          <h3>Konica Minolta &amp; Develop</h3>
+          <p>Distribution spécialisée, matériel certifié et configuration sur mesure.</p>
+        </div>
+      </div>
+
+      <div class="trust-card">
+        <div class="trust-icon" aria-hidden="true">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect>
+            <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path>
+          </svg>
+        </div>
+        <div class="trust-content">
+          <h3>Vente &amp; Location Longue Durée</h3>
+          <p>Contrats souples adaptés à votre volume d'impression et mensualités maîtrisées.</p>
+        </div>
+      </div>
+
+      <div class="trust-card">
+        <div class="trust-icon" aria-hidden="true">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="10"></circle>
+            <polyline points="12 6 12 12 16 14"></polyline>
+          </svg>
+        </div>
+        <div class="trust-content">
+          <h3>Intervention Technique H+8</h3>
+          <p>Assistance rapide, maintenance préventive et curative par techniciens dédiés.</p>
+        </div>
+      </div>
+
+      <div class="trust-card">
+        <div class="trust-icon" aria-hidden="true">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path>
+            <polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline>
+            <line x1="12" y1="22.08" x2="12" y2="12"></line>
+          </svg>
+        </div>
+        <div class="trust-content">
+          <h3>Toners &amp; Pièces en Stock</h3>
+          <p>Consommables d'origine et pièces d'usure disponibles immédiatement.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══════════════════════════════════════════════════════════ -->
+  <!-- 03. SERVICES B2B ET ACCOMPAGNEMENT                         -->
+  <!-- ══════════════════════════════════════════════════════════ -->
+  <section id="services" class="section services-section" aria-labelledby="services-title">
+    <div class="section-container">
+      <header class="section-header" data-reveal>
+        <div class="header-main">
+          <p class="section-kicker">01 — Services &amp; Accompagnement B2B</p>
+          <h2 id="services-title">
+            Un partenaire unique pour l'ensemble
+            <em>de votre infrastructure d'impression.</em>
+          </h2>
+        </div>
+        <p class="header-intro">
+          De l'audit de votre consommation à la mise en place d'un contrat de maintenance ou de location tout compris, WWTRADING vous assure une disponibilité opérationnelle totale.
+        </p>
+      </header>
+
+      <div class="services-grid" data-reveal-services>
+        <!-- 01 Vente -->
+        <a class="service-item" routerLink="/services/vente-machines">
+          <div class="item-header">
+            <span class="item-index">01</span>
+            <div class="item-icon-box" aria-hidden="true">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect>
+                <line x1="8" y1="21" x2="16" y2="21"></line>
+                <line x1="12" y1="17" x2="12" y2="21"></line>
+              </svg>
+            </div>
+          </div>
+          <h3>Vente d'Équipements</h3>
+          <p>Presses numériques, multifonctions de bureau A3/A4 et traceurs industriels neufs et reconditionnés avec garantie.</p>
+          <div class="item-footer">
+            <span class="item-link-text">En savoir plus</span>
+            <span class="item-arrow" aria-hidden="true">↗</span>
+          </div>
+        </a>
+
+        <!-- 02 Location -->
+        <a class="service-item" routerLink="/services/location">
+          <div class="item-header">
+            <span class="item-index">02</span>
+            <div class="item-icon-box" aria-hidden="true">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                <polyline points="14 2 14 8 20 8"></polyline>
+                <line x1="16" y1="13" x2="8" y2="13"></line>
+                <line x1="16" y1="17" x2="8" y2="17"></line>
+                <polyline points="10 9 9 9 8 9"></polyline>
+              </svg>
+            </div>
+          </div>
+          <h3>Location Longue Durée</h3>
+          <p>Formules tout compris intégrant machine, maintenance, pièces et consommables pour une gestion budgétaire prévisible.</p>
+          <div class="item-footer">
+            <span class="item-link-text">En savoir plus</span>
+            <span class="item-arrow" aria-hidden="true">↗</span>
+          </div>
+        </a>
+
+        <!-- 03 Maintenance -->
+        <a class="service-item" routerLink="/services/maintenance">
+          <div class="item-header">
+            <span class="item-index">03</span>
+            <div class="item-icon-box" aria-hidden="true">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"></path>
+              </svg>
+            </div>
+          </div>
+          <h3>Maintenance Préventive &amp; Curative</h3>
+          <p>Contrats de maintenance sur mesure, révisions régulières et remise en état pour prolonger la durée de vie de vos parcs.</p>
+          <div class="item-footer">
+            <span class="item-link-text">En savoir plus</span>
+            <span class="item-arrow" aria-hidden="true">↗</span>
+          </div>
+        </a>
+
+        <!-- 04 Toners -->
+        <a class="service-item" routerLink="/services/toners-consommables">
+          <div class="item-header">
+            <span class="item-index">04</span>
+            <div class="item-icon-box" aria-hidden="true">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z"></path>
+              </svg>
+            </div>
+          </div>
+          <h3>Toners Haute Autonomie</h3>
+          <p>Cartouches certifiées Konica Minolta &amp; Develop assurant une précision colorimétrique irréprochable et un coût à la page optimisé.</p>
+          <div class="item-footer">
+            <span class="item-link-text">En savoir plus</span>
+            <span class="item-arrow" aria-hidden="true">↗</span>
+          </div>
+        </a>
+
+        <!-- 05 Consommables -->
+        <a class="service-item" routerLink="/services/toners-consommables">
+          <div class="item-header">
+            <span class="item-index">05</span>
+            <div class="item-icon-box" aria-hidden="true">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="3"></circle>
+                <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+              </svg>
+            </div>
+          </div>
+          <h3>Consommables &amp; Tambours</h3>
+          <p>Unités d'imagerie, unités de transfert, fours de fixation et bacs de récupération pour maintenir vos machines en parfait état.</p>
+          <div class="item-footer">
+            <span class="item-link-text">En savoir plus</span>
+            <span class="item-arrow" aria-hidden="true">↗</span>
+          </div>
+        </a>
+
+        <!-- 06 Pièces -->
+        <a class="service-item" routerLink="/services/pieces-rechange">
+          <div class="item-header">
+            <span class="item-index">06</span>
+            <div class="item-icon-box" aria-hidden="true">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="10"></circle>
+                <path d="M12 8v8"></path>
+                <path d="M8 12h8"></path>
+              </svg>
+            </div>
+          </div>
+          <h3>Pièces de Rechange d'Origine</h3>
+          <p>Composants électroniques, rouleaux d'entraînement et modules d'alimentation d'origine constructeur en stock permanent.</p>
+          <div class="item-footer">
+            <span class="item-link-text">En savoir plus</span>
+            <span class="item-arrow" aria-hidden="true">↗</span>
+          </div>
+        </a>
+
+        <!-- 07 Support Technique -->
+        <a class="service-item" routerLink="/services/support-technique">
+          <div class="item-header">
+            <span class="item-index">07</span>
+            <div class="item-icon-box" aria-hidden="true">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path>
+              </svg>
+            </div>
+          </div>
+          <h3>Support Technique &amp; SAV</h3>
+          <p>Hotline technique, téléassistance réseau, diagnostic à distance et planification d'interventions prioritaires sous 8 heures.</p>
+          <div class="item-footer">
+            <span class="item-link-text">En savoir plus</span>
+            <span class="item-arrow" aria-hidden="true">↗</span>
+          </div>
+        </a>
+
+        <!-- 08 Devis Sur-Mesure (Accent Card) -->
+        <a class="service-item service-item--accent" routerLink="/devis">
+          <div class="item-header">
+            <span class="item-index">08</span>
+            <div class="item-icon-box item-icon-box--magenta" aria-hidden="true">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M20 12V8H6a2 2 0 0 1-2-2c0-1.1.9-2 2-2h12v4"></path>
+                <path d="M4 6v12c0 1.1.9 2 2 2h14v-4"></path>
+                <path d="M18 12a2 2 0 0 0-2 2c0 1.1.9 2 2 2h4v-4h-4z"></path>
+              </svg>
+            </div>
+          </div>
+          <h3>Devis Personnalisé Gratuit</h3>
+          <p>Étude comparative selon vos volumes mensuels : proposition détaillée en acquisition ou location sous 24 heures.</p>
+          <div class="item-footer">
+            <span class="item-link-text">Configurer mon devis</span>
+            <span class="item-arrow" aria-hidden="true">↗</span>
+          </div>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══════════════════════════════════════════════════════════ -->
+  <!-- 04. BENTO CATALOGUE PROFESSIONNEL                          -->
+  <!-- ══════════════════════════════════════════════════════════ -->
+  <section class="section catalogue-section" aria-labelledby="catalogue-title">
+    <div class="section-container">
+      <header class="section-header section-header--dark" data-reveal>
+        <div class="header-main">
+          <p class="section-kicker">02 — Panorama des Équipements</p>
+          <h2 id="catalogue-title">
+            Les catégories essentielles pour
+            <em>votre parc d'impression.</em>
+          </h2>
+        </div>
+        <div class="header-cta">
+          <a class="btn btn-outline-light" routerLink="/products">
+            <span>Explorer tout le catalogue</span>
+            <span aria-hidden="true">→</span>
+          </a>
+        </div>
+      </header>
+
+      <div class="bento-grid" data-reveal>
+        <!-- BENTO 01 : GRAND FORMAT ÉCOSOLVANT (FEATURED HERO CARD) -->
+        <a
+          class="bento-card bento-card--hero"
+          routerLink="/products"
+          [queryParams]="{ type: 'PRINTER', machineCategory: 'GRAND_FORMAT_ECOSOLVENT' }"
+        >
+          <div class="bento-glow" aria-hidden="true"></div>
+          <div class="bento-card-top">
+            <span class="bento-num">01</span>
+            <span class="bento-pill">Production Industrielle</span>
+          </div>
+          <div class="bento-card-body">
+            <small class="bento-sub">Grand format &amp; signalétique</small>
+            <h3>Traceurs &amp; Machines Écosolvant</h3>
+            <p>Systèmes d'impression grand format pour affichage extérieur, bâches, vinyles et enseignes professionnelles à haute résistance.</p>
+          </div>
+          <div class="bento-card-footer">
+            <span>Voir les machines grand format</span>
+            <span class="arrow-circle" aria-hidden="true">↗</span>
+          </div>
+        </a>
+
+        <!-- BENTO 02 : PRESSES NUMÉRIQUES -->
+        <a
+          class="bento-card bento-card--wide"
+          routerLink="/products"
+          [queryParams]="{ type: 'PRINTER', machineCategory: 'DIGITAL_PRESS' }"
+        >
+          <div class="bento-card-top">
+            <span class="bento-num">02</span>
+            <span class="bento-pill">Haute cadence</span>
+          </div>
+          <div class="bento-card-body">
+            <small class="bento-sub">Arts graphiques &amp; reprographie</small>
+            <h3>Presses Numériques de Production</h3>
+            <p>Précision colorimétrique extrême, calibration automatique et cadences industrielles pour tirages intensifs.</p>
+          </div>
+          <div class="bento-card-footer">
+            <span>Voir les presses numériques</span>
+            <span class="arrow-circle" aria-hidden="true">↗</span>
+          </div>
+        </a>
+
+        <!-- BENTO 03 : MULTIFONCTIONS & IMPRIMANTES -->
+        <a
+          class="bento-card"
+          routerLink="/products"
+          [queryParams]="{ type: 'PRINTER' }"
+        >
+          <div class="bento-card-top">
+            <span class="bento-num">03</span>
+            <span class="bento-pill">Bureautique A3/A4</span>
+          </div>
+          <div class="bento-card-body">
+            <small class="bento-sub">Entreprises &amp; Administrations</small>
+            <h3>Imprimantes &amp; Systèmes Multifonctions</h3>
+            <p>Copieurs réseau fiables, numérisation haute vitesse et sécurisation des flux documentaires.</p>
+          </div>
+          <div class="bento-card-footer">
+            <span>Explorer la gamme</span>
+            <span class="arrow-circle" aria-hidden="true">↗</span>
+          </div>
+        </a>
+
+        <!-- BENTO 04 : MACHINES DE FINITION -->
+        <a
+          class="bento-card"
+          routerLink="/products"
+          [queryParams]="{ type: 'PRINTER', machineCategory: 'FINISHING_MACHINE' }"
+        >
+          <div class="bento-card-top">
+            <span class="bento-num">04</span>
+            <span class="bento-pill">Façonnage</span>
+          </div>
+          <div class="bento-card-body">
+            <small class="bento-sub">Finition documentaire</small>
+            <h3>Modules de Finition &amp; Façonnage</h3>
+            <p>Massicots, plieuses, modules de piqûre à cheval et reliure thermique pour un rendu irréprochable.</p>
+          </div>
+          <div class="bento-card-footer">
+            <span>Explorer la gamme</span>
+            <span class="arrow-circle" aria-hidden="true">↗</span>
+          </div>
+        </a>
+
+        <!-- BENTO 05 : TONERS D'ORIGINE -->
+        <a
+          class="bento-card"
+          routerLink="/products"
+          [queryParams]="{ type: 'TONER' }"
+        >
+          <div class="bento-card-top">
+            <span class="bento-num">05</span>
+            <span class="bento-pill">Origine constructeur</span>
+          </div>
+          <div class="bento-card-body">
+            <small class="bento-sub">Cartouches &amp; Encre</small>
+            <h3>Toners Certifiés</h3>
+            <p>Toners noir et couleur Konica Minolta &amp; Develop avec garantie de rendement volumique.</p>
+          </div>
+          <div class="bento-card-footer">
+            <span>Explorer la gamme</span>
+            <span class="arrow-circle" aria-hidden="true">↗</span>
+          </div>
+        </a>
+
+        <!-- BENTO 06 : CONSOMMABLES -->
+        <a
+          class="bento-card"
+          routerLink="/products"
+          [queryParams]="{ type: 'CONSUMABLE' }"
+        >
+          <div class="bento-card-top">
+            <span class="bento-num">06</span>
+            <span class="bento-pill">Continuité de parc</span>
+          </div>
+          <div class="bento-card-body">
+            <small class="bento-sub">Unités d'imagerie</small>
+            <h3>Consommables Essentiels</h3>
+            <p>Bacs récupérateurs, unités tambour et kits de transfert pour maintenir la netteté des impressions.</p>
+          </div>
+          <div class="bento-card-footer">
+            <span>Explorer la gamme</span>
+            <span class="arrow-circle" aria-hidden="true">↗</span>
+          </div>
+        </a>
+
+        <!-- BENTO 07 : PIÈCES DE RECHANGE -->
+        <a
+          class="bento-card"
+          routerLink="/products"
+          [queryParams]="{ type: 'SPARE_PART' }"
+        >
+          <div class="bento-card-top">
+            <span class="bento-num">07</span>
+            <span class="bento-pill">Maintenance rapide</span>
+          </div>
+          <div class="bento-card-body">
+            <small class="bento-sub">Pièces d'usure</small>
+            <h3>Pièces Détachées Certifiées</h3>
+            <p>Rouleaux d'alimentation, thermofusibles et cartes électroniques d'origine constructeur.</p>
+          </div>
+          <div class="bento-card-footer">
+            <span>Explorer la gamme</span>
+            <span class="arrow-circle" aria-hidden="true">↗</span>
+          </div>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══════════════════════════════════════════════════════════ -->
+  <!-- 05. SÉLECTION CATALOGUE EN DIRECT                          -->
+  <!-- ══════════════════════════════════════════════════════════ -->
+  @if (hasProducts()) {
+    <section class="section showcase-section" aria-labelledby="showcase-title">
+      <div class="section-container">
+        <header class="section-header" data-reveal>
+          <div class="header-main">
+            <p class="section-kicker">03 — Équipements en Vedette</p>
+            <h2 id="showcase-title">
+              Sélection directe issue
+              <em>de notre catalogue professionnel.</em>
+            </h2>
+          </div>
+          <p class="header-intro">
+            Retrouvez les fiches techniques complètes, caractéristiques détaillées et options d'acquisition pour chaque machine disponible.
+          </p>
+        </header>
+
+        <!-- DYNAMIC LAYOUT: SINGLE PRODUCT SPOTLIGHT VS MULTI-PRODUCT GRID -->
+        @if (isSingleProduct()) {
+          <!-- SPOTLIGHT DISPLAY FOR SINGLE PRODUCT (PREVENTS EMPTY GRID VOIDS) -->
+          @for (item of featuredProducts(); track item.product.id) {
+            <div class="product-spotlight" data-reveal>
+              <div class="spotlight-visual">
+                @if (item.imageUrl) {
+                  <img
+                    class="spotlight-image"
+                    [src]="item.imageUrl"
+                    [alt]="productName(item.product)"
+                    loading="lazy"
+                    decoding="async"
+                  />
+                } @else {
+                  <div class="spotlight-placeholder" aria-hidden="true">
+                    <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                      <polyline points="6 9 6 2 18 2 18 9"></polyline>
+                      <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path>
+                      <rect x="6" y="14" width="12" height="8"></rect>
+                    </svg>
+                    <span>Équipement certifié WWTRADING</span>
+                  </div>
+                }
+                <div class="spotlight-pedestal" aria-hidden="true"></div>
+              </div>
+
+              <div class="spotlight-details">
+                <div class="spotlight-badge-row">
+                  <span class="spotlight-tag-category">{{ productTypeLabel[item.product.type] }}</span>
+                  <span class="spotlight-tag-brand">{{ item.product.brand || 'Konica Minolta / Develop' }}</span>
+                </div>
+
+                <h3 class="spotlight-title">{{ productName(item.product) }}</h3>
+
+                <p class="spotlight-description">
+                  {{ item.product.description || 'Solution d’impression industrielle haute performance, adaptée aux exigences de cadence et de qualité des environnements professionnels.' }}
+                </p>
+
+                <div class="spotlight-specs">
+                  <div class="spec-cell">
+                    <span class="spec-label">Disponibilité</span>
+                    <strong class="spec-value spec-value--in-stock">En stock / Prêt à livrer</strong>
+                  </div>
+                  <div class="spec-cell">
+                    <span class="spec-label">Modalités</span>
+                    <strong class="spec-value">Achat direct ou Location LLD</strong>
+                  </div>
+                  <div class="spec-cell">
+                    <span class="spec-label">Maintenance</span>
+                    <strong class="spec-value">Contrat H+8 disponible</strong>
+                  </div>
+                </div>
+
+                <div class="spotlight-actions">
+                  <a class="btn btn-primary" [routerLink]="['/products', item.product.id]">
+                    <span>Consulter la fiche technique</span>
+                    <span aria-hidden="true">↗</span>
+                  </a>
+                  <a class="btn btn-outline-dark" routerLink="/devis">
+                    <span>Demander une offre</span>
+                  </a>
+                  <a class="btn btn-ghost-dark" routerLink="/products">
+                    <span>Parcourir tout le catalogue →</span>
+                  </a>
+                </div>
+              </div>
+            </div>
+          }
+        } @else {
+          <!-- BALANCED AUTO-FIT GRID FOR MULTIPLE PRODUCTS -->
+          <div class="showcase-grid" data-reveal>
+            @for (item of featuredProducts(); track item.product.id; let idx = $index) {
+              <a class="product-card" [routerLink]="['/products', item.product.id]">
+                <div class="card-visual">
+                  @if (item.imageUrl) {
+                    <img
+                      class="card-image"
+                      [src]="item.imageUrl"
+                      [alt]="productName(item.product)"
+                      loading="lazy"
+                      decoding="async"
+                    />
+                  } @else {
+                    <div class="card-placeholder" aria-hidden="true">
+                      <span>WWTRADING</span>
+                    </div>
+                  }
+                </div>
+
+                <div class="card-info">
+                  <span class="card-type">{{ productTypeLabel[item.product.type] }}</span>
+                  <h3 class="card-title">{{ productName(item.product) }}</h3>
+                  <div class="card-footer">
+                    <span class="card-link-text">Fiche produit</span>
+                    <span class="card-arrow" aria-hidden="true">→</span>
+                  </div>
+                </div>
+              </a>
+            }
+          </div>
+        }
+      </div>
+    </section>
+  }
+
+  <!-- ══════════════════════════════════════════════════════════ -->
+  <!-- 06. MÉTHODOLOGIE & CONTINUITÉ DE SERVICE                   -->
+  <!-- ══════════════════════════════════════════════════════════ -->
+  <section class="section lifecycle-section" aria-labelledby="lifecycle-title">
+    <div class="section-container">
+      <header class="section-header" data-reveal>
+        <div class="header-main">
+          <p class="section-kicker">04 — Méthodologie B2B</p>
+          <h2 id="lifecycle-title">
+            Un accompagnement structuré,
+            <em>du cadrage à l'exploitation continue.</em>
+          </h2>
+        </div>
+        <p class="header-intro">
+          Chaque projet fait l'objet d'une analyse précise pour dimensionner les machines selon vos volumes réels et éliminer les coûts cachés.
+        </p>
+      </header>
+
+      <div class="lifecycle-grid" data-reveal>
+        <div class="lifecycle-step">
+          <div class="step-badge">
+            <span class="step-num">01</span>
+          </div>
+          <h3>Audit &amp; Dimensionnement</h3>
+          <p>Évaluation des volumes mensuels, des formats requis (A4, A3, Grand Format) et calcul du coût de possession global.</p>
+        </div>
+
+        <div class="lifecycle-step">
+          <div class="step-badge">
+            <span class="step-num">02</span>
+          </div>
+          <h3>Offre &amp; Financement</h3>
+          <p>Sélection de la solution la plus rentable : achat direct avec garantie ou location financière avec mensualités tout compris.</p>
+        </div>
+
+        <div class="lifecycle-step">
+          <div class="step-badge">
+            <span class="step-num">03</span>
+          </div>
+          <h3>Livraison &amp; Intégration Réseau</h3>
+          <p>Installation sur site par nos techniciens, configuration réseau, paramétrage des pilotes et prise en main par vos équipes.</p>
+        </div>
+
+        <div class="lifecycle-step">
+          <div class="step-badge">
+            <span class="step-num">04</span>
+          </div>
+          <h3>Maintenance &amp; Consommables</h3>
+          <p>Approvisionnement proactif en toners, visites préventives planifiées et engagement d'intervention rapide sous 8 heures.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══════════════════════════════════════════════════════════ -->
+  <!-- 07. ANCRAGE DE MARQUE & EXPERTISE TECHNIQUE                -->
+  <!-- ══════════════════════════════════════════════════════════ -->
+  <section class="section authority-section" aria-labelledby="authority-title">
+    <div class="authority-container" data-reveal>
+      <div class="authority-graphic" aria-hidden="true">
+        <div class="authority-ring authority-ring--outer"></div>
+        <div class="authority-ring authority-ring--inner"></div>
+        <div class="authority-watermark">WW</div>
+      </div>
+
+      <div class="authority-content">
+        <p class="authority-kicker">Spécialisation &amp; Positionnement</p>
+        <h2 id="authority-title">
+          Partenaire de Référence
+          <em>Konica Minolta &amp; Develop</em>
+        </h2>
+        <p class="authority-lead">
+          WWTRADING met à votre disposition une expertise approfondie sur les gammes multifonctions bizhub, les presses de production ineo et les consommables d'origine au Maroc.
+        </p>
+
+        <div class="authority-points">
+          <div class="authority-point">
+            <span class="point-bullet" aria-hidden="true">✓</span>
+            <div>
+              <strong>Stock local permanent</strong>
+              <p>Toners, tambours et pièces d'usure disponibles dans nos dépôts pour éviter tout arrêt machine.</p>
+            </div>
+          </div>
+          <div class="authority-point">
+            <span class="point-bullet" aria-hidden="true">✓</span>
+            <div>
+              <strong>Techniciens formés constructeur</strong>
+              <p>Maîtrise des protocoles de diagnostic, des mises à jour logicielles et de la colorimétrie.</p>
+            </div>
+          </div>
+          <div class="authority-point">
+            <span class="point-bullet" aria-hidden="true">✓</span>
+            <div>
+              <strong>Couverture nationale</strong>
+              <p>Base opérationnelle à Kénitra avec interventions régulières sur Rabat, Casablanca, Tanger et l'ensemble du territoire.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══════════════════════════════════════════════════════════ -->
+  <!-- 08. SECTION DE CONVERSION FINALE                           -->
+  <!-- ══════════════════════════════════════════════════════════ -->
+  <section class="section conversion-section" aria-labelledby="conversion-title">
+    <div class="conversion-container" data-reveal>
+      <div class="conversion-box conversion-box--quote">
+        <div class="conversion-badge">Formulaire en ligne</div>
+        <h2 id="conversion-title">Un projet d'impression ou de renouvellement ?</h2>
+        <p>Recevez une recommandation personnalisée selon la taille de votre structure, vos volumes et vos impératifs techniques.</p>
+        <div class="conversion-actions">
+          <a class="btn btn-primary btn-lg" routerLink="/devis">
+            <span>Demander un devis détaillé</span>
+            <span aria-hidden="true">↗</span>
+          </a>
+          <a class="btn btn-outline btn-lg" routerLink="/products">
+            <span>Consulter les machines</span>
+          </a>
+        </div>
+      </div>
+
+      <div class="conversion-box conversion-box--direct">
+        <div class="conversion-badge conversion-badge--accent">Échange direct</div>
+        <h3>Besoin d'un conseil immédiat ou d'un dépannage ?</h3>
+        <p>Nos conseillers et techniciens répondent directement à vos questions par téléphone ou WhatsApp.</p>
+        <div class="direct-contact-group">
+          <a
+            class="btn btn-whatsapp btn-lg"
+            [href]="whatsappUrl"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+              <path d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.582 2.128 2.182-.573c.978.58 1.911.928 3.145.929 3.178 0 5.767-2.587 5.768-5.766.001-3.187-2.575-5.77-5.764-5.771zm3.392 8.244c-.144.405-.837.774-1.17.824-.312.045-.634.044-1.01-.069-.242-.073-.557-.19-1.023-.393-1.927-.837-3.179-2.775-3.275-2.903-.097-.128-.779-1.036-.779-1.975 0-.939.492-1.401.667-1.594.175-.193.382-.242.509-.242.128 0 .256.002.368.007.119.006.278-.045.435.334.162.39.553 1.349.601 1.448.049.098.082.213.016.342-.065.13-.098.212-.195.326-.098.115-.205.257-.294.346-.101.102-.206.213-.09.412.116.199.516.852 1.109 1.381.764.682 1.409.893 1.609.993.2.099.317.087.435-.049.118-.135.508-.59.643-.794.136-.204.271-.17.457-.101.186.069 1.183.558 1.387.66.204.102.339.153.39.237.05.085.05.49-.094.895z"/>
+            </svg>
+            <span>Message WhatsApp</span>
+          </a>
+
+          <a class="btn btn-phone btn-lg" [href]="phoneCallUrl">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+              <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path>
+            </svg>
+            <span>+212 7 76 88 68 36</span>
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>

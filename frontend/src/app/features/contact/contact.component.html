@@ -1,0 +1,402 @@
+<div class="contact-page">
+  <!-- Top decorative background glow -->
+  <div class="glow-orb" aria-hidden="true"></div>
+
+  <div class="container">
+    <!-- Breadcrumb -->
+    <nav class="breadcrumb" aria-label="Fil d’Ariane">
+      <a routerLink="/">Accueil</a>
+      <span class="separator" aria-hidden="true">/</span>
+      <span aria-current="page">Contact</span>
+    </nav>
+
+    <!-- Hero Section -->
+    <header class="page-header hero">
+      <div class="eyebrow-pill">
+        <span class="pulse-dot" aria-hidden="true"></span>
+        <span>Contact</span>
+      </div>
+      <h1 class="page-title">Parlons de votre projet <span class="title-accent">d’impression</span></h1>
+      <p class="page-lead">
+        WWTRADING, partenaire des professionnels pour leurs équipements et solutions d’impression
+        <strong>Konica Minolta & Develop</strong> : vente, location, maintenance et support —
+        de <strong>Tanger à Agadir</strong> avec une réactivité <strong>H+8</strong>.
+      </p>
+      <a href="#contact-form" class="btn-hero" (click)="scrollToForm($event)">
+      <span>Accéder au formulaire</span>
+        <span class="material-icons" aria-hidden="true">arrow_downward</span>
+      </a>
+
+      <!-- Key metrics strip -->
+      <div class="key-metrics" aria-label="Nos garanties clés">
+        <div class="metric-item">
+          <strong class="metric-val">10+</strong>
+          <span class="metric-label">Années d’expertise</span>
+        </div>
+        <div class="metric-item">
+          <strong class="metric-val">500+</strong>
+          <span class="metric-label">Clients professionnels</span>
+        </div>
+        <div class="metric-item">
+          <strong class="metric-val">H+8</strong>
+          <span class="metric-label">Support technique</span>
+        </div>
+        <div class="metric-item">
+          <strong class="metric-val">Tanger → Agadir</strong>
+          <span class="metric-label">Couverture nationale</span>
+        </div>
+      </div>
+    </header>
+
+    <!-- Main Content Layout (2 columns) -->
+    <div class="content-grid">
+      <!-- Left Column: Contact Details & Direct Reassurance -->
+      <aside class="direct-channels" aria-labelledby="channels-heading">
+        <h2 id="channels-heading" class="channels-title">Canaux directs</h2>
+        <p class="channels-subtitle">
+          Besoin d’une réponse rapide ou d’un dépannage urgent ? Joignez directement nos conseillers techniques.
+        </p>
+
+        <div class="cards-stack">
+          <!-- Hotline Phone Card -->
+          <article class="channel-card highlight-card">
+            <div class="channel-icon" aria-hidden="true">
+              <span class="material-icons">phone_in_talk</span>
+            </div>
+            <div class="channel-info">
+              <span class="channel-tag">Ligne directe</span>
+              <h3>Assistance téléphonique</h3>
+              <p>Échangez avec nos conseillers techniques ou commerciaux :</p>
+              <div class="phone-group">
+                <a href="tel:+212676886836" class="phone-link" aria-label="Appeler au 0676886836">
+                  <span class="material-icons phone-subicon" aria-hidden="true">call</span>
+                  <strong>06 76 88 68 36</strong>
+                </a>
+                <a href="tel:+212603566841" class="phone-link" aria-label="Appeler au 0603566841">
+                  <span class="material-icons phone-subicon" aria-hidden="true">call</span>
+                  <strong>06 03 56 68 41</strong>
+                </a>
+              </div>
+            </div>
+          </article>
+
+          <!-- WhatsApp Card -->
+          <article class="channel-card">
+            <div class="channel-icon wa-icon" aria-hidden="true">
+              <span class="material-icons">forum</span>
+            </div>
+            <div class="channel-info">
+              <span class="channel-tag wa-tag">WhatsApp</span>
+              <h3>Messagerie instantanée</h3>
+              <p>Pour une réponse rapide, écrivez-nous directement sur WhatsApp :</p>
+              <a
+                href="https://wa.me/212676886836?text=Bonjour%20WWTRADING%2C%20je%20souhaite%20des%20informations%20sur%20vos%20solutions%20d%27impression."
+                target="_blank"
+                rel="noopener noreferrer"
+                class="wa-link"
+              >
+                <span class="material-icons" aria-hidden="true">open_in_new</span>
+                <strong>Ouvrir une conversation</strong>
+              </a>
+            </div>
+          </article>
+
+          <!-- Email Card -->
+          <article class="channel-card">
+            <div class="channel-icon" aria-hidden="true">
+              <span class="material-icons">mail_outline</span>
+            </div>
+            <div class="channel-info">
+              <span class="channel-tag">Courrier électronique</span>
+              <h3>Email officiel</h3>
+              <p>Pour vos demandes d’informations, pièces jointes ou devis détaillés :</p>
+              <a href="mailto:wwtrading.morocco@gmail.com" class="email-link" aria-label="Envoyer un email à wwtrading.morocco@gmail.com">
+                wwtrading.morocco&#64;gmail.com
+              </a>
+            </div>
+          </article>
+
+          <!-- Headquarters / Coverage Card -->
+          <article class="channel-card">
+            <div class="channel-icon" aria-hidden="true">
+              <span class="material-icons">pin_drop</span>
+            </div>
+            <div class="channel-info">
+              <span class="channel-tag">Implantation & Déplacements</span>
+              <h3>Kénitra, Maroc</h3>
+              <p>
+                <strong>Siège basé à Kénitra</strong> avec des interventions techniques et livraisons régulières
+                sur tout l'axe <strong>Tanger → Agadir</strong>.
+              </p>
+            </div>
+          </article>
+
+          <!-- Remote Diagnostics Card -->
+          <article class="channel-card">
+            <div class="channel-icon" aria-hidden="true">
+              <span class="material-icons">settings_remote</span>
+            </div>
+            <div class="channel-info">
+              <span class="channel-tag">Télémaintenance</span>
+              <h3>Assistance à distance</h3>
+              <p>
+                Prise en main à distance et télédiagnostic de vos systèmes Konica Minolta & Develop pour une résolution
+                immédiate des anomalies de paramétrage réseau.
+              </p>
+            </div>
+          </article>
+        </div>
+
+        <!-- Quick Info Box -->
+        <div class="info-callout">
+          <span class="material-icons info-icon" aria-hidden="true">verified_user</span>
+          <div>
+            <strong>Engagements contractuels</strong>
+            <p>Tous nos équipements et contrats bénéficient de la garantie constructeur, de l’installation certifiée et du suivi périodique.</p>
+          </div>
+        </div>
+      </aside>
+
+      <!-- Right Column: Interactive Contact Form -->
+      <section id="contact-form" class="form-container" aria-labelledby="form-heading">
+        @if (!isSubmitted()) {
+          <div class="form-header">
+            <h2 id="form-heading">Envoyez-nous un message</h2>
+            <p>Complétez ce formulaire pour obtenir une recommandation sur-mesure ou un chiffrage rapide.</p>
+          </div>
+
+          <form [formGroup]="contactForm" (ngSubmit)="onSubmit()" novalidate class="contact-form">
+            <!-- Row 1: Full Name & Company -->
+            <div class="form-row">
+              <div class="form-field" [class.field-invalid]="contactForm.controls.fullName.invalid && contactForm.controls.fullName.touched">
+                <label for="fullName">Nom & Prénom <span class="required" aria-hidden="true">*</span></label>
+                <input
+                  id="fullName"
+                  type="text"
+                  formControlName="fullName"
+                  placeholder="Ex: Mohamed Alami"
+                  autocomplete="name"
+                  aria-required="true"
+                  [attr.aria-invalid]="contactForm.controls.fullName.invalid && contactForm.controls.fullName.touched"
+                  [attr.aria-describedby]="contactForm.controls.fullName.invalid && contactForm.controls.fullName.touched ? 'fullName-error' : null"
+                />
+                @if (contactForm.controls.fullName.invalid && contactForm.controls.fullName.touched) {
+                  <p id="fullName-error" class="error-msg" role="alert">
+                    Veuillez renseigner votre nom complet (au moins 2 caractères).
+                  </p>
+                }
+              </div>
+
+              <div class="form-field">
+                <label for="company">Société / Organisation <span class="optional">(optionnel)</span></label>
+                <input
+                  id="company"
+                  type="text"
+                  formControlName="company"
+                  placeholder="Ex: SARL Impression Express"
+                  autocomplete="organization"
+                />
+              </div>
+            </div>
+
+            <!-- Row 2: Email & Phone -->
+            <div class="form-row">
+              <div class="form-field" [class.field-invalid]="contactForm.controls.email.invalid && contactForm.controls.email.touched">
+                <label for="email">Adresse email professionnelle <span class="required" aria-hidden="true">*</span></label>
+                <input
+                  id="email"
+                  type="email"
+                  formControlName="email"
+                  placeholder="Ex: m.alami@entreprise.ma"
+                  autocomplete="email"
+                  aria-required="true"
+                  [attr.aria-invalid]="contactForm.controls.email.invalid && contactForm.controls.email.touched"
+                  [attr.aria-describedby]="contactForm.controls.email.invalid && contactForm.controls.email.touched ? 'email-error' : null"
+                />
+                @if (contactForm.controls.email.invalid && contactForm.controls.email.touched) {
+                  <p id="email-error" class="error-msg" role="alert">
+                    Veuillez saisir une adresse email valide.
+                  </p>
+                }
+              </div>
+
+              <div class="form-field" [class.field-invalid]="contactForm.controls.phone.invalid && contactForm.controls.phone.touched">
+                <label for="phone">Numéro de téléphone <span class="required" aria-hidden="true">*</span></label>
+                <input
+                  id="phone"
+                  type="tel"
+                  formControlName="phone"
+                  placeholder="Ex: 06 76 88 68 36"
+                  autocomplete="tel"
+                  aria-required="true"
+                  [attr.aria-invalid]="contactForm.controls.phone.invalid && contactForm.controls.phone.touched"
+                  [attr.aria-describedby]="contactForm.controls.phone.invalid && contactForm.controls.phone.touched ? 'phone-error' : null"
+                />
+                @if (contactForm.controls.phone.invalid && contactForm.controls.phone.touched) {
+                  <p id="phone-error" class="error-msg" role="alert">
+                    Veuillez entrer un numéro marocain valide (ex: 06XXXXXXXX ou +212...).
+                  </p>
+                }
+              </div>
+            </div>
+
+            <!-- Row 3: Service Requested -->
+            <div class="form-field" [class.field-invalid]="contactForm.controls.service.invalid && contactForm.controls.service.touched">
+              <label for="service">Service ou prestation concernée <span class="required" aria-hidden="true">*</span></label>
+              <div class="select-wrapper">
+                <select id="service" formControlName="service" aria-required="true">
+                  @for (srv of servicesList; track srv.id) {
+                    <option [value]="srv.id">{{ srv.label }}</option>
+                  }
+                </select>
+                <span class="material-icons select-arrow" aria-hidden="true">expand_more</span>
+              </div>
+            </div>
+
+            <!-- Row 4: Message -->
+            <div class="form-field" [class.field-invalid]="contactForm.controls.message.invalid && contactForm.controls.message.touched">
+              <label for="message">Votre message ou description du besoin <span class="required" aria-hidden="true">*</span></label>
+              <textarea
+                id="message"
+                rows="5"
+                formControlName="message"
+                placeholder="Précisez votre parc actuel, le type de machine recherché (Konica Minolta, Develop), les volumes d'impression ou la nature de la panne..."
+                aria-required="true"
+                [attr.aria-invalid]="contactForm.controls.message.invalid && contactForm.controls.message.touched"
+                [attr.aria-describedby]="contactForm.controls.message.invalid && contactForm.controls.message.touched ? 'message-error' : null"
+              ></textarea>
+              @if (contactForm.controls.message.invalid && contactForm.controls.message.touched) {
+                <p id="message-error" class="error-msg" role="alert">
+                  Veuillez rédiger un message d’au moins 10 caractères pour nous permettre de traiter votre demande.
+                </p>
+              }
+            </div>
+
+            <!-- Form Actions -->
+            <div class="form-actions">
+              <button
+                type="submit"
+                class="btn-primary"
+                [disabled]="isSubmitting()"
+                aria-label="Envoyer le formulaire de contact"
+              >
+                @if (isSubmitting()) {
+                  <span class="spinner" aria-hidden="true"></span>
+                  <span>Envoi en cours…</span>
+                } @else {
+                  <span>Envoyer ma demande</span>
+                  <span class="material-icons" aria-hidden="true">arrow_forward</span>
+                }
+              </button>
+
+              <a [href]="getMailtoLink()" class="btn-secondary" title="Envoyer directement depuis votre logiciel de messagerie">
+                <span class="material-icons" aria-hidden="true">open_in_new</span>
+                <span>Ouvrir dans mon client email</span>
+              </a>
+            </div>
+
+            <p class="form-footnote">
+              <span class="material-icons lock-icon" aria-hidden="true">lock</span>
+              Vos coordonnées sont strictement réservées au traitement de votre demande technique et commerciale.
+            </p>
+          </form>
+        } @else {
+          <!-- Confirmation / Success State -->
+          <div class="success-panel" role="status" aria-live="polite">
+            <div class="success-icon-wrap" aria-hidden="true">
+              <span class="material-icons">check_circle</span>
+            </div>
+            <span class="success-pill">Demande enregistrée</span>
+            <h2>Merci pour votre message !</h2>
+            <p class="success-desc">
+              Votre demande a bien été transmise à l’équipe technique et commerciale WWTRADING.
+              Un spécialiste étudie vos éléments et prendra contact avec vous dans le respect de notre délai d’engagement
+              <strong>H+8</strong>.
+            </p>
+
+            <div class="ref-box">
+              <span class="ref-label">Numéro de référence :</span>
+              <strong class="ref-code">{{ submissionRef() }}</strong>
+            </div>
+
+            <div class="success-actions">
+              <button type="button" class="btn-primary" (click)="resetForm()">
+                <span class="material-icons" aria-hidden="true">restart_alt</span>
+                <span>Envoyer un autre message</span>
+              </button>
+              <a routerLink="/products" class="btn-secondary">
+                <span>Découvrir nos produits</span>
+                <span class="material-icons" aria-hidden="true">arrow_forward</span>
+              </a>
+            </div>
+          </div>
+        }
+      </section>
+    </div>
+
+    <!-- Final CTA -->
+    <section class="final-cta" aria-labelledby="final-cta-heading">
+      <div class="cta-inner">
+        <div class="cta-text">
+          <h2 id="final-cta-heading">Prêt à optimiser votre parc d’impression ?</h2>
+          <p>
+            Nos conseillers vous répondent et vous orientent vers la solution la plus adaptée à votre activité.
+          </p>
+        </div>
+        <div class="cta-buttons">
+          <a href="tel:+212676886836" class="cta-btn cta-btn-light">
+            <span class="material-icons" aria-hidden="true">phone_in_talk</span>
+            <span>06 76 88 68 36</span>
+          </a>
+          <a
+            href="https://wa.me/212676886836?text=Bonjour%20WWTRADING%2C%20je%20souhaite%20des%20informations%20sur%20vos%20solutions%20d%27impression."
+            target="_blank"
+            rel="noopener noreferrer"
+            class="cta-btn cta-btn-wa"
+          >
+            <span class="material-icons" aria-hidden="true">forum</span>
+            <span>WhatsApp</span>
+          </a>
+          <a href="mailto:wwtrading.morocco@gmail.com" class="cta-btn cta-btn-ghost">
+            <span class="material-icons" aria-hidden="true">mail_outline</span>
+            <span>Nous écrire</span>
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <!-- Bottom Reassurance Strip -->
+    <footer class="commitments-strip" aria-labelledby="commitments-heading">
+      <h2 id="commitments-heading" class="sr-only">Nos engagements de service</h2>
+      <div class="commitment-card">
+        <span class="material-icons commitment-icon" aria-hidden="true">query_stats</span>
+        <div>
+          <h3>Audit gratuit</h3>
+          <p>Analyse de votre parc existant et optimisation de vos coûts d'impression.</p>
+        </div>
+      </div>
+      <div class="commitment-card">
+        <span class="material-icons commitment-icon" aria-hidden="true">local_shipping</span>
+        <div>
+          <h3>Livraison & Installation</h3>
+          <p>Mise en place professionnelle et configuration réseau de vos machines.</p>
+        </div>
+      </div>
+      <div class="commitment-card">
+        <span class="material-icons commitment-icon" aria-hidden="true">shield</span>
+        <div>
+          <h3>Garantie & Contrats</h3>
+          <p>Contrats de maintenance sur-mesure pour une tranquillité totale.</p>
+        </div>
+      </div>
+      <div class="commitment-card">
+        <span class="material-icons commitment-icon" aria-hidden="true">bolt</span>
+        <div>
+          <h3>Intervention H+8</h3>
+          <p>Réactivité garantie sur site ou à distance de Tanger à Agadir.</p>
+        </div>
+      </div>
+    </footer>
+  </div>
+</div>
+

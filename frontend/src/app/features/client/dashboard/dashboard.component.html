@@ -1,0 +1,232 @@
+<wwt-dashboard-layout title="Dashboard client">
+  <wwt-page-header
+    title="Dashboard client"
+    subtitle="Suivez vos commandes, vos demandes de devis et l'état de votre parc en temps réel."
+    breadcrumb="Espace client / Vue d’ensemble">
+  </wwt-page-header>
+
+  <section class="dashboard-content">
+    <!-- Executive Welcome Card -->
+    <section class="welcome-card">
+      <div class="welcome-card__content">
+        <span class="welcome-card__eyebrow">
+          <mat-icon>verified_user</mat-icon>
+          ESPACE CLIENT PROFESSIONNEL
+        </span>
+        <h1 class="welcome-card__title">Bienvenue, {{ displayName() }}</h1>
+        <p class="welcome-card__subtitle">
+          Pilotez vos équipements Konica Minolta & Develop, vos réapprovisionnements en consommables et vos interventions techniques en toute simplicité.
+        </p>
+        <div class="welcome-card__actions">
+          <a class="wwt-btn wwt-btn-primary" routerLink="/products">
+            <span class="material-icons" aria-hidden="true">storefront</span>
+            <span>Explorer le catalogue</span>
+          </a>
+          <a class="wwt-btn welcome-card__btn-glass" routerLink="/devis">
+            <span class="material-icons" aria-hidden="true">request_quote</span>
+            <span>Demander un devis</span>
+          </a>
+        </div>
+      </div>
+      <div class="welcome-card__visual" aria-hidden="true">
+        <mat-icon>print</mat-icon>
+      </div>
+    </section>
+
+    <!-- Operational Primary KPI Grid (4 columns) -->
+    <section class="stats-grid stats-grid--primary" aria-label="Indicateurs opérationnels">
+      <wwt-stat-card
+        title="Mes commandes"
+        [value]="orders().length.toString()"
+        icon="shopping_bag"
+        description="Historique de mes commandes"
+        [loading]="loading()">
+      </wwt-stat-card>
+
+      <wwt-stat-card
+        title="Commandes à confirmer"
+        [value]="pendingOrders().toString()"
+        icon="schedule"
+        description="En attente de validation"
+        status="warning"
+        [loading]="loading()">
+      </wwt-stat-card>
+
+      <wwt-stat-card
+        title="Mes devis"
+        [value]="quotations().length.toString()"
+        icon="description"
+        description="Demandes d'estimations"
+        [loading]="loading()">
+      </wwt-stat-card>
+
+      <wwt-stat-card
+        title="Devis en attente"
+        [value]="pendingQuotations().toString()"
+        icon="pending_actions"
+        description="Étude commerciale en cours"
+        status="warning"
+        [loading]="loading()">
+      </wwt-stat-card>
+    </section>
+
+    <!-- Services Secondary Strip (3 columns) -->
+    <section class="stats-grid stats-grid--secondary" aria-label="Services complémentaires">
+      <wwt-stat-card
+        title="Maintenance active"
+        [value]="activeMaintenance().toString()"
+        icon="engineering"
+        description="Interventions & contrats actifs"
+        [loading]="loading()">
+      </wwt-stat-card>
+
+      <wwt-stat-card
+        title="Support technique"
+        [value]="supportCount()?.toString() ?? '—'"
+        icon="support_agent"
+        description="Discussions & assistance SAV"
+        [loading]="loading()">
+      </wwt-stat-card>
+
+      <wwt-stat-card
+        title="Notifications"
+        [value]="unreadNotifications()?.toString() ?? '0'"
+        icon="notifications"
+        description="Alertes & messages récents"
+        [loading]="loading()">
+      </wwt-stat-card>
+    </section>
+
+    <!-- Error Banner -->
+    @if (hasError()) {
+      <wwt-error-state
+        title="Certaines données sont temporairement inaccessibles"
+        [message]="ordersError() || quotationsError() || servicesError() || 'Un problème réseau est survenu.'"
+        retryText="Actualiser le tableau de bord"
+        (retry)="loadDashboard()">
+      </wwt-error-state>
+    }
+
+    <!-- Main 2-Column Split: Recent Activity & Quick Access -->
+    <div class="dashboard-split">
+      <!-- Recent Activity Panel -->
+      <section class="wwt-card activity-panel" aria-labelledby="recent-activity-title">
+        <header class="wwt-card-header">
+          <div>
+            <span class="panel-eyebrow">FLUX D'ACTIVITÉ</span>
+            <h2 id="recent-activity-title">Activité récente</h2>
+          </div>
+          <a routerLink="/client/orders" class="panel-header-link">Tout afficher</a>
+        </header>
+
+        <div class="wwt-card-body activity-panel__body">
+          @if (loading()) {
+            <div class="loading-state" role="status">
+              <span class="loading-spinner" aria-hidden="true"></span>
+              <p>Chargement de votre activité…</p>
+            </div>
+          } @else if (!hasActivity()) {
+            <wwt-empty-state
+              title="Aucune activité pour le moment"
+              description="Vos prochaines commandes de matériel, devis et interventions techniques apparaîtront automatiquement ici."
+              icon="history"
+              actionText="Créer une demande de devis"
+              actionRoute="/devis">
+            </wwt-empty-state>
+          } @else {
+            <div class="activity-list">
+              @for (activity of recentActivity(); track activity.kind + activity.id) {
+                <a class="activity-item" [routerLink]="activity.route" [attr.aria-label]="'Consulter : ' + activity.title">
+                  <div class="activity-item__icon-wrap" [class.activity-item__icon-wrap--order]="activity.kind === 'order'">
+                    <mat-icon>{{ activityIcon(activity) }}</mat-icon>
+                  </div>
+
+                  <div class="activity-item__details">
+                    <span class="activity-item__kind">{{ activityType(activity) }}</span>
+                    <strong class="activity-item__title">{{ activity.title }}</strong>
+                    <span class="activity-item__date">{{ activity.date | date:'dd MMMM yyyy à HH:mm' }}</span>
+                  </div>
+
+                  <div class="activity-item__meta">
+                    <wwt-status-badge [status]="activity.status" [variant]="statusVariant(activity)" size="sm" />
+                    @if (activity.amount !== null) {
+                      <strong class="activity-item__amount">{{ activity.amount | number:'1.2-2' }} <small>MAD</small></strong>
+                    }
+                  </div>
+
+                  <mat-icon class="activity-item__arrow" aria-hidden="true">chevron_right</mat-icon>
+                </a>
+              }
+            </div>
+          }
+        </div>
+      </section>
+
+      <!-- Quick Access Panel -->
+      <section class="wwt-card quick-panel" aria-labelledby="quick-actions-title">
+        <header class="wwt-card-header">
+          <div>
+            <span class="panel-eyebrow">RACCOURCIS</span>
+            <h2 id="quick-actions-title">Accès rapides</h2>
+          </div>
+        </header>
+
+        <nav class="quick-actions" aria-label="Actions rapides du client">
+          <a class="quick-action" routerLink="/products">
+            <span class="quick-action__icon quick-action__icon--store"><mat-icon>storefront</mat-icon></span>
+            <div class="quick-action__content">
+              <strong>Parcourir le catalogue</strong>
+              <small>Photocopieurs, imprimantes & toners</small>
+            </div>
+            <mat-icon class="quick-action__arrow">chevron_right</mat-icon>
+          </a>
+
+          <a class="quick-action" routerLink="/client/orders">
+            <span class="quick-action__icon quick-action__icon--orders"><mat-icon>shopping_bag</mat-icon></span>
+            <div class="quick-action__content">
+              <strong>Mes commandes</strong>
+              <small>Suivi des livraisons et factures</small>
+            </div>
+            <mat-icon class="quick-action__arrow">chevron_right</mat-icon>
+          </a>
+
+          <a class="quick-action" routerLink="/devis/mes-demandes">
+            <span class="quick-action__icon quick-action__icon--quotes"><mat-icon>description</mat-icon></span>
+            <div class="quick-action__content">
+              <strong>Mes devis</strong>
+              <small>Consulter les offres commerciales</small>
+            </div>
+            <mat-icon class="quick-action__arrow">chevron_right</mat-icon>
+          </a>
+
+          <a class="quick-action" routerLink="/client/maintenance">
+            <span class="quick-action__icon quick-action__icon--maint"><mat-icon>engineering</mat-icon></span>
+            <div class="quick-action__content">
+              <strong>Assistance & SAV</strong>
+              <small>Demandes d'intervention technique</small>
+            </div>
+            <mat-icon class="quick-action__arrow">chevron_right</mat-icon>
+          </a>
+
+          <a class="quick-action" routerLink="/devis">
+            <span class="quick-action__icon quick-action__icon--newquote"><mat-icon>request_quote</mat-icon></span>
+            <div class="quick-action__content">
+              <strong>Nouveau devis</strong>
+              <small>Configuration personnalisée express</small>
+            </div>
+            <mat-icon class="quick-action__arrow">chevron_right</mat-icon>
+          </a>
+
+          <a class="quick-action" routerLink="/client/account">
+            <span class="quick-action__icon quick-action__icon--account"><mat-icon>account_circle</mat-icon></span>
+            <div class="quick-action__content">
+              <strong>Mon compte & adresses</strong>
+              <small>Coordonnées et préférences d'entreprise</small>
+            </div>
+            <mat-icon class="quick-action__arrow">chevron_right</mat-icon>
+          </a>
+        </nav>
+      </section>
+    </div>
+  </section>
+</wwt-dashboard-layout>

@@ -1,0 +1,17 @@
+<div class="error-state" role="alert">
+  <div class="error-state__icon-wrap">
+    <span class="material-icons error-state__icon" aria-hidden="true">error_outline</span>
+  </div>
+  <div class="error-state__content">
+    <h3 class="error-state__title">{{ title }}</h3>
+    @if (message) {
+      <p class="error-state__desc">{{ message }}</p>
+    }
+  </div>
+  @if (retryText) {
+    <button type="button" class="wwt-btn wwt-btn-danger wwt-btn-sm error-state__retry" (click)="onRetry()">
+      <span class="material-icons" aria-hidden="true">refresh</span>
+      <span>{{ retryText }}</span>
+    </button>
+  }
+</div>

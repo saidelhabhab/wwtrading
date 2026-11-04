@@ -1,0 +1,99 @@
+/* WWTRADING brand layer for the supported Keycloak Account Console v3. */
+:root {
+  --pf-v5-global--primary-color--100: #af0f50;
+  --pf-v5-global--primary-color--200: #880b3e;
+  --pf-v5-global--primary-color--dark-100: #af0f50;
+  --pf-v5-global--active-color--100: #af0f50;
+  --pf-v5-global--active-color--200: #880b3e;
+  --pf-v5-global--link--Color: #af0f50;
+  --pf-v5-global--link--Color--hover: #880b3e;
+  --pf-v5-global--BackgroundColor--100: #ffffff;
+  --pf-v5-global--BackgroundColor--200: #f5f4f2;
+}
+
+body {
+  background: #f5f4f2;
+  color: #1a1a18;
+  font-family: Inter, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+}
+
+.pf-v5-c-page__header,
+.pf-c-page__header {
+  border-bottom: 3px solid #af0f50;
+  background: #1a1a18 !important;
+}
+
+.pf-v5-c-page__sidebar,
+.pf-c-page__sidebar {
+  background: #272624 !important;
+}
+
+.pf-v5-c-nav__link,
+.pf-c-nav__link {
+  min-height: 44px;
+}
+
+.pf-v5-c-nav__link.pf-m-current,
+.pf-c-nav__link.pf-m-current {
+  background: #af0f50 !important;
+  color: #ffffff !important;
+}
+
+.pf-v5-c-card,
+.pf-c-card {
+  border: 1px solid #dedbd7;
+  border-radius: 12px;
+  box-shadow: 0 12px 30px rgba(26, 26, 24, 0.06);
+}
+
+.pf-v5-c-button,
+.pf-c-button,
+.pf-v5-c-form-control,
+.pf-c-form-control {
+  border-radius: 9px;
+}
+
+.pf-v5-c-button.pf-m-primary,
+.pf-c-button.pf-m-primary {
+  min-height: 44px;
+  border-color: #af0f50 !important;
+  background: #af0f50 !important;
+}
+
+.pf-v5-c-button.pf-m-primary:hover,
+.pf-c-button.pf-m-primary:hover {
+  border-color: #880b3e !important;
+  background: #880b3e !important;
+}
+
+a,
+.pf-v5-c-button.pf-m-link,
+.pf-c-button.pf-m-link {
+  color: #af0f50;
+  text-underline-offset: 3px;
+}
+
+a:hover { color: #880b3e; }
+
+a:focus-visible,
+button:focus-visible,
+input:focus-visible,
+select:focus-visible {
+  outline: 3px solid rgba(175, 15, 80, 0.32) !important;
+  outline-offset: 3px;
+}
+
+@media (max-width: 768px) {
+  .pf-v5-c-page__main-section,
+  .pf-c-page__main-section {
+    padding: 20px 16px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

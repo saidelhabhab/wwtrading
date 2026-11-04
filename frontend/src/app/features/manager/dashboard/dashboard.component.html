@@ -1,0 +1,60 @@
+<wwt-dashboard-layout title="Dashboard manager">
+  <wwt-page-header title="Pilotage opérationnel" subtitle="Indicateurs réels de l’activité WWTRADING" breadcrumb="Management / Dashboard"></wwt-page-header>
+  <section class="dashboard-content">
+    <section class="welcome-card">
+      <div class="welcome-card__content">
+        <span class="welcome-card__eyebrow"><mat-icon>insights</mat-icon>Vue management</span>
+        <h1>Activité du mois</h1>
+        <p>Commandes, devis, prospects, maintenance et relation client consolidés depuis les services métier.</p>
+        <div class="welcome-card__actions">
+          <a class="primary-action" routerLink="/manager/analytics"><mat-icon>bar_chart</mat-icon>Voir les analytics</a>
+          <a class="secondary-action" routerLink="/manager/orders"><mat-icon>shopping_bag</mat-icon>Commandes</a>
+        </div>
+      </div>
+      <mat-icon class="welcome-card__visual" aria-hidden="true">query_stats</mat-icon>
+    </section>
+
+    @if (failed().length) {
+      <div class="dashboard-error" role="alert"><mat-icon>sync_problem</mat-icon><span>Sources indisponibles : {{ failed().join(', ') }}.</span><button type="button" (click)="loadDashboard()">Réessayer</button></div>
+    }
+
+    <section class="stats-grid" aria-label="Indicateurs management">
+      <wwt-stat-card title="Commandes" [value]="orders()?.totalOrders?.toString() ?? '—'" icon="shopping_bag" description="sur la période" [loading]="loading()"></wwt-stat-card>
+      <wwt-stat-card title="Devis" [value]="quotations()?.totalQuotations?.toString() ?? '—'" icon="request_quote" description="sur la période" [loading]="loading()"></wwt-stat-card>
+      <wwt-stat-card title="Prospects actifs" [value]="commercial()?.kpis?.activeProspects?.toString() ?? '—'" icon="group_add" description="pipeline actif" [loading]="loading()"></wwt-stat-card>
+      <wwt-stat-card title="Maintenance" [value]="maintenance()?.totalRequests?.toString() ?? '—'" icon="engineering" description="demandes sur la période" [loading]="loading()"></wwt-stat-card>
+      <wwt-stat-card title="Clients actifs" [value]="clients()?.activeClients?.toString() ?? '—'" icon="business" description="comptes actifs" [loading]="loading()"></wwt-stat-card>
+      <wwt-stat-card title="Support ouvert" [value]="openSupport()?.toString() ?? '—'" icon="support_agent" description="conversations ouvertes" [loading]="loading()"></wwt-stat-card>
+      <wwt-stat-card title="Notifications" [value]="unreadNotifications()?.toString() ?? '—'" icon="notifications" description="non lues" [loading]="loading()"></wwt-stat-card>
+    </section>
+
+    <wwt-financial-overview [data]="analytics()" [loading]="loading()" [rangeLabel]="periodLabel"></wwt-financial-overview>
+
+    <div class="dashboard-grid">
+      <section class="dashboard-panel" aria-labelledby="pipeline-title">
+        <header class="panel-header"><div><span class="panel-header__eyebrow">Commercial</span><h2 id="pipeline-title">Pipeline prospects</h2></div><a class="panel-link" routerLink="/manager/analytics">Détails</a></header>
+        @if (loading()) { <div class="data-state">Chargement du pipeline…</div> }
+        @else if (!commercial()) { <div class="data-state data-state--error">Pipeline indisponible.</div> }
+        @else if (commercial()?.kpis?.prospects === 0) { <div class="data-state">Aucun prospect sur cette période.</div> }
+        @else {
+          <div class="real-pipeline">
+            @for (item of pipeline(); track item.status) {
+              <div><span>{{ statusLabel(item.status) }}</span><span class="real-pipeline__track"><i [style.width.%]="pipelineWidth(item.count)"></i></span><strong>{{ item.count }}</strong></div>
+            }
+          </div>
+        }
+      </section>
+
+      <section class="dashboard-panel" aria-labelledby="actions-title">
+        <header class="panel-header"><div><span class="panel-header__eyebrow">Navigation</span><h2 id="actions-title">Accès rapides</h2></div></header>
+        <nav class="real-actions" aria-label="Accès rapides manager">
+          <a routerLink="/manager/orders"><mat-icon>shopping_bag</mat-icon><span><strong>Commandes</strong><small>Suivi et traitement</small></span></a>
+          <a routerLink="/manager/devis"><mat-icon>request_quote</mat-icon><span><strong>Devis</strong><small>Pipeline commercial</small></span></a>
+          <a routerLink="/manager/maintenance"><mat-icon>engineering</mat-icon><span><strong>Maintenance</strong><small>Charge opérationnelle</small></span></a>
+          <a routerLink="/manager/support"><mat-icon>support_agent</mat-icon><span><strong>Support</strong><small>Conversations clients</small></span></a>
+          <a routerLink="/manager/clients"><mat-icon>business</mat-icon><span><strong>Clients</strong><small>Annuaire professionnel</small></span></a>
+        </nav>
+      </section>
+    </div>
+  </section>
+</wwt-dashboard-layout>

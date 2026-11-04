@@ -1,0 +1,17 @@
+{
+  "name": "WWTRADING",
+  "short_name": "WWTRADING",
+  "lang": "fr-MA",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#1a1a18",
+  "icons": [
+    {
+      "src": "/assets/wwtrading-logo.png",
+      "type": "image/png",
+      "purpose": "any"
+    }
+  ]
+}

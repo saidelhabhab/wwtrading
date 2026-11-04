@@ -1,0 +1,10 @@
+eureka:
+  client:
+    service-url:
+      defaultZone: ${EUREKA_URL:http://localhost:8761/eureka/}
+
+wwtrading:
+  security:
+    allowed-origins: ${ALLOWED_ORIGINS:http://localhost:4201}
+    issuer-uri: ${JWT_ISSUER_URI:http://localhost:8180/realms/wwtrading}
+    jwk-set-uri: ${JWT_JWK_SET_URI:http://localhost:8180/realms/wwtrading/protocol/openid-connect/certs}

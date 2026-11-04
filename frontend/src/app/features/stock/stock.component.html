@@ -1,0 +1,318 @@
+
+<section class="stock">
+  <wwt-page-header title="Gestion des stocks" subtitle="Suivez les disponibilités, les réservations et les mouvements de stock.">
+    <div header-actions class="header-actions">
+      <button type="button" class="btn" (click)="load()" [disabled]="loading()" aria-label="Actualiser la liste des stocks">
+        <span class="material-icons" aria-hidden="true">refresh</span>
+        Actualiser
+      </button>
+    </div>
+  </wwt-page-header>
+
+  <!-- KPI cards, computed from already-loaded data -->
+  <div class="kpi-grid" aria-label="Indicateurs de stock">
+    <wwt-stat-card title="Produits" [value]="kpiTotal().toString()" icon="inventory_2" description="références suivies" [loading]="loading()" />
+    <wwt-stat-card title="En stock" [value]="kpiInStock().toString()" icon="check_circle" description="au-dessus du seuil" status="success" [loading]="loading()" />
+    <wwt-stat-card title="Stock faible" [value]="kpiLowStock().toString()" icon="warning" description="au seuil ou en dessous" status="warning" [loading]="loading()" />
+    <wwt-stat-card title="Rupture" [value]="kpiOutOfStock().toString()" icon="block" description="quantité disponible à 0" status="danger" [loading]="loading()" />
+    <wwt-stat-card title="Réservé" [value]="kpiReserved().toString()" icon="lock" description="quantités réservées" [loading]="loading()" />
+  </div>
+
+  <!-- Search / filter toolbar -->
+  <div class="toolbar" role="search">
+    <label class="toolbar__search">
+      <span class="material-icons" aria-hidden="true">search</span>
+      <input type="search" placeholder="Rechercher un produit ou une référence..."
+             aria-label="Rechercher un produit ou une référence"
+             [ngModel]="search()" (ngModelChange)="search.set($event)" />
+    </label>
+    <select [ngModel]="statusFilter()" (ngModelChange)="statusFilter.set($event)" aria-label="Filtrer par statut de stock">
+      @for (option of statusOptions; track option.value) {
+        <option [value]="option.value">{{ option.label }}</option>
+      }
+    </select>
+    <button type="button" class="btn" (click)="resetFilters()" [disabled]="!filtered()">Réinitialiser</button>
+    <span class="toolbar__count">{{ visibleStocks().length }} produit(s) affiché(s) sur {{ listTotal() }}</span>
+  </div>
+
+  <!-- Error state -->
+  @if (error() && !loading()) {
+    <div class="panel">
+      <div class="state state--error" role="alert">
+        <span class="material-icons" aria-hidden="true">sync_problem</span>
+        <strong>{{ error() }}</strong>
+        <p>Une erreur est survenue lors du chargement des données de stock.</p>
+        <button type="button" class="btn btn--primary" (click)="load()">Réessayer</button>
+      </div>
+    </div>
+  } @else if (loading()) {
+    <!-- Loading skeletons -->
+    <div class="panel">
+      <div class="table-wrap">
+        <table aria-hidden="true">
+          <thead>
+            <tr>
+              <th>Produit</th><th>Référence</th><th class="num">On hand</th><th class="num">Réservé</th>
+              <th class="num">Disponible</th><th>Statut</th><th class="num">Seuil</th><th>Mise à jour</th><th></th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (row of [0, 1, 2, 3, 4, 5]; track row) {
+              <tr class="skel-row">
+                <td><span class="skel skel--w60"></span></td>
+                <td><span class="skel skel--w40"></span></td>
+                <td class="num"><span class="skel skel--num"></span></td>
+                <td class="num"><span class="skel skel--num"></span></td>
+                <td class="num"><span class="skel skel--num"></span></td>
+                <td><span class="skel skel--w80"></span></td>
+                <td class="num"><span class="skel skel--num"></span></td>
+                <td><span class="skel skel--w80"></span></td>
+                <td><span class="skel skel--w40"></span></td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </div>
+  } @else if (visibleStocks().length === 0) {
+    <!-- Empty state -->
+    <div class="panel">
+      <div class="state">
+        <span class="material-icons" aria-hidden="true">inventory</span>
+        <strong>Aucun stock trouvé</strong>
+        <p>Aucun produit ne correspond aux critères actuels.</p>
+        <button type="button" class="btn" (click)="filtered() ? resetFilters() : load()">
+          {{ filtered() ? 'Réinitialiser les filtres' : 'Actualiser' }}
+        </button>
+      </div>
+    </div>
+  } @else {
+    <!-- Stock table -->
+    <div class="panel">
+      <div class="table-wrap" tabindex="0" aria-label="Tableau des stocks, défilement horizontal si nécessaire">
+        <table>
+          <thead>
+            <tr>
+              <th scope="col">Produit</th>
+              <th scope="col">Référence</th>
+              <th scope="col" class="num">On hand</th>
+              <th scope="col" class="num">Réservé</th>
+              <th scope="col" class="num">Disponible</th>
+              <th scope="col">Statut</th>
+              <th scope="col" class="num">Seuil</th>
+              <th scope="col">Mise à jour</th>
+              <th scope="col"><span class="cdk-visually-hidden">Action</span></th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (stock of visibleStocks(); track stock.productId) {
+              <tr>
+                <td class="cell-product">
+                  <strong>{{ stock.productName }}</strong>
+                </td>
+                <td class="cell-ref">{{ stock.productReference }}</td>
+                <td class="num">{{ stock.onHandQuantity }}</td>
+                <td class="num">{{ stock.reservedQuantity }}</td>
+                <td class="num cell-avail"
+                    [class.cell-avail--low]="stock.status === 'LOW_STOCK'"
+                    [class.cell-avail--out]="stock.status === 'OUT_OF_STOCK'">{{ stock.availableQuantity }}</td>
+                <td>
+                  <span class="badge" [class]="statusBadge[stock.status]">{{ statusText[stock.status] }}</span>
+                </td>
+                <td class="num cell-muted">{{ stock.lowStockThreshold }}</td>
+                <td class="cell-muted">{{ stock.updatedAt | date: 'dd/MM/yyyy HH:mm' }}</td>
+                <td>
+                  <button type="button" class="btn btn--icon" (click)="select(stock)"
+                          [attr.aria-label]="'Voir les détails de ' + stock.productName"
+                          title="Voir les détails">
+                    <span class="material-icons" aria-hidden="true">visibility</span>
+                  </button>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+      @if (listTotalPages() > 1) {
+        <div class="pager">
+          <button type="button" class="btn" (click)="goListPage(listPage() - 1)" [disabled]="listPage() === 0">Précédent</button>
+          <span>Page {{ listPage() + 1 }} / {{ listTotalPages() }}</span>
+          <button type="button" class="btn" (click)="goListPage(listPage() + 1)" [disabled]="listPage() >= listTotalPages() - 1">Suivant</button>
+        </div>
+      }
+    </div>
+  }
+
+  <!-- Detail drawer -->
+  @if (selected(); as stock) {
+    @if (drawerOpen()) {
+      <button type="button" class="drawer-overlay" aria-label="Fermer le panneau de détails" (click)="closeDrawer()"></button>
+      <aside class="drawer" role="dialog" aria-modal="true" [attr.aria-label]="'Détails du stock : ' + stock.productName">
+        <header class="drawer__head">
+          <div>
+            <h2>{{ stock.productName }}</h2>
+            <small>Référence : {{ stock.productReference }}</small>
+          </div>
+          <button type="button" class="btn btn--icon" (click)="closeDrawer()" aria-label="Fermer">
+            <span class="material-icons" aria-hidden="true">close</span>
+          </button>
+        </header>
+        <div class="drawer__body">
+          <!-- Product information -->
+          <section class="drawer__section" aria-label="Informations produit">
+            <h3>Informations produit</h3>
+            <div class="facts">
+              <div class="fact"><span>Stock physique</span><strong>{{ stock.onHandQuantity }}</strong></div>
+              <div class="fact"><span>Réservé</span><strong>{{ stock.reservedQuantity }}</strong></div>
+              <div class="fact"><span>Disponible</span><strong>{{ stock.availableQuantity }}</strong></div>
+              <div class="fact"><span>Seuil actuel</span><strong>{{ stock.lowStockThreshold }}</strong></div>
+              <div class="fact fact--wide">
+                <span>Statut</span>
+                <span class="badge" [class]="statusBadge[stock.status]">{{ statusText[stock.status] }}</span>
+              </div>
+              <div class="fact fact--wide"><span>Dernière mise à jour</span><strong>{{ stock.updatedAt | date: 'dd/MM/yyyy HH:mm' }}</strong></div>
+            </div>
+          </section>
+
+          @if (feedback(); as fb) {
+            <div class="feedback" [class.feedback--success]="fb.kind === 'success'" [class.feedback--error]="fb.kind === 'error'" role="status">
+              <span class="material-icons" aria-hidden="true">{{ fb.kind === 'success' ? 'check_circle' : 'error' }}</span>
+              {{ fb.message }}
+            </div>
+          }
+
+          @if (canManage) {
+            <!-- Stock operation form -->
+            <section class="drawer__section" aria-label="Opération de stock">
+              <h3>Opération de stock</h3>
+              <div class="op-form">
+                <div class="field">
+                  <label for="stock-operation">Type d’opération</label>
+                  <select id="stock-operation" [ngModel]="operation()" (ngModelChange)="operation.set($event)">
+                    <option value="IN">Entrée</option>
+                    <option value="OUT">Sortie</option>
+                    <option value="ADJUST">Ajustement</option>
+                  </select>
+                </div>
+
+                @if (operation() !== 'ADJUST') {
+                  <div class="field-row">
+                    <div class="field">
+                      <label for="op-quantity">Quantité</label>
+                      <input id="op-quantity" type="number" min="1" [(ngModel)]="quantity" name="opQuantity" />
+                    </div>
+                    <div class="field">
+                      <label for="op-reference">Référence (optionnel)</label>
+                      <input id="op-reference" type="text" [(ngModel)]="reference" name="opReference" />
+                    </div>
+                  </div>
+                  <div class="field">
+                    <label for="op-reason">Motif (optionnel)</label>
+                    <input id="op-reason" type="text" [(ngModel)]="reason" name="opReason" />
+                  </div>
+                  <p class="op-form__hint" [class]="operation() === 'OUT' ? 'op-form__hint--danger' : ''">
+                    {{ operation() === 'IN' ? 'Ajoute des unités au stock physique.' : 'Retire des unités du stock physique (opération réductrice).' }}
+                  </p>
+                } @else {
+                  <div class="field-row">
+                    <div class="field">
+                      <label for="op-target">Quantité cible</label>
+                      <input id="op-target" type="number" min="0" [(ngModel)]="targetQuantity" name="opTarget" />
+                    </div>
+                    <div class="field">
+                      <label for="op-reference-adjust">Référence (optionnel)</label>
+                      <input id="op-reference-adjust" type="text" [(ngModel)]="reference" name="opReferenceAdjust" />
+                    </div>
+                  </div>
+                  <div class="field">
+                    <label for="op-reason-adjust">Motif (optionnel)</label>
+                    <input id="op-reason-adjust" type="text" [(ngModel)]="reason" name="opReasonAdjust" />
+                  </div>
+                  <p class="op-form__hint">Le stock physique sera recalculé pour atteindre exactement la quantité cible.</p>
+                }
+
+                <div class="op-form__actions">
+                  <button type="button" class="btn btn--primary" (click)="saveMovement()" [disabled]="saving()">
+                    Enregistrer le mouvement
+                  </button>
+                </div>
+              </div>
+            </section>
+
+            <!-- Threshold section, visually separate -->
+            <section class="drawer__section" aria-label="Seuil de stock">
+              <h3>Seuil de stock</h3>
+              <div class="op-form">
+                <div class="field-row">
+                  <div class="field">
+                    <label>Seuil actuel</label>
+                    <input type="text" [value]="stock.lowStockThreshold" disabled aria-readonly="true" readonly />
+                  </div>
+                  <div class="field">
+                    <label for="threshold-value">Nouveau seuil</label>
+                    <input id="threshold-value" type="number" min="0" [(ngModel)]="thresholdValue" name="thresholdValue" />
+                  </div>
+                </div>
+                <div class="op-form__actions">
+                  <button type="button" class="btn" (click)="saveThreshold()" [disabled]="saving()">Enregistrer le seuil</button>
+                </div>
+              </div>
+            </section>
+          } @else {
+            <div class="notice">
+              <span class="material-icons" aria-hidden="true">info</span>
+              Consultation seule : les opérations de stock sont réservées aux administrateurs et managers.
+            </div>
+          }
+
+          <!-- Movement history -->
+          <section class="drawer__section" aria-label="Historique des mouvements">
+            <h3>Historique des mouvements</h3>
+            @if (movementsLoading()) {
+              <div class="state"><span class="material-icons" aria-hidden="true">hourglass_empty</span><p>Chargement de l’historique…</p></div>
+            } @else if (movements().length === 0) {
+              <div class="state"><span class="material-icons" aria-hidden="true">history</span><strong>Aucun mouvement</strong><p>Aucun mouvement enregistré pour ce produit.</p></div>
+            } @else {
+              <div class="panel">
+                <div class="table-wrap">
+                  <table>
+                    <thead>
+                      <tr>
+                        <th scope="col">Date</th>
+                        <th scope="col">Type</th>
+                        <th scope="col" class="num">Quantité</th>
+                        <th scope="col">Motif</th>
+                        <th scope="col">Référence</th>
+                        <th scope="col">Acteur</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      @for (movement of movements(); track movement.id) {
+                        <tr>
+                          <td class="cell-muted">{{ movement.createdAt | date: 'dd/MM/yyyy HH:mm' }}</td>
+                          <td><span class="badge badge--neutral">{{ movementLabels[movement.type] }}</span></td>
+                          <td class="num">{{ movement.onHandDelta != null ? movement.onHandDelta : movement.quantity }}</td>
+                          <td class="cell-muted">{{ movement.reason || '—' }}</td>
+                          <td class="cell-muted">{{ movement.reference || '—' }}</td>
+                          <td>{{ movement.actor }}</td>
+                        </tr>
+                      }
+                    </tbody>
+                  </table>
+                </div>
+                @if (movementTotalPages() > 1) {
+                  <div class="pager">
+                    <button type="button" class="btn" (click)="goMovementPage(movementPage() - 1)" [disabled]="movementPage() === 0">Précédent</button>
+                    <span>Page {{ movementPage() + 1 }} / {{ movementTotalPages() }}</span>
+                    <button type="button" class="btn" (click)="goMovementPage(movementPage() + 1)" [disabled]="movementPage() >= movementTotalPages() - 1">Suivant</button>
+                  </div>
+                }
+              </div>
+            }
+          </section>
+        </div>
+      </aside>
+    }
+  }
+</section>
+

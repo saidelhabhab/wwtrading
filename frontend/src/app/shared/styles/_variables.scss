@@ -1,0 +1,55 @@
+@forward 'tokens';
+
+/**
+ * Legacy variable names kept as a thin compatibility layer.
+ *
+ * The canonical values live in `_tokens.scss`. These aliases keep the existing
+ * components compiling unchanged while new code imports tokens directly.
+ */
+@use 'tokens' as *;
+
+$color-primary: $color-primary;
+$color-primary-dark: $color-primary-dark;
+$color-secondary: $color-secondary;
+$color-background: $color-background;
+$color-surface: $color-surface;
+$color-surface-muted: $color-surface-muted;
+$color-text: $color-text;
+$color-muted: $color-muted;
+$color-border: $color-border;
+$color-success: $color-success;
+$color-warning: $color-warning;
+$color-danger: $color-danger;
+$color-info: $color-info;
+
+$radius-sm: $radius-sm;
+$radius-md: $radius-md;
+$radius-lg: $radius-lg;
+$shadow-sm: $shadow-sm;
+$shadow-md: $shadow-md;
+
+$font-size-xs: 0.75rem;
+$font-size-sm: 0.875rem;
+$font-size-md: 1rem;
+$font-size-lg: 1.25rem;
+$font-size-xl: 1.75rem;
+
+$sidebar-width: $sidebar-width;
+$sidebar-collapsed-width: $sidebar-compact-width;
+$topbar-height: $topbar-height;
+$container-max-width: $container-max-width;
+
+$transition-fast: $transition-fast;
+$transition-standard: $transition-standard;
+
+$z-sidebar: $z-sidebar;
+$z-topbar: $z-topbar;
+$z-overlay: $z-overlay;
+$z-menu: $z-menu;
+
+/**
+ * Legacy breakpoint names. `respond-to()` in `_mixins.scss` now uses the
+ * min-width scale from tokens; these remain for direct media-query usage.
+ */
+$breakpoint-tablet: calc($bp-lg - 0.02px);
+$breakpoint-mobile: calc($bp-sm - 0.02px);

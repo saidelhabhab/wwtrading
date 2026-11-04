@@ -1,0 +1,6 @@
+<span class="badge" [class]="'badge--' + computedVariant() + ' badge--' + size">
+  @if (showDot) {
+    <span class="badge__dot" aria-hidden="true"></span>
+  }
+  <span class="badge__text">{{ computedLabel() }}</span>
+</span>

@@ -1,0 +1,99 @@
+@use '../../styles/variables' as *;
+@use '../../styles/mixins' as *;
+
+/**
+ * Dashboard shell.
+ *
+ * Desktop : sidebar | workspace (sidebar is a flex child, never overlapping).
+ * Mobile  : single column; the sidebar becomes an overlay drawer with a
+ *           backdrop, so navigation never covers important content.
+ */
+
+:host { display: block; min-height: 100vh; min-height: 100dvh; }
+
+.dashboard-shell {
+  display: flex;
+  min-height: 100vh;
+  min-height: 100dvh;
+  background: $color-background;
+}
+
+/*
+ * `min-width: 0` is essential: without it a wide table inside the workspace
+ * would force the flex item to grow past the viewport and create horizontal
+ * page scrolling.
+ */
+.dashboard-workspace {
+  flex: 1 1 auto;
+  min-width: 0;
+  max-width: 100%;
+}
+
+.dashboard-main {
+  min-height: calc(100vh - $topbar-height);
+  min-width: 0;
+  overflow-x: hidden;
+  @include scrollbar;
+}
+
+.dashboard-footer {
+  display: flex;
+  justify-content: space-between;
+  gap: $space-3;
+  padding: $space-5 var(--dashboard-page-padding-inline, #{$space-4});
+  border-top: 1px solid $color-border;
+  color: $color-muted;
+  background: $color-surface;
+  font-size: $font-size-xs;
+}
+
+.dashboard-footer strong { color: $color-text; letter-spacing: 0.08em; }
+.dashboard-footer > span { min-width: 0; overflow-wrap: anywhere; }
+
+.sidebar-backdrop { display: none; }
+
+/* ---------------------------------------------------------------------------
+   Mobile: drawer + backdrop. The backdrop also locks background scrolling by
+   covering the viewport while the drawer is open.
+   --------------------------------------------------------------------------- */
+@include respond-to(mobile) {
+  .sidebar-backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: $z-overlay;
+    display: none;
+    border: 0;
+    padding: 0;
+    background: rgb(26 26 24 / 48%);
+    cursor: pointer;
+  }
+
+  .sidebar-open .sidebar-backdrop { display: block; }
+
+  .dashboard-footer {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: $space-1;
+    padding-block: $space-4;
+    padding-bottom: max(#{$space-4}, env(safe-area-inset-bottom));
+  }
+}
+
+/* ---------------------------------------------------------------------------
+   Tablet: the sidebar is a compact rail inside the flow
+   (see sidebar.component.scss), so no backdrop is needed.
+   --------------------------------------------------------------------------- */
+@include respond-to(tablet) {
+  .dashboard-main { min-height: calc(100vh - #{$topbar-height-mobile}); }
+}
+
+/* ---------------------------------------------------------------------------
+   Large desktop / TV: extra breathing room, content width still capped by the
+   page container so nothing stretches uncomfortably.
+   --------------------------------------------------------------------------- */
+@include from('2xl') {
+  .dashboard-footer {
+    padding-block: $space-6;
+    font-size: $font-size-sm;
+  }
+}
