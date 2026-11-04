@@ -44,7 +44,13 @@ public class QuotationTransactionHelper {
      */
     @Transactional(propagation = Propagation.REQUIRES_NEW, readOnly = true)
     public Optional<QuotationEntity> findByIdempotencyKeyInCleanTransaction(String key) {
-        return repository.findByIdempotencyKey(key);
+        Optional<QuotationEntity> opt = repository.findByIdempotencyKey(key);
+        opt.ifPresent(q -> {
+            if (q.getLines() != null) {
+                q.getLines().size();
+            }
+        });
+        return opt;
     }
 
     /**

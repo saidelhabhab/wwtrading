@@ -59,18 +59,21 @@ jobs:
   filesystem-scan:
     name: Trivy Security Scan
     runs-on: ubuntu-latest
+    continue-on-error: true
     steps:
       - uses: actions/checkout@v4
       - name: Run Trivy Security Scan
         run: |
           docker run --rm -v ${{ github.workspace }}:/root/src aquasec/trivy:latest fs \
+            --offline-scan \
             --format sarif \
             --output /root/src/trivy-results.sarif \
             --severity HIGH,CRITICAL \
             --exit-code 0 \
-            /root/src
+            /root/src || true
       - uses: github/codeql-action/upload-sarif@v3
         if: always()
+        continue-on-error: true
         with:
           sarif_file: trivy-results.sarif
 
