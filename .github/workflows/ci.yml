@@ -61,14 +61,14 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: aquasecurity/trivy-action@v0.33.1
-        with:
-          scan-type: fs
-          scan-ref: .
-          format: sarif
-          output: trivy-results.sarif
-          severity: HIGH,CRITICAL
-          exit-code: "0"
+      - name: Run Trivy Security Scan
+        run: |
+          docker run --rm -v ${{ github.workspace }}:/root/src aquasec/trivy:latest fs \
+            --format sarif \
+            --output /root/src/trivy-results.sarif \
+            --severity HIGH,CRITICAL \
+            --exit-code 0 \
+            /root/src
       - uses: github/codeql-action/upload-sarif@v3
         if: always()
         with:

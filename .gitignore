@@ -11,10 +11,12 @@
 # Backups and Database Dumps
 backups/
 *.dump
-*.sql
 *.tar
 *.tar.gz
 *.tgz
+*.sql
+!**/db/migration/*.sql
+!**/src/**/resources/**/*.sql
 
 # Java
 **/target/
