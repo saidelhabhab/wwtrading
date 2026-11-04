@@ -1,4 +1,8 @@
 spring:
+  datasource:
+    url: ${WISHLIST_DB_URL:jdbc:postgresql://wishlist-db:5432/wwtrading_wishlists}
+    username: ${WISHLIST_DB_USERNAME:wwtrading_wishlists}
+    password: ${WISHLIST_DB_PASSWORD}
   jpa:
     open-in-view: false
     hibernate:
@@ -12,4 +16,6 @@ spring:
 
 wwtrading:
   security:
+    issuer-uri: ${JWT_ISSUER_URI:http://localhost:8180/realms/wwtrading}
+    jwk-set-uri: ${JWT_JWK_SET_URI:http://keycloak:8080/realms/wwtrading/protocol/openid-connect/certs}
     audience: ${JWT_AUDIENCE:wwtrading-api}
