@@ -1,5 +1,6 @@
 package ma.wwtrading.carts.api;
 
+import java.security.Principal;
 import java.util.UUID;
 
 import org.springframework.http.HttpStatus;
@@ -40,8 +41,8 @@ public class CartController {
         @ApiResponse(responseCode = "401", description = "Authentication required"),
         @ApiResponse(responseCode = "403", description = "Insufficient role")
     })
-    public CartResponse getCart(JwtAuthenticationToken authentication) {
-        return service.getOrCreate(customerReference(authentication));
+    public CartResponse getCart(Principal principal) {
+        return service.getOrCreate(customerReference(principal));
     }
 
     @PostMapping("/items")
@@ -54,11 +55,11 @@ public class CartController {
         @ApiResponse(responseCode = "409", description = "Cart data conflict")
     })
     public ResponseEntity<CartResponse> addItem(
-        JwtAuthenticationToken authentication,
+        Principal principal,
         @Valid @RequestBody AddCartItemRequest request
     ) {
         return ResponseEntity.status(HttpStatus.CREATED)
-            .body(service.addItem(customerReference(authentication), request));
+            .body(service.addItem(customerReference(principal), request));
     }
 
     @PutMapping("/items/{itemId}")
@@ -71,12 +72,12 @@ public class CartController {
         @ApiResponse(responseCode = "404", description = "Cart item not found")
     })
     public CartResponse updateQuantity(
-        JwtAuthenticationToken authentication,
+        Principal principal,
         @PathVariable UUID itemId,
         @Valid @RequestBody UpdateCartItemQuantityRequest request
     ) {
         return service.updateQuantity(
-            customerReference(authentication),
+            customerReference(principal),
             itemId,
             request
         );
@@ -91,11 +92,11 @@ public class CartController {
         @ApiResponse(responseCode = "404", description = "Cart item not found")
     })
     public ResponseEntity<Void> removeItem(
-        JwtAuthenticationToken authentication,
+        Principal principal,
         @PathVariable UUID itemId
     ) {
         service.removeItem(
-            customerReference(authentication),
+            customerReference(principal),
             itemId
         );
 
@@ -110,32 +111,27 @@ public class CartController {
         @ApiResponse(responseCode = "403", description = "Insufficient role")
     })
     public ResponseEntity<Void> clear(
-        JwtAuthenticationToken authentication
+        Principal principal
     ) {
-        service.clear(customerReference(authentication));
+        service.clear(customerReference(principal));
         return ResponseEntity.noContent().build();
     }
 
-    private String customerReference(
-        JwtAuthenticationToken authentication
-    ) {
-        if (authentication == null || !authentication.isAuthenticated()) {
+    private String customerReference(Principal principal) {
+        if (principal == null || principal.getName() == null || principal.getName().isBlank()) {
             throw new ResponseStatusException(
                 HttpStatus.UNAUTHORIZED,
                 "Authentication required"
             );
         }
 
-        String email = authentication.getToken()
-            .getClaimAsString("email");
-
-        if (email == null || email.isBlank()) {
-            throw new ResponseStatusException(
-                HttpStatus.UNAUTHORIZED,
-                "Authentication email missing"
-            );
+        if (principal instanceof JwtAuthenticationToken jwt && jwt.getToken() != null) {
+            String email = jwt.getToken().getClaimAsString("email");
+            if (email != null && !email.isBlank()) {
+                return email;
+            }
         }
 
-        return email;
+        return principal.getName();
     }
 }
