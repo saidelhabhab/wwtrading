@@ -256,3 +256,4 @@ server.listen(PORT, HOST, () => {
   console.log(`[WWTRADING-FRONTEND] Internal Keycloak: ${KEYCLOAK_TARGET}`);
   console.log(`[WWTRADING-FRONTEND] Proxy Enabled: ${ENABLE_PROXY}`);
 });
+

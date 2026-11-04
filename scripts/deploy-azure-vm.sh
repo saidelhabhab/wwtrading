@@ -88,5 +88,17 @@ for i in {1..12}; do
   sleep 5
 done
 
+# 6. Verify Product API via port 80 proxy
+echo "=== [WWTRADING-DEPLOY] Verifying API Gateway & Product Service route on port 80 ==="
+for i in {1..20}; do
+  HTTP_STATUS=$(curl -s -o /dev/null -w "%{http_code}" http://127.0.0.1:80/api/products || true)
+  if [ "${HTTP_STATUS}" = "200" ]; then
+    echo "Product API check PASSED (HTTP 200) via port 80 proxy."
+    break
+  fi
+  echo "Waiting for microservices to discover and initialize (status: ${HTTP_STATUS}, attempt $i/20)..."
+  sleep 5
+done
+
 echo "=== [WWTRADING-DEPLOY] Deployment completed successfully! ==="
 docker compose ps

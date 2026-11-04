@@ -99,6 +99,7 @@ jobs:
           host: ${{ secrets.AZURE_VM_HOST }}
           username: ${{ secrets.AZURE_VM_USER }}
           key: ${{ secrets.AZURE_VM_SSH_KEY }}
+          fingerprint: "SHA256:f6EiD3A1BO29C+IQoXI0LnFkx4Lzz5ZnovytaQs1J5g"
           script_stop: true
           script: |
             mkdir -p ~/wwtrading
