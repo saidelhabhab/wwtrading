@@ -108,12 +108,9 @@ jobs:
           script: |
             mkdir -p ~/wwtrading
             cd ~/wwtrading
-            if [ ! -d .git ]; then
-              git clone https://github.com/saidelhabhab/wwtrading.git .
-            else
-              git fetch origin
-              git checkout main
-              git reset --hard origin/main
-            fi
+            [ -d .git ] || git clone https://github.com/saidelhabhab/wwtrading.git .
+            git fetch origin
+            git checkout main
+            git reset --hard origin/main
             chmod +x scripts/deploy-azure-vm.sh
-            ./scripts/deploy-azure-vm.sh
+            bash scripts/deploy-azure-vm.sh
