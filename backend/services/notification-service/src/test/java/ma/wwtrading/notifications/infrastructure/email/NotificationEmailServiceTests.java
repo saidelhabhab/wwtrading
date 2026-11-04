@@ -149,6 +149,6 @@ class NotificationEmailServiceTests {
 
         assertThat(html).contains("Accéder à mon espace commande");
         assertThat(html).contains("http://localhost:4201/client/orders/56127e80-e5a4-4117-bf8b-af329d8adfb0");
-        assertThat(html).contains("Terminée");
+        assertThat(html).containsAnyOf("Terminée", "Termin&eacute;e");
     }
 }
