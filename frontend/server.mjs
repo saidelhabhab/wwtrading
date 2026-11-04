@@ -252,7 +252,13 @@ const server = http.createServer((req, res) => {
     if (req.url.startsWith('/api/')) {
       return proxyRequest(req, res, API_GATEWAY_TARGET);
     }
-    if (req.url.startsWith('/realms/') || req.url.startsWith('/resources/')) {
+    if (
+      req.url === '/admin' ||
+      req.url.startsWith('/admin/') ||
+      req.url.startsWith('/admin?') ||
+      req.url.startsWith('/realms/') ||
+      req.url.startsWith('/resources/')
+    ) {
       return proxyRequest(req, res, KEYCLOAK_TARGET);
     }
   }
