@@ -115,7 +115,7 @@ create_scope "account-dedicated"
 "$KCADM" update "realms/${KC_REALM}" -s 'defaultDefaultClientScopes=["profile","email","roles","web-origins","account-dedicated","wwtrading-identity","wwtrading-api-audience","offline_access"]'
 
 # Ensure email verified mapper exists on wwtrading-identity client scope
-IDENTITY_SCOPE_ID=$("$KCADM" get client-scopes -r "$KC_REALM" 2>/dev/null | grep -B 2 '"name" : "wwtrading-identity"' | grep '"id"' | head -1 | awk -F'"' '{print $4}' || true)
+IDENTITY_SCOPE_ID=$("$KCADM" get client-scopes -r "$KC_REALM" 2>/dev/null | grep -B 2 '"name" : "wwtrading-identity"' | grep '"id"' | head -1 | cut -d'"' -f4 || true)
 if [[ -n "$IDENTITY_SCOPE_ID" ]]; then
   if ! "$KCADM" get "client-scopes/${IDENTITY_SCOPE_ID}/protocol-mappers/models" -r "$KC_REALM" 2>/dev/null | grep -q '"name" : "email verified"'; then
     "$KCADM" create "client-scopes/${IDENTITY_SCOPE_ID}/protocol-mappers/models" -r "$KC_REALM" -f - <<JSON || true
@@ -137,6 +137,14 @@ if [[ -n "$IDENTITY_SCOPE_ID" ]]; then
 }
 JSON
   fi
+fi
+
+# Ensure wwtrading-web client redirect URIs and web origins include production and Cloudflare tunnel
+WEB_CLIENT_ID=$("$KCADM" get clients -r "$KC_REALM" -q clientId=wwtrading-web 2>/dev/null | grep '"id"' | head -1 | cut -d'"' -f4 || true)
+if [[ -n "$WEB_CLIENT_ID" ]]; then
+  "$KCADM" update "clients/${WEB_CLIENT_ID}" -r "$KC_REALM" \
+    -s 'redirectUris=["http://localhost:4201/*","http://74.248.151.43/*","https://indexed-arizona-sun-treated.trycloudflare.com/*"]' \
+    -s 'webOrigins=["http://localhost:4201","http://74.248.151.43","https://indexed-arizona-sun-treated.trycloudflare.com","+"]'
 fi
 
 

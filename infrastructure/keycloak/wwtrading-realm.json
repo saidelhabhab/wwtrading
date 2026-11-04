@@ -1,6 +1,7 @@
 {
   "realm": "wwtrading",
   "enabled": true,
+  "sslRequired": "external",
   "displayName": "WWTRADING",
   "loginTheme": "wwtrading",
   "accountTheme": "wwtrading",
@@ -98,11 +99,14 @@
       "directAccessGrantsEnabled": true,
       "redirectUris": [
         "http://localhost:4201/*",
-        "http://74.248.151.43/*"
+        "http://74.248.151.43/*",
+        "https://indexed-arizona-sun-treated.trycloudflare.com/*"
       ],
       "webOrigins": [
         "http://localhost:4201",
-        "http://74.248.151.43"
+        "http://74.248.151.43",
+        "https://indexed-arizona-sun-treated.trycloudflare.com",
+        "+"
       ],
       "attributes": { "pkce.code.challenge.method": "S256" },
       "defaultClientScopes": ["wwtrading-identity", "wwtrading-api-audience"]

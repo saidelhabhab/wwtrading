@@ -84,18 +84,33 @@ function proxyRequest(req, res, targetUrlStr) {
   const target = new URL(targetUrlStr);
   const isHttps = target.protocol === 'https:';
 
-  const clientIp = req.headers['x-forwarded-for']
-    ? `${req.headers['x-forwarded-for']}, ${req.socket.remoteAddress}`
-    : req.socket.remoteAddress;
+  // Validate external protocol: trust Cloudflare edge headers or standard forwarded proto
+  const isExternalHttps = Boolean(
+    req.headers['cf-ray'] ||
+    req.headers['cf-visitor']?.includes('https') ||
+    req.headers['x-forwarded-proto'] === 'https' ||
+    req.socket.encrypted
+  );
+  const extProto = isExternalHttps ? 'https' : (req.headers['x-forwarded-proto'] || 'http');
+
+  // Extract clean host and port from incoming request
+  const rawHost = req.headers['x-forwarded-host'] || req.headers.host || '';
+  const [extHost, explicitPort] = rawHost.split(':');
+  const extPort = explicitPort || (extProto === 'https' ? '443' : '80');
+
+  const clientIp = req.headers['cf-connecting-ip'] ||
+    (req.headers['x-forwarded-for']
+      ? `${req.headers['x-forwarded-for']}, ${req.socket.remoteAddress}`
+      : req.socket.remoteAddress);
 
   const headers = {
     ...req.headers,
     host: target.host,
-    'x-real-ip': req.socket.remoteAddress,
+    'x-real-ip': req.headers['cf-connecting-ip'] || req.socket.remoteAddress,
     'x-forwarded-for': clientIp,
-    'x-forwarded-proto': req.headers['x-forwarded-proto'] || 'http',
-    'x-forwarded-host': req.headers.host || '',
-    'x-forwarded-port': String(PORT)
+    'x-forwarded-proto': extProto,
+    'x-forwarded-host': extHost || target.hostname,
+    'x-forwarded-port': String(extPort)
   };
 
   const options = {
@@ -192,6 +207,43 @@ const server = http.createServer((req, res) => {
   if (req.url === '/healthz' || req.url === '/health') {
     res.writeHead(200, { 'Content-Type': 'text/plain; charset=utf-8' });
     res.end('healthy\n');
+    return;
+  }
+
+  // Dynamic runtime-config.json to adapt to current origin (Cloudflare tunnel, public IP, localhost)
+  if (req.url === '/config/runtime-config.json' || req.url?.startsWith('/config/runtime-config.json?')) {
+    const isExternalHttps = Boolean(
+      req.headers['cf-ray'] ||
+      req.headers['cf-visitor']?.includes('https') ||
+      req.headers['x-forwarded-proto'] === 'https' ||
+      req.socket.encrypted
+    );
+    const extProto = isExternalHttps ? 'https' : (req.headers['x-forwarded-proto'] || 'http');
+    const rawHost = req.headers['x-forwarded-host'] || req.headers.host || '74.248.151.43';
+    const currentOrigin = `${extProto}://${rawHost}`;
+
+    const dynamicConfig = {
+      apiBaseUrl: process.env.API_BASE_URL !== undefined
+        ? process.env.API_BASE_URL
+        : (process.env.FRONTEND_API_BASE_URL || ''),
+      siteUrl: isExternalHttps ? currentOrigin : (process.env.SITE_URL || currentOrigin),
+      trackingBaseUrl: isExternalHttps ? currentOrigin : (process.env.TRACKING_BASE_URL || process.env.SITE_URL || currentOrigin),
+      googleSiteVerification: process.env.GOOGLE_SITE_VERIFICATION || '',
+      googleAnalyticsMeasurementId: process.env.GOOGLE_ANALYTICS_MEASUREMENT_ID || '',
+      keycloak: {
+        url: isExternalHttps ? currentOrigin : (process.env.KEYCLOAK_PUBLIC_URL || currentOrigin),
+        realm: process.env.KEYCLOAK_REALM || 'wwtrading',
+        clientId: process.env.KEYCLOAK_CLIENT_ID || 'wwtrading-web'
+      }
+    };
+
+    res.writeHead(200, {
+      'Content-Type': 'application/json; charset=utf-8',
+      'Cache-Control': 'no-store, no-cache, must-revalidate, max-age=0',
+      'X-Content-Type-Options': 'nosniff',
+      'X-Frame-Options': 'SAMEORIGIN'
+    });
+    res.end(JSON.stringify(dynamicConfig, null, 2));
     return;
   }
 
